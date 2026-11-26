@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ru" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -1136,11 +1136,25 @@
         function normalizeContacts(rows) {
             if (!Array.isArray(rows) || rows.length === 0) return [];
             return rows
-                .map(r => ({
-                    type: getField(r, ['тип', 'название', 'канал', 'type', 'name']),
-                    value: getField(r, ['значение', 'ссылка', 'контакт', 'value', 'link'])
-                }))
-                .filter(c => c.type && c.value);
+                .map(r => {
+                    const keys = Object.keys(r || {});
+                    let type = getField(r, ['тип', 'название', 'канал', 'type', 'name']);
+                    let value = getField(r, ['значение', 'ссылка', 'контакт', 'value', 'link']);
+
+                    // Фоллбэк на случай пустых/сдвинутых заголовков в листе «Контакты»
+                    if (!type && keys.length > 0) {
+                        type = String(r[keys[0]] || '').trim();
+                    }
+                    if (!value && keys.length > 1) {
+                        value = String(r[keys[1]] || '').trim();
+                    }
+                    if (!value && keys.length > 2) {
+                        value = String(r[keys[2]] || '').trim();
+                    }
+
+                    return { type, value };
+                })
+                .filter(c => c.type && c.value && c.type.toLowerCase() !== 'тип' && c.value.toLowerCase() !== 'значение');
         }
 
         function setSyncStatus(mode, text) {
