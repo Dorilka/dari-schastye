@@ -699,9 +699,10 @@
                     <span id="cartTotalPrice" class="font-serif text-2xl font-bold text-wood-800">0 ₽</span>
                 </div>
                 <button 
+                    id="submitOrderBtn"
                     type="submit" 
                     form="checkoutForm"
-                    class="w-full py-3.5 px-4 rounded-2xl bg-sage-500 hover:bg-sage-600 text-cream-50 font-semibold text-sm shadow-wood transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    class="w-full py-3.5 px-4 rounded-2xl bg-sage-500 hover:bg-sage-600 disabled:opacity-70 disabled:cursor-not-allowed text-cream-50 font-semibold text-sm shadow-wood transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <span>Оформить заказ</span>
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -715,141 +716,21 @@
 
     <!-- СКРИПТЫ ЛОГИКИ МАСТЕРСКОЙ -->
     <script>
-        // 0. НАСТРОЙКИ GOOGLE ТАБЛИЦЫ И LOCALSTORAGE
+        // 0. НАСТРОЙКИ GOOGLE ТАБЛИЦЫ, ВЕБ-ХУКА ЗАКАЗОВ И LOCALSTORAGE
         const GOOGLE_SHEET_ID = '1_FJbgq_Daepd5v4-voxwTwD0RNWdyndMdRuX5vft7lE';
+        const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzhJvx8GpHO0PB0pyWeQkaEHIjfZMOOnxhGAQ1z-kCc_FVOM5Am2OxHfKxm0wiwzNtm/exec';
         const STORAGE_KEYS = {
-            CART: 'dari_schastye_cart_v1',
-            CUSTOMER: 'dari_schastye_customer_v1',
-            LOCAL_REVIEWS: 'dari_schastye_local_reviews_v1'
+            CART: 'dari_schastye_cart',
+            CUSTOMER: 'dari_schastye_customer',
+            LOCAL_REVIEWS: 'dari_schastye_local_reviews'
         };
 
         // 1. РЕЗЕРВНЫЕ ДЕМО-ТОВАРЫ (ПОКАЗЫВАЮТСЯ, ЕСЛИ ЛИСТ «ТОВАРЫ» ПУСТ ИЛИ ПОКА ИДЕТ ЗАГРУЗКА)
-        const fallbackProducts = [
-            {
-                id: 'demo-1',
-                name: "Панно макраме «Нежность» с бусинами",
-                category: "Макраме и панно",
-                description: "Настенное панно из неотбеленного хлопкового шнура на шлифованной ветке с буковыми бусинами и пышными кистями.",
-                price: 3800,
-                photo: "",
-                badge: "Хит мастерской",
-                bgClass: "from-cream-200 via-cream-100 to-roseblush-100/60"
-            },
-            {
-                id: 'demo-2',
-                name: "Композиция «Прованс» с розами и эвкалиптом",
-                category: "Флористика и букеты",
-                description: "Интерьерный букет из стабилизированных пионовидных роз, ароматной лаванды и веточек серебристого эвкалипта.",
-                price: 2950,
-                photo: "",
-                badge: "Аромат лаванды",
-                bgClass: "from-sage-100 via-cream-100 to-lavender-100"
-            },
-            {
-                id: 'demo-3',
-                name: "Подарочный бокс «Дари счастье»",
-                category: "Подарочные наборы",
-                description: "Деревянная шкатулка с мини-панно макраме, свечой из вощины, букетиком сухоцветов и каллиграфической открыткой.",
-                price: 3400,
-                photo: "",
-                badge: "Готовый подарок",
-                bgClass: "from-roseblush-100 via-cream-100 to-cream-200"
-            },
-            {
-                id: 'demo-4',
-                name: "Подвес для кашпо в стиле бохо",
-                category: "Декор для дома",
-                description: "Плетеный держатель для комнатных растений с деревянным кольцом и декоративными узлами. Длина 95 см.",
-                price: 1650,
-                photo: "",
-                badge: null,
-                bgClass: "from-sage-100/80 via-cream-100 to-cream-200"
-            }
-        ];
-
-        // Декоративные SVG-иллюстрации на случай, если у товара не указано фото
-        const decorativeSvgs = [
-            `<svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                <line x1="18" y1="22" x2="102" y2="22" stroke="#6E4E37" stroke-width="4.5" stroke-linecap="round"/>
-                <path d="M28 22C28 42 60 48 60 72C60 48 92 42 92 22" stroke="#D4BC9E" stroke-width="3" fill="#FAF5EE"/>
-                <path d="M36 22L60 52L84 22" stroke="#8B6548" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M46 22L60 38L74 22" stroke="#6A846B" stroke-width="1.8"/>
-                <circle cx="34" cy="48" r="3.5" fill="#C49A6C"/><circle cx="86" cy="48" r="3.5" fill="#C49A6C"/>
-                <path d="M34 60V88M60 72V102M86 60V88" stroke="#D4BC9E" stroke-width="2.3" stroke-linecap="round"/>
-                <circle cx="24" cy="24" r="6" fill="#E3A5B0"/>
-            </svg>`,
-            `<svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                <path d="M45 78H75L70 104H50L45 78Z" fill="#E6D5C1" stroke="#8B6548" stroke-width="2"/>
-                <path d="M55 78C48 58 36 42 28 28M65 78C72 56 84 40 92 26" stroke="#4E6650" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="52" cy="52" r="12" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                <circle cx="70" cy="56" r="10" fill="#FAF5EE" stroke="#D4BC9E" stroke-width="1.5"/>
-                <circle cx="60" cy="36" r="9" fill="#C97A88"/>
-            </svg>`,
-            `<svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                <rect x="24" y="48" width="72" height="48" rx="8" fill="#F3E9DC" stroke="#8B6548" stroke-width="2.2"/>
-                <rect x="20" y="38" width="80" height="14" rx="5" fill="#E6D5C1" stroke="#6E4E37" stroke-width="2.2"/>
-                <line x1="60" y1="38" x2="60" y2="96" stroke="#C97A88" stroke-width="4"/>
-                <path d="M60 38C48 24 38 30 48 38C38 44 48 50 60 38Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                <path d="M60 38C72 24 82 30 72 38C82 44 72 50 60 38Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-            </svg>`
-        ];
-
-        const fallbackReviews = [
-            {
-                author: "Марина Соколова",
-                item: "Панно макраме «Нежность»",
-                date: "14 ноября 2026",
-                rating: 5,
-                text: "Заказывала панно в спальню над кроватью. Оно невероятно мягкое, пахнет натуральным хлопком и деревом! Упаковано было как настоящий подарок, даже положили веточку лаванды и теплую открытку."
-            },
-            {
-                author: "Елена и Дмитрий",
-                item: "Композиция «Прованс»",
-                date: "2 ноября 2026",
-                rating: 5,
-                text: "Брали букет с эвкалиптом и розами в подарок маме на юбилей. Мама в полном восторге — цветы выглядят как живые, а аромат лаванды стоит на всю комнату."
-            },
-            {
-                author: "Ольга Верещагина",
-                item: "Подарочный бокс «Дари счастье»",
-                date: "25 октября 2026",
-                rating: 5,
-                text: "Название мастерской говорит само за себя! Открываешь коробочку — и сразу ощущение праздника и домашнего тепла. Все выполнено аккуратно, до каждого узелка."
-            }
-        ];
-
-        const fallbackContacts = [
-            { type: "Telegram", value: "https://t.me/" },
-            { type: "VK", value: "https://vk.com/" }
-        ];
-
-        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ
-        let products = [...fallbackProducts];
-        let sheetReviews = [...fallbackReviews];
-        let localReviews = [];
-        let contacts = [...fallbackContacts];
-        let cart = [];
-        let currentCategory = "Все";
-        let searchQuery = "";
-        let lastGeneratedOrderText = "";
-
-        const formatPrice = (price) => Number(price || 0).toLocaleString('ru-RU') + ' ₽';
-
-        // Умное преобразование ссылок на фото (поддержка прямых URL и ссылок Google Диска)
-        function resolvePhotoUrl(rawUrl) {
-            if (!rawUrl || typeof rawUrl !== 'string') return { primary: '', backup: '' };
-            const url = rawUrl.trim();
-            if (!url) return { primary: '', backup: '' };
-
-            // Распознаем ссылки Google Drive вида /file/d/FILE_ID/view или ?id=FILE_ID
-            const driveFileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-            const driveIdParamMatch = url.match(/drive\.google\.com\/(?:open|uc)\?.*id=([a-zA-Z0-9_-]+)/);
-            const fileId = (driveFileMatch && driveFileMatch[1]) || (driveIdParamMatch && driveIdParamMatch[1]);
-
+// ... existing code ... -->
             if (fileId) {
                 return {
-                    primary: `https://lh3.googleusercontent.com/d/${fileId}`,
-                    backup: `https://drive.google.com/uc?export=view&id=${fileId}`
+                    primary: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+                    backup: `https://lh3.googleusercontent.com/d/${fileId}`
                 };
             }
 
@@ -857,659 +738,65 @@
         }
 
         // Обработчик ошибки загрузки картинки (переключает на резервную ссылку Google Drive, затем на SVG)
-        function handleImageError(imgEl, backupUrl) {
-            if (backupUrl && imgEl.dataset.triedBackup !== 'true') {
-                imgEl.dataset.triedBackup = 'true';
-                imgEl.src = backupUrl;
-                return;
-            }
-            imgEl.classList.add('hidden');
-            const fallbackBox = imgEl.nextElementSibling;
-            if (fallbackBox) fallbackBox.classList.remove('hidden');
-        }
-
-        // 3. ЗАГРУЗКА И ПАРСИНГ GOOGLE ТАБЛИЦЫ (GVIZ JSON API)
-        function parseGvizResponse(rawText) {
-            const startIdx = rawText.indexOf('{');
-            const endIdx = rawText.lastIndexOf('}');
-            if (startIdx === -1 || endIdx === -1) throw new Error('Некорректный формат ответа Google Таблицы');
-            const json = JSON.parse(rawText.substring(startIdx, endIdx + 1));
-            const table = json.table;
-            if (!table || !table.rows) return [];
-
-            // Проверяем, распознал ли Google заголовки столбцов в table.cols
-            let headers = (table.cols || []).map(c => (c.label || '').trim().toLowerCase());
-            let dataRows = table.rows;
-
-            const hasLabels = headers.some(h => h.length > 0);
-            if (!hasLabels && dataRows.length > 0) {
-                // Берем первую строку как шапку колонок
-                headers = (dataRows[0].c || []).map(cell => (cell && cell.v != null ? String(cell.v) : '').trim().toLowerCase());
-                dataRows = dataRows.slice(1);
-            }
-
-            return dataRows.map(row => {
-                const obj = {};
-                const cells = row.c || [];
-                headers.forEach((header, idx) => {
-                    if (!header) return;
-                    const cell = cells[idx];
-                    obj[header] = cell && cell.v !== null && cell.v !== undefined ? cell.v : '';
-                });
-                return obj;
-            });
-        }
-
-        async function fetchSheetTab(sheetName) {
-            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
-            const text = await response.text();
-            return parseGvizResponse(text);
-        }
-
-        async function loadFromGoogleSheets(manual = false) {
-            const statusEl = document.getElementById('sheetSyncStatus');
-            const refreshIcon = document.getElementById('refreshSheetIcon');
-            if (refreshIcon) refreshIcon.classList.add('animate-spin');
-
-            try {
-                const [rawProducts, rawReviews, rawContacts] = await Promise.allSettled([
-                    fetchSheetTab('Товары'),
-                    fetchSheetTab('Отзывы'),
-                    fetchSheetTab('Контакты')
-                ]);
-
-                let loadedAny = false;
-
-                // 1) Лист «Товары» (Название, Цена, Категория, Описание, Фото)
-                if (rawProducts.status === 'fulfilled') {
-                    const parsedProducts = rawProducts.value
-                        .filter(r => r['название'] && String(r['название']).trim() !== '')
-                        .map((r, index) => {
-                            const rawPrice = String(r['цена'] || '0').replace(/[^\d.,]/g, '').replace(',', '.');
-                            const bgList = [
-                                "from-cream-200 via-cream-100 to-roseblush-100/60",
-                                "from-sage-100 via-cream-100 to-lavender-100",
-                                "from-roseblush-100 via-cream-100 to-cream-200",
-                                "from-sage-100/80 via-cream-100 to-cream-200"
-                            ];
-                            return {
-                                id: `sheet-${index + 1}`,
-                                name: String(r['название']).trim(),
-                                price: Math.round(parseFloat(rawPrice)) || 0,
-                                category: String(r['категория'] || 'Изделия мастерской').trim(),
-                                description: String(r['описание'] || 'Изделие ручной работы из натуральных материалов.').trim(),
-                                photo: String(r['фото'] || '').trim(),
-                                badge: r['метка'] ? String(r['метка']).trim() : null,
-                                bgClass: bgList[index % bgList.length],
-                                fallbackSvgIndex: index % decorativeSvgs.length
-                            };
-                        });
-
-                    if (parsedProducts.length > 0) {
-                        products = parsedProducts;
-                        loadedAny = true;
-                    }
-                }
-
-                // 2) Лист «Отзывы» (Имя, Дата, Оценка, Текст)
-                if (rawReviews.status === 'fulfilled') {
-                    const parsedReviews = rawReviews.value
-                        .filter(r => (r['имя'] || r['текст']) && String(r['текст'] || '').trim() !== '')
-                        .map(r => ({
-                            author: String(r['имя'] || 'Покупатель мастерской').trim(),
-                            date: String(r['дата'] || 'Недавно').trim(),
-                            rating: Math.min(5, Math.max(1, parseInt(r['оценка'], 10) || 5)),
-                            text: String(r['текст']).trim(),
-                            item: r['изделие'] ? String(r['изделие']).trim() : ''
-                        }));
-
-                    if (parsedReviews.length > 0) {
-                        sheetReviews = parsedReviews;
-                        loadedAny = true;
-                    }
-                }
-
-                // 3) Лист «Контакты» (Тип, Значение)
-                if (rawContacts.status === 'fulfilled') {
-                    const parsedContacts = rawContacts.value
-                        .filter(r => r['тип'] && r['значение'])
-                        .map(r => ({
-                            type: String(r['тип']).trim(),
-                            value: String(r['значение']).trim()
-                        }));
-
-                    if (parsedContacts.length > 0) {
-                        contacts = parsedContacts;
-                        loadedAny = true;
-                    }
-                }
-
-                // Синхронизируем цены/данные товаров в уже сохраненной корзине
-                syncCartWithLoadedProducts();
-                renderCategoryButtons();
-                renderProducts();
-                renderReviews();
-                renderContacts();
-
-                if (statusEl) {
-                    statusEl.innerHTML = loadedAny
-                        ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Витрина подключена к Google Таблице`
-                        : `<span class="w-1.5 h-1.5 rounded-full bg-amber-300"></span> Таблица подключена (пока показаны демо-карточки)`;
-                }
-
-                if (manual) {
-                    showToast('Данные из Google Таблицы обновлены!');
-                }
-            } catch (err) {
-                console.warn('Не удалось загрузить данные из Google Таблицы:', err);
-                if (statusEl) {
-                    statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-roseblush-400"></span> Автономный режим витрины`;
-                }
-                if (manual) {
-                    showToast('Не удалось подключиться к таблице. Проверьте общий доступ по ссылке.');
-                }
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove('animate-spin');
-            }
-        }
-
-        // 4. РАБОТА С LOCALSTORAGE (КОРЗИНА, ДАННЫЕ ПОКУПАТЕЛЯ, ЛОКАЛЬНЫЕ ОТЗЫВЫ)
-        function loadSavedState() {
-            try {
-                const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
-                if (savedCart) {
-                    const parsed = JSON.parse(savedCart);
-                    if (Array.isArray(parsed)) cart = parsed;
-                }
-
-                const savedCustomer = localStorage.getItem(STORAGE_KEYS.CUSTOMER);
-                if (savedCustomer) {
-                    const customer = JSON.parse(savedCustomer);
-                    if (customer.name) document.getElementById('customerName').value = customer.name;
-                    if (customer.contact) document.getElementById('customerContact').value = customer.contact;
-                    if (customer.comment) document.getElementById('customerComment').value = customer.comment;
-                    if (customer.deliveryType) {
-                        const radio = document.querySelector(`input[name="deliveryType"][value="${customer.deliveryType}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                }
-
-                const savedReviews = localStorage.getItem(STORAGE_KEYS.LOCAL_REVIEWS);
-                if (savedReviews) {
-                    const parsedRev = JSON.parse(savedReviews);
-                    if (Array.isArray(parsedRev)) localReviews = parsedRev;
-                }
-            } catch (e) {
-                console.warn('Ошибка чтения localStorage:', e);
-            }
-        }
-
-        function saveCartToStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-            } catch (e) {
-                console.warn('Ошибка сохранения корзины:', e);
-            }
-        }
-
-        function saveCustomerForm() {
-            try {
-                const deliveryEl = document.querySelector('input[name="deliveryType"]:checked');
-                const data = {
-                    name: document.getElementById('customerName').value,
-                    contact: document.getElementById('customerContact').value,
-                    comment: document.getElementById('customerComment').value,
-                    deliveryType: deliveryEl ? deliveryEl.value : 'Доставка (СДЭК / Почта)'
-                };
-                localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(data));
-            } catch (e) {
-                console.warn('Ошибка сохранения формы:', e);
-            }
-        }
-
-        function syncCartWithLoadedProducts() {
-            if (cart.length === 0) return;
-            cart = cart.map(item => {
-                const fresh = products.find(p => p.id === item.product.id || p.name === item.product.name);
-                return fresh ? { product: fresh, quantity: item.quantity } : item;
-            });
-            saveCartToStorage();
-            updateCartUI();
-        }
-
-        // 5. ДИНАМИЧЕСКИЕ КАТЕГОРИИ И РЕНДЕР КАТАЛОГА
-        function renderCategoryButtons() {
-            const container = document.getElementById('categoryFilters');
-            const uniqueCategories = ['Все', ...new Set(products.map(p => p.category).filter(Boolean))];
-            if (!uniqueCategories.includes(currentCategory)) currentCategory = 'Все';
-
-            container.innerHTML = uniqueCategories.map(cat => {
-                const isActive = cat === currentCategory;
-                const activeClasses = isActive
-                    ? 'bg-wood-700 text-cream-50 shadow-wood-sm'
-                    : 'bg-cream-50 text-wood-700 hover:bg-cream-200 border border-cream-300';
-                const label = cat === 'Все' ? 'Все изделия' : cat;
-                return `
-                    <button 
-                        onclick="selectCategory('${cat.replace(/'/g, "\\'")}')" 
-                        class="category-btn px-4 py-2.5 rounded-xl text-sm font-semibold ${activeClasses} transition-all whitespace-nowrap cursor-pointer"
-                    >
-                        ${label}
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function selectCategory(cat) {
-            currentCategory = cat;
-            renderCategoryButtons();
-            renderProducts();
-        }
-
-        function renderProductMediaHtml(product, isModal = false) {
-            const { primary, backup } = resolvePhotoUrl(product.photo);
-            const svgContent = decorativeSvgs[product.fallbackSvgIndex || 0];
-
-            if (primary) {
-                return `
-                    <img 
-                        src="${primary}" 
-                        alt="${product.name.replace(/"/g, '&quot;')}" 
-                        loading="lazy"
-                        onerror="handleImageError(this, '${backup}')"
-                        class="w-full h-full object-cover ${isModal ? '' : 'group-hover:scale-105 transition-transform duration-500'}"
-                    >
-                    <div class="hidden w-full h-full flex items-center justify-center p-5">
-                        ${svgContent}
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="w-full h-full flex items-center justify-center p-5 ${isModal ? '' : 'group-hover:scale-105 transition-transform duration-300'} drop-shadow-sm">
-                    ${svgContent}
-                </div>
-            `;
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            const emptyState = document.getElementById('emptySearchState');
-            const countText = document.getElementById('productsCountText');
-
-            const filtered = products.filter(item => {
-                const matchesCategory = currentCategory === "Все" || item.category === currentCategory;
-                const query = searchQuery.toLowerCase().trim();
-                const matchesSearch = item.name.toLowerCase().includes(query) || 
-                                      item.description.toLowerCase().includes(query) ||
-                                      item.category.toLowerCase().includes(query);
-                return matchesCategory && matchesSearch;
-            });
-
-            countText.textContent = `Найдено изделий: ${filtered.length}`;
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                grid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                lucide.createIcons();
-                return;
-            }
-
-            grid.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-
-            grid.innerHTML = filtered.map(product => `
-                <article class="bg-cream-50 border border-cream-300 hover:border-sage-500/70 rounded-3xl overflow-hidden flex flex-col shadow-wood-sm hover:shadow-wood transition-all duration-300 hover:-translate-y-1 group">
-                    
-                    <!-- Фотография или иллюстрация изделия (клик открывает крупный просмотр) -->
-                    <div 
-                        onclick="openProductModal('${String(product.id).replace(/'/g, "\\'")}')"
-                        class="relative h-56 bg-gradient-to-br ${product.bgClass} flex items-center justify-center border-b border-cream-300/70 overflow-hidden cursor-pointer"
-                    >
-                        ${product.badge ? `
-                            <span class="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 rounded-xl bg-cream-50/90 backdrop-blur-xs border border-cream-300 text-[11px] font-bold text-wood-700 shadow-2xs">
-                                ${product.badge}
-                            </span>
-                        ` : ''}
-
-                        <span class="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 rounded-xl bg-cream-50/85 backdrop-blur-xs text-[11px] font-semibold text-wood-700">
-                            ${product.category}
-                        </span>
-
-                        ${renderProductMediaHtml(product, false)}
-
-                        <span class="absolute bottom-2.5 right-2.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-wood-800/75 text-cream-50 text-[11px] px-2.5 py-1 rounded-lg flex items-center gap-1">
-                            <i data-lucide="maximize-2" class="w-3 h-3"></i>
-                            <span>Подробнее</span>
-                        </span>
-                    </div>
-
-                    <!-- Описание и цена -->
-                    <div class="p-5 flex-1 flex flex-col">
-                        <h3 
-                            onclick="openProductModal('${String(product.id).replace(/'/g, "\\'")}')"
-                            class="font-serif text-xl font-bold text-wood-800 leading-snug mb-2 group-hover:text-sage-700 transition-colors cursor-pointer"
-                        >
-                            ${product.name}
-                        </h3>
-                        <p class="text-xs sm:text-sm text-wood-600 leading-relaxed mb-5 flex-1 line-clamp-3">
-                            ${product.description}
-                        </p>
-
-                        <div class="pt-4 border-t border-cream-200 flex items-center justify-between gap-3">
-                            <div>
-                                <span class="block text-[11px] text-wood-500">Стоимость</span>
-                                <span class="font-serif text-xl font-bold text-wood-800">${formatPrice(product.price)}</span>
-                            </div>
-                            <button 
-                                onclick="addToCart('${String(product.id).replace(/'/g, "\\'")}')" 
-                                class="inline-flex items-center gap-1.5 bg-sage-500 hover:bg-sage-600 active:scale-95 text-cream-50 text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all cursor-pointer"
-                            >
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                                <span>В корзину</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-            `).join('');
-
-            lucide.createIcons();
-        }
-
-        // Модальное окно просмотра товара
-        function openProductModal(productId) {
-            const product = products.find(p => String(p.id) === String(productId));
-            if (!product) return;
-
-            document.getElementById('modalProductMedia').innerHTML = renderProductMediaHtml(product, true);
-            document.getElementById('modalProductCategory').textContent = product.category;
-            document.getElementById('modalProductTitle').textContent = product.name;
-            document.getElementById('modalProductDesc').textContent = product.description;
-            document.getElementById('modalProductPrice').textContent = formatPrice(product.price);
-
-            const addBtn = document.getElementById('modalAddToCartBtn');
-            addBtn.onclick = () => {
-                addToCart(product.id);
-                closeProductModal();
-            };
-
-            document.getElementById('productModalOverlay').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            lucide.createIcons();
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModalOverlay').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        // 6. РЕНДЕР ОТЗЫВОВ И КОНТАКТОВ
-        function renderReviews() {
-            const grid = document.getElementById('reviewsGrid');
-            const allReviews = [...localReviews, ...sheetReviews];
-
-            grid.innerHTML = allReviews.map(rev => {
-                const starsCount = Math.min(5, Math.max(1, Number(rev.rating) || 5));
-                const starsHtml = Array.from({ length: starsCount })
-                    .map(() => `<i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>`)
-                    .join('');
-
-                return `
-                    <div class="bg-cream-50 border border-cream-300 rounded-3xl p-6 shadow-wood-sm flex flex-col justify-between relative">
-                        <div>
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <div class="flex items-center gap-1 text-amber-500">
-                                    ${starsHtml}
-                                </div>
-                                <span class="text-xs text-wood-500">${rev.date || ''}</span>
-                            </div>
-                            <p class="text-sm text-wood-700 leading-relaxed italic mb-4">
-                                «${rev.text}»
-                            </p>
-                        </div>
-                        <div class="pt-3 border-t border-cream-200 flex items-center justify-between">
-                            <div>
-                                <span class="font-serif text-lg font-bold text-wood-800 block leading-none">${rev.author}</span>
-                                ${rev.item ? `<span class="text-xs text-sage-600 font-semibold mt-1 block">${rev.item}</span>` : ''}
-                            </div>
-                            <span class="w-8 h-8 rounded-full bg-roseblush-100 text-roseblush-600 flex items-center justify-center">
-                                <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
-                            </span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function normalizeContactLink(type, value) {
-            const t = type.toLowerCase();
-            const v = value.trim();
-            if (v.startsWith('http://') || v.startsWith('https://') || v.startsWith('tel:') || v.startsWith('mailto:')) {
-                return v;
-            }
-            if (t.includes('telegram') || t.includes('тг') || v.startsWith('@')) {
-                return `https://t.me/${v.replace(/^@/, '')}`;
-            }
-            if (t.includes('vk') || t.includes('вк')) {
-                return `https://vk.com/${v.replace(/^@/, '')}`;
-            }
-            if (t.includes('whatsapp') || t.includes('ватсап')) {
-                const digits = v.replace(/\D/g, '');
-                return `https://wa.me/${digits}`;
-            }
-            if (t.includes('тел') || t.includes('phone') || /^[+\d\s()-]{7,}$/.test(v)) {
-                return `tel:${v.replace(/[^\d+]/g, '')}`;
-            }
-            return v;
-        }
-
-        function renderContacts() {
-            const container = document.getElementById('footerContactsList');
-            if (!container) return;
-
-            container.innerHTML = contacts.map(c => {
-                const href = normalizeContactLink(c.type, c.value);
-                const t = c.type.toLowerCase();
-                let icon = 'external-link';
-                if (t.includes('telegram') || t.includes('тг')) icon = 'send';
-                else if (t.includes('vk') || t.includes('вк')) icon = 'message-circle';
-                else if (t.includes('тел') || t.includes('phone') || t.includes('whatsapp')) icon = 'phone';
-
-                return `
-                    <a 
-                        href="${href}" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-wood-700 hover:bg-sage-600 text-cream-50 text-xs font-semibold transition-colors"
-                    >
-                        <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
-                        <span>${c.type}</span>
-                    </a>
-                `;
-            }).join('');
-
-            lucide.createIcons();
-        }
-
-        function toggleReviewForm() {
-            const form = document.getElementById('newReviewForm');
-            form.classList.toggle('hidden');
-            if (!form.classList.contains('hidden')) {
-                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-
-        function handleReviewSubmit(event) {
-            event.preventDefault();
-            const author = document.getElementById('reviewAuthor').value.trim();
-            const item = document.getElementById('reviewItem').value.trim();
-            const text = document.getElementById('reviewText').value.trim();
-
-            const newReview = {
-                author,
-                item: item || "Изделие мастерской",
-                date: new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }),
-                rating: 5,
-                text
-            };
-
-            localReviews.unshift(newReview);
-            try {
-                localStorage.setItem(STORAGE_KEYS.LOCAL_REVIEWS, JSON.stringify(localReviews));
-            } catch (e) {}
-
-            renderReviews();
-            document.getElementById('newReviewForm').reset();
-            document.getElementById('newReviewForm').classList.add('hidden');
-            showToast("Спасибо! Ваш теплый отзыв сохранен.");
-        }
-
-        // 7. ЛОГИКА КОРЗИНЫ (С ПОЛНЫМ СОХРАНЕНИЕМ В LOCALSTORAGE)
-        function addToCart(productId) {
-            const product = products.find(p => String(p.id) === String(productId));
-            if (!product) return;
-
-            const existingItem = cart.find(item => String(item.product.id) === String(productId));
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ product, quantity: 1 });
-            }
-
-            saveCartToStorage();
-            document.getElementById('orderSuccessState').classList.add('hidden');
-            updateCartUI();
-            showToast(`«${product.name}» добавлено в корзину`);
-        }
-
-        function changeQuantity(productId, delta) {
-            const index = cart.findIndex(item => String(item.product.id) === String(productId));
-            if (index === -1) return;
-
-            cart[index].quantity += delta;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            saveCartToStorage();
-            updateCartUI();
-        }
-
-        function removeFromCart(productId) {
-            cart = cart.filter(item => String(item.product.id) !== String(productId));
-            saveCartToStorage();
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const badge = document.getElementById('cartBadge');
-            const emptyMsg = document.getElementById('emptyCartMessage');
-            const itemsList = document.getElementById('cartItemsList');
-            const checkoutForm = document.getElementById('checkoutForm');
-            const cartFooter = document.getElementById('cartFooter');
-            const totalPriceEl = document.getElementById('cartTotalPrice');
-
-            saveCustomerForm();
-
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            badge.textContent = totalItems;
-
-            badge.classList.add('scale-125');
-            setTimeout(() => badge.classList.remove('scale-125'), 200);
-
-            if (cart.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                itemsList.classList.add('hidden');
-                checkoutForm.classList.add('hidden');
-                cartFooter.classList.add('hidden');
-                return;
-            }
-
-            emptyMsg.classList.add('hidden');
-            itemsList.classList.remove('hidden');
-            checkoutForm.classList.remove('hidden');
-            cartFooter.classList.remove('hidden');
-
-            itemsList.innerHTML = cart.map(({ product, quantity }) => {
-                const { primary, backup } = resolvePhotoUrl(product.photo);
-                const thumbHtml = primary
-                    ? `<img src="${primary}" alt="" onerror="handleImageError(this, '${backup}')" class="w-full h-full object-cover"><div class="hidden scale-[0.42] origin-center">${decorativeSvgs[product.fallbackSvgIndex || 0]}</div>`
-                    : `<div class="scale-[0.42] origin-center">${decorativeSvgs[product.fallbackSvgIndex || 0]}</div>`;
-
-                return `
-                    <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-cream-50 border border-cream-300 shadow-2xs">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${product.bgClass || 'from-cream-200 to-cream-100'} flex items-center justify-center shrink-0 border border-cream-300/60 overflow-hidden">
-                            ${thumbHtml}
-                        </div>
-                        
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-serif text-base font-bold text-wood-800 truncate">${product.name}</h4>
-                            <p class="text-xs text-sage-700 font-bold mt-0.5">${formatPrice(product.price * quantity)}</p>
-                        </div>
-
-                        <div class="flex items-center gap-1 bg-cream-100 border border-cream-300 rounded-xl p-1">
-                            <button 
-                                onclick="changeQuantity('${String(product.id).replace(/'/g, "\\'")}', -1)" 
-                                class="w-7 h-7 rounded-lg hover:bg-cream-200 text-wood-700 flex items-center justify-center transition-colors cursor-pointer"
-                                aria-label="Уменьшить"
-                            >
-                                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <span class="text-xs font-bold text-wood-800 w-5 text-center">${quantity}</span>
-                            <button 
-                                onclick="changeQuantity('${String(product.id).replace(/'/g, "\\'")}', 1)" 
-                                class="w-7 h-7 rounded-lg hover:bg-cream-200 text-wood-700 flex items-center justify-center transition-colors cursor-pointer"
-                                aria-label="Увеличить"
-                            >
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-
-                        <button 
-                            onclick="removeFromCart('${String(product.id).replace(/'/g, "\\'")}')" 
-                            class="p-1.5 text-wood-500 hover:text-roseblush-600 transition-colors cursor-pointer"
-                            title="Убрать из корзины"
-                        >
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            const totalSum = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-            totalPriceEl.textContent = formatPrice(totalSum);
-
-            lucide.createIcons();
-        }
-
-        function toggleCart(open) {
-            const drawer = document.getElementById('cartDrawerOverlay');
-            if (open) {
-                drawer.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                drawer.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-        }
-
-        // 8. ОФОРМЛЕНИЕ ЗАКАЗА И ОТПРАВКА В МЕССЕНДЖЕР ИЗ КОНТАКТОВ
-        function handleOrderSubmit(event) {
+// ... existing code ... -->
+        // 8. ОФОРМЛЕНИЕ ЗАКАЗА И ОТПРАВКА В GOOGLE ТАБЛИЦУ («ЗАКАЗЫ»)
+        async function handleOrderSubmit(event) {
             event.preventDefault();
             
+            const submitBtn = document.getElementById('submitOrderBtn');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
             const name = document.getElementById('customerName').value.trim();
-            const contact = document.getElementById('customerContact').value.trim();
+            const phone = document.getElementById('customerContact').value.trim();
             const comment = document.getElementById('customerComment').value.trim();
             const delivery = document.querySelector('input[name="deliveryType"]:checked').value;
             const totalSum = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
             const orderNumber = Math.floor(100 + Math.random() * 900);
 
+            const itemsForSheet = cart.map(item => 
+                `${item.product.name} x${item.quantity} (${formatPrice(item.product.price * item.quantity)})`
+            ).join(', ');
+
             const itemsLines = cart.map((item, idx) => 
                 `${idx + 1}. ${item.product.name} — ${item.quantity} шт. (${formatPrice(item.product.price * item.quantity)})`
             ).join('\n');
+
+            // Включаем индикатор загрузки на кнопке оформления
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="w-4 h-4 animate-spin text-cream-50" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span>Отправляем заказ...</span>
+                `;
+            }
+
+            try {
+                await fetch(ORDER_WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        phone: phone,
+                        delivery: delivery,
+                        items: itemsForSheet,
+                        total: totalSum,
+                        comment: comment
+                    })
+                });
+            } catch (err) {
+                console.warn('Ошибка отправки заказа в Google Таблицу:', err);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }
 
             lastGeneratedOrderText = [
                 `🌿 Заказ #${orderNumber} — Мастерская «Дари счастье»`,
@@ -1518,11 +805,11 @@
                 ``,
                 `Итого: ${formatPrice(totalSum)}`,
                 `Получение: ${delivery}`,
-                `Покупатель: ${name} (${contact})`,
+                `Покупатель: ${name} (${phone})`,
                 comment ? `Пожелания: ${comment}` : ''
             ].filter(Boolean).join('\n');
 
-            // Очищаем корзину после оформления, но сохраняем имя/телефон клиента в localStorage для удобства
+            // Очищаем корзину после оформления, но сохраняем данные покупателя в localStorage
             cart = [];
             saveCartToStorage();
             document.getElementById('cartBadge').textContent = '0';
@@ -1532,7 +819,7 @@
 
             document.getElementById('orderSuccessDetails').innerHTML = `
                 Спасибо, <span class="font-bold text-wood-900">${name}</span>! 
-                Скопируйте заявку или отправьте её мастеру в один клик ниже:
+                Заявка сохранена в журнале мастерской. При желании продублируйте её в мессенджер:
             `;
             document.getElementById('orderSummaryText').textContent = lastGeneratedOrderText;
 
@@ -1570,93 +857,8 @@
             document.getElementById('orderSuccessState').classList.remove('hidden');
 
             lucide.createIcons();
-            showToast(`Заказ #${orderNumber} сформирован!`);
+            showToast(`Заказ #${orderNumber} отправлен в мастерскую!`);
         }
 
         function copyLastOrderText(silent = false) {
-            if (!lastGeneratedOrderText) return;
-            const textarea = document.createElement('textarea');
-            textarea.value = lastGeneratedOrderText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                if (!silent) showToast('Текст заказа скопирован в буфер обмена!');
-            } catch (e) {
-                console.warn('Не удалось скопировать текст:', e);
-            }
-            document.body.removeChild(textarea);
-        }
-
-        function resetAfterOrder() {
-            document.getElementById('orderSuccessState').classList.add('hidden');
-            updateCartUI();
-            toggleCart(false);
-        }
-
-        // 9. ПОИСК И ИНИЦИАЛИЗАЦИЯ
-        const searchDesktop = document.getElementById('searchInputDesktop');
-        const searchMobile = document.getElementById('searchInputMobile');
-        const clearBtnDesktop = document.getElementById('clearSearchDesktop');
-
-        function handleSearchInput(value) {
-            searchQuery = value;
-            searchDesktop.value = value;
-            searchMobile.value = value;
-
-            if (value.length > 0) {
-                clearBtnDesktop.classList.remove('hidden');
-            } else {
-                clearBtnDesktop.classList.add('hidden');
-            }
-            renderProducts();
-        }
-
-        searchDesktop.addEventListener('input', (e) => handleSearchInput(e.target.value));
-        searchMobile.addEventListener('input', (e) => handleSearchInput(e.target.value));
-        clearBtnDesktop.addEventListener('click', () => handleSearchInput(''));
-
-        function resetFilters() {
-            handleSearchInput('');
-            selectCategory('Все');
-        }
-
-        function showToast(message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            
-            toast.className = 'pointer-events-auto flex items-center gap-3 bg-wood-800 border border-cream-400/50 text-cream-50 px-4 py-3 rounded-2xl shadow-wood transform transition-all duration-300 translate-y-4 opacity-0';
-            toast.innerHTML = `
-                <div class="w-7 h-7 rounded-full bg-roseblush-500/25 text-roseblush-300 flex items-center justify-center shrink-0">
-                    <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
-                </div>
-                <span class="text-sm font-medium leading-snug">${message}</span>
-            `;
-
-            container.appendChild(toast);
-            lucide.createIcons();
-
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSavedState();
-            renderCategoryButtons();
-            renderProducts();
-            renderReviews();
-            renderContacts();
-            updateCartUI();
-            lucide.createIcons();
-            // Автоматическая загрузка актуальных данных из Google Таблицы
-            loadFromGoogleSheets(false);
-        });
-    </script>
-</body>
-</html>
+// ... existing code ... -->
