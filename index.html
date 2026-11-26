@@ -418,7 +418,7 @@
         </div>
     </section>
 
-    <!-- БЛОК ЗАЩИТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ (КРАТКО НА СТРАНИЦЕ + КНОПКА ПОЛНОГО ТЕКСТА) -->
+    <!-- БЛОК ЗАЩИТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ -->
     <section id="privacy-section" class="py-8 bg-cream-100/80 border-t border-cream-300/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="rounded-3xl bg-cream-50 border border-cream-300 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-wood-sm">
@@ -527,7 +527,7 @@
                 <div>
                     <h4 class="font-serif font-bold text-base text-wood-900 mb-1">4. Ваши права и удаление данных</h4>
                     <p>
-                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Контакты».
+                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Связь с мастерской».
                     </p>
                 </div>
             </div>
@@ -721,7 +721,16 @@
 
     <script>
         const SHEET_ID = '1_FJbgq_Daepd5v4-voxwTwD0RNWdyndMdRuX5vft7lE';
-        const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwhZkLAUik8-Clh0mmtRJUbfRsoqobm56LaEL9Xp_ZGX66shl9FAoMY42Z646UUR-dm/exec';
+        const RAW_WEBHOOK_INPUT = 'AKfycbwhZkLAUik8-Clh0mmtRJUbfRsoqobm56LaEL9Xp_ZGX66shl9FAoMY42Z646UUR-dm';
+
+        function resolveWebhookUrl(raw) {
+            const val = String(raw || '').trim();
+            if (!val) return '';
+            if (val.startsWith('http://') || val.startsWith('https://')) return val;
+            return `https://script.google.com/macros/s/${val}/exec`;
+        }
+
+        const ORDER_WEBHOOK_URL = resolveWebhookUrl(RAW_WEBHOOK_INPUT);
 
         const STORAGE_KEYS = {
             state: 'dari_schastye_state_v2',
@@ -931,14 +940,7 @@
                 if (!raw) return false;
                 const cached = JSON.parse(raw);
                 if (Array.isArray(cached.products) && cached.products.length > 0) {
-                    products = cached.products.map((p, idx) => ({
-                        id: p.id || `cached-prod-${idx}`,
-                        name: p.name || '',
-                        price: Number(p.price) || 0,
-                        category: p.category || 'Ручная работа',
-                        description: p.description || '',
-                        photos: Array.isArray(p.photos) ? p.photos : parsePhotoList(p.photo)
-                    })).filter(p => p.name && p.price > 0);
+                    products = cached.products;
                 }
                 if (Array.isArray(cached.reviews) && cached.reviews.length > 0) {
                     reviews = cached.reviews;
@@ -1183,9 +1185,8 @@
                     const description = getField(r, ['описание', 'description', 'desc']) || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
                     const rawPhoto = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
                     const photos = parsePhotoList(rawPhoto);
-                    const stableId = `sheet-prod-${idx}-${encodeURIComponent(name.slice(0, 18))}`;
                     return {
-                        id: stableId,
+                        id: `sheet-prod-${idx}-${name.slice(0, 12)}`,
                         name,
                         price,
                         category,
@@ -1439,131 +1440,24 @@
                         </div>
 
                         <div class="mx-5 px-0 pb-5 pt-3 border-t border-cream-200 flex items-center justify-between gap-3">
-                                    >
-                                        ✎
-                                    </button>
-                                </div>
-                                <p class="text-sm text-wood-600 line-clamp-2 leading-relaxed">
-                                    ${escapeHtml(product.description)}
-                                </p>
+                            <div>
+                                <span class="block text-[11px] uppercase tracking-wider text-wood-500">Цена</span>
+                                <span class="font-serif text-xl font-bold text-wood-800">${formatPrice(product.price)}</span>
                             </div>
+                            <button
+                                type="button"
+                                onclick="addToCart('${safeId}')"
+                                class="inline-flex items-center gap-1.5 bg-sage-600 hover:bg-sage-700 text-cream-50 text-sm font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all active:scale-95 cursor-pointer"
+                            >
+                                <span>+</span>
+                                <span>В корзину</span>
+                            </button>
                         </div>
-        function openProductEditorModal(productId = null) {
-            const overlay = document.getElementById('productEditorModalOverlay');
-            const titleEl = document.getElementById('productEditorTitle');
-            const idInput = document.getElementById('editProductId');
-            const nameInput = document.getElementById('editProductName');
-            const priceInput = document.getElementById('editProductPrice');
-            const catInput = document.getElementById('editProductCategory');
-            const photosInput = document.getElementById('editProductPhotos');
-            const descInput = document.getElementById('editProductDescription');
-            const deleteBtn = document.getElementById('deleteProductBtn');
-
-            if (!overlay) return;
-
-            if (productId) {
-                const found = products.find(p => p.id === productId);
-                if (!found) {
-                    showToast('Карточка товара не найдена', 'error');
-                    return;
-                }
-                titleEl.textContent = 'Редактирование карточки товара';
-                idInput.value = found.id;
-                nameInput.value = found.name || '';
-                priceInput.value = String(found.price || '');
-                catInput.value = found.category || 'Ручная работа';
-                photosInput.value = getProductPhotos(found).join('\n');
-                descInput.value = found.description || '';
-                if (deleteBtn) deleteBtn.classList.remove('hidden');
-            } else {
-                titleEl.textContent = 'Новая карточка товара';
-                idInput.value = '';
-                nameInput.value = '';
-                priceInput.value = '';
-                catInput.value = activeCategory && activeCategory !== 'Все' ? activeCategory : 'Макраме';
-                photosInput.value = '';
-                descInput.value = '';
-                if (deleteBtn) deleteBtn.classList.add('hidden');
-            }
-
-            overlay.classList.remove('hidden');
+                    </article>
+                `;
+            }).join('');
         }
-        window.openProductEditorModal = openProductEditorModal;
 
-        function closeProductEditorModal() {
-            const overlay = document.getElementById('productEditorModalOverlay');
-            if (overlay) overlay.classList.add('hidden');
-        }
-        window.closeProductEditorModal = closeProductEditorModal;
-
-        function saveProductEditorForm(event) {
-            event.preventDefault();
-
-            const existingId = (document.getElementById('editProductId')?.value || '').trim();
-            const name = (document.getElementById('editProductName')?.value || '').trim();
-            const price = parsePrice(document.getElementById('editProductPrice')?.value || '0');
-            const category = (document.getElementById('editProductCategory')?.value || '').trim() || 'Ручная работа';
-            const photos = parsePhotoList(document.getElementById('editProductPhotos')?.value || '');
-            const description = (document.getElementById('editProductDescription')?.value || '').trim() || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
-
-            if (!name || price <= 0) {
-                showToast('Укажите название и корректную цену товара', 'error');
-                return;
-            }
-
-            if (existingId) {
-                const idx = products.findIndex(p => p.id === existingId);
-                if (idx !== -1) {
-                    products[idx] = {
-                        ...products[idx],
-                        name,
-                        price,
-                        category,
-                        photos,
-                        description
-                    };
-                    cardPhotoIndexes[existingId] = 0;
-                    showToast('Карточка товара обновлена', 'success');
-                }
-            } else {
-                const newId = `manual-prod-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-                products = [{
-                    id: newId,
-                    name,
-                    price,
-                    category,
-                    photos,
-                    description
-                }, ...products];
-                cardPhotoIndexes[newId] = 0;
-                showToast('Новый товар добавлен в каталог', 'success');
-            }
-
-            saveSheetCache();
-            renderCategoryFilters();
-            renderProducts();
-            renderAccountFavorites();
-            closeProductEditorModal();
-        }
-        window.saveProductEditorForm = saveProductEditorForm;
-
-        function deleteEditingProduct() {
-            const existingId = (document.getElementById('editProductId')?.value || '').trim();
-            if (!existingId) return;
-
-            products = products.filter(p => p.id !== existingId);
-            favorites = favorites.filter(id => id !== existingId);
-            cart = cart.filter(item => item.id !== existingId);
-
-            savePersistedState();
-            saveSheetCache();
-            updateCartBadge();
-            updateFavoriteBadge();
-            renderCategoryFilters();
-            renderProducts();
-            renderCartDrawer();
-            renderAccountFavorites();
-            closeProductEditorModal();
         function resetCatalogFilters() {
             activeCategory = 'Все';
             searchQuery = '';
@@ -1761,11 +1655,11 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа ';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
-                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки';
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки ';
             } else {
                 boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
             }
@@ -2214,39 +2108,12 @@
             listEl.innerHTML = filterBarHtml + cardsHtml;
         }
 
-            if (reviews.length > 0) {
-                const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
-                const avg = (sum / reviews.length).toFixed(1);
-                if (avgTextEl) avgTextEl.textContent = `${avg} из 5`;
-                if (avgStarsEl) avgStarsEl.textContent = renderStarsString(Math.round(Number(avg)));
-            }
-
-            if (!listEl) return;
-
-            if (reviews.length === 0) {
-                listEl.innerHTML = `<div class="col-span-full rounded-3xl bg-cream-50 border border-cream-300 p-8 text-center text-sm text-wood-500">Пока отзывов нет — станьте первым!</div>`;
-                return;
-            }
-
-            listEl.innerHTML = reviews.map((rev, idx) => `
-                <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="text-amber-500 text-base tracking-wider select-none" aria-label="Оценка ${rev.rating} из 5">${renderStarsString(rev.rating)}</span>
-                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cream-200 text-wood-700">${escapeHtml(rev.rating)} / 5</span>
-                        </div>
-                        <p class="text-sm text-wood-700 leading-relaxed">«${escapeHtml(rev.text)}»</p>
-                    </div>
-                    <div class="pt-3 border-t border-cream-200 flex items-center justify-between text-xs text-wood-500">
-                        <span class="font-semibold text-wood-800">${escapeHtml(rev.author)}</span>
-                        <span>${escapeHtml(rev.date || '')}</span>
-                    </div>
-                </article>
-            `).join('');
-        }
-
         function sendReviewViaJsonpWithStatus(reviewData) {
             return new Promise(resolve => {
+                if (!ORDER_WEBHOOK_URL) {
+                    resolve({ ok: false, reason: 'missing_webhook' });
+                    return;
+                }
                 const cbName = `revCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
                 const script = document.createElement('script');
                 const cleanup = () => {
@@ -2275,6 +2142,7 @@
                     name: reviewData.author,
                     date: reviewData.date,
                     rating: String(reviewData.rating),
+                    source: reviewData.source || 'Сайт',
                     text: reviewData.text,
                     callback: cbName
                 });
@@ -2325,7 +2193,7 @@
 
             if (result.ok) {
                 showToast('Спасибо! Отзыв сохранён в Google Таблицу и виден всем', 'success');
-            } else {
+            } else if (ORDER_WEBHOOK_URL) {
                 const formBody = new URLSearchParams();
                 formBody.append('type', 'review');
                 formBody.append('author', author);
@@ -2342,7 +2210,7 @@
                     body: formBody.toString()
                 }).catch(() => {});
 
-                showToast('Отзыв добавлен! Проверьте в Apps Script: Управление развертываниями → Новая версия', 'info');
+                showToast('Отзыв добавлен! Если не появился в таблице', 'info');
             }
 
             authorInput.value = '';
@@ -2451,4 +2319,5 @@
         });
     </script>
 </body>
+</html>
 </html>
