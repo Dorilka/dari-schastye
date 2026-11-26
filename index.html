@@ -726,7 +726,96 @@
         };
 
         // 1. РЕЗЕРВНЫЕ ДЕМО-ТОВАРЫ (ПОКАЗЫВАЮТСЯ, ЕСЛИ ЛИСТ «ТОВАРЫ» ПУСТ ИЛИ ПОКА ИДЕТ ЗАГРУЗКА)
-// ... existing code ... -->
+        const FALLBACK_PRODUCTS = [
+            {
+                id: 'demo-1',
+                name: 'Панно «Уютный вечер»',
+                price: 3400,
+                category: 'Макраме и панно',
+                description: 'Плетеное настенное панно из неотбеленного хлопкового шнура на шлифованной лесной коряге с деревянными бусинами.',
+                photo: ''
+            },
+            {
+                id: 'demo-2',
+                name: 'Букет «Нежность Прованса»',
+                price: 2200,
+                category: 'Флористика и букеты',
+                description: 'Ароматная композиция из горной лаванды, стабилизированного эвкалипта и пудровых сухоцветов. Не требует полива.',
+                photo: ''
+            },
+            {
+                id: 'demo-3',
+                name: 'Подарочный бокс «Тепло дома»',
+                price: 2950,
+                category: 'Подарочные наборы',
+                description: 'Соевая свеча с ароматом ванили и кедра, мини-подвеска макраме, веточка эвкалипта и открытка с вашими пожеланиями.',
+                photo: ''
+            },
+            {
+                id: 'demo-4',
+                name: 'Ловец снов «Лунный шепот»',
+                price: 2700,
+                category: 'Макраме и панно',
+                description: 'Ажурное кружево ручного плетения с мягкими хлопковыми кистями и бусинами из натурального бука.',
+                photo: ''
+            }
+        ];
+
+        const FALLBACK_REVIEWS = [
+            {
+                author: 'Екатерина М.',
+                date: '18 ноября 2026',
+                item: 'Панно «Уютный вечер»',
+                text: 'Заказывала панно ручной работы в спальню — вживую оно ещё уютнее, чем на фото! Шнур мягкий, узелки ровные, всё бережно упаковано.'
+            },
+            {
+                author: 'Дарья С.',
+                date: '10 ноября 2026',
+                item: 'Подарочный бокс «Тепло дома»',
+                text: 'Брала набор от мастерской «Дари счастье» на день рождения подруге. Остались в восторге обе: чувствуется тепло и внимание к мелочам.'
+            },
+            {
+                author: 'Артём В.',
+                date: '2 ноября 2026',
+                item: 'Букет «Нежность Прованса»',
+                text: 'Помогли подобрать вариант под интерьер, быстро ответили на вопросы. Заказ приехал аккуратно упакованным, аромат эвкалипта потрясающий!'
+            }
+        ];
+
+        const FALLBACK_CONTACTS = [
+            { type: 'Telegram', value: 'https://t.me/' },
+            { type: 'VK', value: 'https://vk.com/' }
+        ];
+
+        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+        let products = [...FALLBACK_PRODUCTS];
+        let reviews = [...FALLBACK_REVIEWS];
+        let contacts = [...FALLBACK_CONTACTS];
+        let cart = [];
+        let activeCategory = 'Все';
+        let searchQuery = '';
+        let lastGeneratedOrderText = '';
+
+        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ССЫЛОК GOOGLE DRIVE И КАРТИНОК
+        function resolveImageUrls(rawUrl) {
+            if (!rawUrl || typeof rawUrl !== 'string') {
+                return { primary: '', backup: '' };
+            }
+            const url = rawUrl.trim();
+            if (!url) {
+                return { primary: '', backup: '' };
+            }
+
+            let fileId = '';
+            const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+
+            if (fileMatch && fileMatch[1]) {
+                fileId = fileMatch[1];
+            } else if (idParamMatch && idParamMatch[1]) {
+                fileId = idParamMatch[1];
+            }
+
             if (fileId) {
                 return {
                     primary: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
@@ -737,8 +826,561 @@
             return { primary: url, backup: '' };
         }
 
-        // Обработчик ошибки загрузки картинки (переключает на резервную ссылку Google Drive, затем на SVG)
-// ... existing code ... -->
+        function handleProductImageError(imgEl) {
+            const backupUrl = imgEl.getAttribute('data-backup');
+            if (backupUrl && imgEl.src !== backupUrl) {
+                imgEl.src = backupUrl;
+                imgEl.removeAttribute('data-backup');
+                return;
+            }
+            const wrapper = imgEl.parentElement;
+            if (wrapper) {
+                wrapper.innerHTML = getPlaceholderSvg();
+            }
+        }
+
+        function getPlaceholderSvg() {
+            return `
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-cream-200 to-sage-100/70 text-wood-500 p-6">
+                    <svg class="w-16 h-16 text-wood-600/75 mb-2" viewBox="0 0 64 64" fill="none">
+                        <path d="M12 16H52" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M18 16C18 26 32 28 32 38C32 28 46 26 46 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M23 16L32 27L41 16" stroke="#6A846B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="32" cy="41" r="3.5" fill="#C97A88"/>
+                        <path d="M32 45V54M27 44L24 52M37 44L40 52" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <span class="font-script text-lg text-wood-700">Ручная работа</span>
+                </div>
+            `;
+        }
+
+        function formatPrice(value) {
+            const num = Number(value) || 0;
+            return num.toLocaleString('ru-RU') + ' ₽';
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // 4. ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE ТАБЛИЦЫ (GVIZ JSONP / FETCH)
+        function parseGvizResponse(text) {
+            const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+            if (!match || !match[1]) return [];
+            const json = JSON.parse(match[1]);
+            if (!json.table || !json.table.rows) return [];
+
+            const cols = (json.table.cols || []).map(c => (c.label || '').trim().toLowerCase());
+            return json.table.rows.map(row => {
+                const obj = {};
+                (row.c || []).forEach((cell, idx) => {
+                    const key = cols[idx] || `col_${idx}`;
+                    obj[key] = cell ? (cell.f !== undefined && cell.f !== null ? cell.f : cell.v) : '';
+                });
+                return obj;
+            });
+        }
+
+        async function fetchSheetTab(sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
+            const text = await res.text();
+            return parseGvizResponse(text);
+        }
+
+        async function loadFromGoogleSheets(isManual = false) {
+            const statusEl = document.getElementById('sheetSyncStatus');
+            const refreshIcon = document.getElementById('refreshSheetIcon');
+            if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+            try {
+                const [rawProducts, rawReviews, rawContacts] = await Promise.allSettled([
+                    fetchSheetTab('Товары'),
+                    fetchSheetTab('Отзывы'),
+                    fetchSheetTab('Контакты')
+                ]);
+
+                let loadedAny = false;
+
+                if (rawProducts.status === 'fulfilled' && rawProducts.value.length > 0) {
+                    const parsed = rawProducts.value
+                        .filter(r => (r['название'] || r['col_0']))
+                        .map((r, idx) => {
+                            const rawPrice = String(r['цена'] || r['col_1'] || '0').replace(/[^\d.,]/g, '').replace(',', '.');
+                            return {
+                                id: `sheet-prod-${idx}`,
+                                name: String(r['название'] || r['col_0'] || '').trim(),
+                                price: parseFloat(rawPrice) || 0,
+                                category: String(r['категория'] || r['col_2'] || 'Изделия мастерской').trim(),
+                                description: String(r['описание'] || r['col_3'] || 'Уютное изделие ручной работы из натуральных материалов.').trim(),
+                                photo: String(r['фото'] || r['col_4'] || '').trim()
+                            };
+                        });
+
+                    if (parsed.length > 0) {
+                        products = parsed;
+                        loadedAny = true;
+                        syncCartWithLatestProducts();
+                        renderCategoryButtons();
+                    }
+                }
+
+                if (rawReviews.status === 'fulfilled' && rawReviews.value.length > 0) {
+                    const parsedReviews = rawReviews.value
+                        .filter(r => (r['имя'] || r['col_0']) && (r['текст'] || r['col_3'] || r['col_2']))
+                        .map(r => ({
+                            author: String(r['имя'] || r['col_0'] || 'Покупатель').trim(),
+                            date: String(r['дата'] || r['col_1'] || '').trim(),
+                            item: r['оценка'] ? `Оценка: ${r['оценка']} ★` : 'Изделие мастерской',
+                            text: String(r['текст'] || r['col_3'] || r['col_2'] || '').trim()
+                        }));
+
+                    if (parsedReviews.length > 0) {
+                        const localReviews = getLocalReviews();
+                        reviews = [...localReviews, ...parsedReviews];
+                        loadedAny = true;
+                    }
+                }
+
+                if (rawContacts.status === 'fulfilled' && rawContacts.value.length > 0) {
+                    const parsedContacts = rawContacts.value
+                        .filter(r => (r['тип'] || r['col_0']) && (r['значение'] || r['col_1']))
+                        .map(r => ({
+                            type: String(r['тип'] || r['col_0'] || '').trim(),
+                            value: String(r['значение'] || r['col_1'] || '').trim()
+                        }));
+
+                    if (parsedContacts.length > 0) {
+                        contacts = parsedContacts;
+                        loadedAny = true;
+                    }
+                }
+
+                renderProducts();
+                renderReviews();
+                renderContacts();
+
+                if (statusEl) {
+                    statusEl.innerHTML = loadedAny
+                        ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Витрина актуальна`
+                        : `<span class="w-1.5 h-1.5 rounded-full bg-cream-300"></span> Демо-режим (заполните таблицу)`;
+                }
+
+                if (isManual) {
+                    showToast('Данные из Google Таблицы обновлены!');
+                }
+            } catch (error) {
+                console.warn('Не удалось загрузить данные из Google Таблицы:', error);
+                if (statusEl) {
+                    statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Офлайн-витрина`;
+                }
+                renderProducts();
+                renderReviews();
+                renderContacts();
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+            }
+        }
+
+        // 5. РЕНДЕР КАТЕГОРИЙ, ТОВАРОВ И МОДАЛЬНОГО ОКНА
+        function renderCategoryButtons() {
+            const container = document.getElementById('categoryFilters');
+            if (!container) return;
+
+            const uniqueCategories = ['Все', ...new Set(products.map(p => p.category).filter(Boolean))];
+            if (!uniqueCategories.includes(activeCategory)) {
+                activeCategory = 'Все';
+            }
+
+            container.innerHTML = uniqueCategories.map(cat => {
+                const isActive = cat === activeCategory;
+                const label = cat === 'Все' ? 'Все изделия' : cat;
+                const classes = isActive
+                    ? 'category-btn active px-4 py-2.5 rounded-xl text-sm font-semibold bg-wood-700 text-cream-50 shadow-wood-sm transition-all whitespace-nowrap cursor-pointer'
+                    : 'category-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-cream-50 text-wood-700 hover:bg-cream-200 border border-cream-300 transition-all whitespace-nowrap cursor-pointer';
+                return `<button type="button" data-category="${escapeHtml(cat)}" onclick="selectCategory('${escapeHtml(cat).replace(/'/g, "\\'")}')" class="${classes}">${escapeHtml(label)}</button>`;
+            }).join('');
+        }
+
+        function selectCategory(category) {
+            activeCategory = category;
+            renderCategoryButtons();
+            renderProducts();
+        }
+
+        function resetFilters() {
+            activeCategory = 'Все';
+            searchQuery = '';
+            const dInput = document.getElementById('searchInputDesktop');
+            const mInput = document.getElementById('searchInputMobile');
+            if (dInput) dInput.value = '';
+            if (mInput) mInput.value = '';
+            renderCategoryButtons();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptySearchState');
+            const countText = document.getElementById('productsCountText');
+
+            const filtered = products.filter(p => {
+                const matchesCat = activeCategory === 'Все' || p.category === activeCategory;
+                const q = searchQuery.toLowerCase();
+                const matchesQuery = !q ||
+                    p.name.toLowerCase().includes(q) ||
+                    p.description.toLowerCase().includes(q) ||
+                    p.category.toLowerCase().includes(q);
+                return matchesCat && matchesQuery;
+            });
+
+            if (countText) {
+                countText.textContent = `Показано ${filtered.length} из ${products.length} изделий`;
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(product => {
+                const urls = resolveImageUrls(product.photo);
+                const mediaHtml = urls.primary
+                    ? `<img src="${escapeHtml(urls.primary)}" data-backup="${escapeHtml(urls.backup)}" onerror="handleProductImageError(this)" alt="${escapeHtml(product.name)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">`
+                    : getPlaceholderSvg();
+
+                return `
+                    <article class="group bg-cream-50 border border-cream-300 rounded-3xl overflow-hidden shadow-wood-sm hover:shadow-wood transition-all duration-300 flex flex-col">
+                        <div onclick="openProductModal('${escapeHtml(product.id)}')" class="relative h-60 bg-cream-200 overflow-hidden cursor-pointer">
+                            ${mediaHtml}
+                            <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-cream-100/95 backdrop-blur-xs border border-cream-300 text-[11px] font-bold text-wood-700 shadow-xs">
+                                ${escapeHtml(product.category)}
+                            </span>
+                            <button type="button" aria-label="Увеличить фото" class="absolute bottom-3 right-3 p-2 rounded-xl bg-cream-100/90 text-wood-700 opacity-0 group-hover:opacity-100 transition-opacity shadow-xs">
+                                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="p-5 flex-1 flex flex-col justify-between">
+                            <div>
+                                <h3 onclick="openProductModal('${escapeHtml(product.id)}')" class="font-serif text-xl font-bold text-wood-800 group-hover:text-sage-600 transition-colors cursor-pointer leading-snug mb-1.5">
+                                    ${escapeHtml(product.name)}
+                                </h3>
+                                <p class="text-xs text-wood-600 line-clamp-3 leading-relaxed mb-4">
+                                    ${escapeHtml(product.description)}
+                                </p>
+                            </div>
+
+                            <div class="pt-3.5 border-t border-cream-200 flex items-center justify-between gap-3">
+                                <span class="font-serif text-2xl font-bold text-wood-800">
+                                    ${formatPrice(product.price)}
+                                </span>
+                                <button 
+                                    type="button"
+                                    onclick="addToCart('${escapeHtml(product.id)}')" 
+                                    class="inline-flex items-center gap-1.5 bg-sage-500 hover:bg-sage-600 text-cream-50 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all active:scale-95 cursor-pointer"
+                                >
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span>В корзину</span>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const urls = resolveImageUrls(product.photo);
+            const mediaContainer = document.getElementById('modalProductMedia');
+            mediaContainer.innerHTML = urls.primary
+                ? `<img src="${escapeHtml(urls.primary)}" data-backup="${escapeHtml(urls.backup)}" onerror="handleProductImageError(this)" alt="${escapeHtml(product.name)}" class="w-full h-full object-cover max-h-[420px]">`
+                : getPlaceholderSvg();
+
+            document.getElementById('modalProductCategory').textContent = product.category;
+            document.getElementById('modalProductTitle').textContent = product.name;
+            document.getElementById('modalProductDesc').textContent = product.description;
+            document.getElementById('modalProductPrice').textContent = formatPrice(product.price);
+
+            const addBtn = document.getElementById('modalAddToCartBtn');
+            addBtn.onclick = () => {
+                addToCart(product.id);
+                closeProductModal();
+            };
+
+            document.getElementById('productModalOverlay').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModalOverlay').classList.add('hidden');
+        }
+
+        // 6. ОТЗЫВЫ И КОНТАКТЫ
+        function getLocalReviews() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.LOCAL_REVIEWS);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = reviews.map(rev => `
+                <div class="bg-cream-50 border border-cream-300 rounded-3xl p-6 shadow-wood-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-1 text-amber-500">
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                            </div>
+                            ${rev.date ? `<span class="text-xs text-wood-500">${escapeHtml(rev.date)}</span>` : ''}
+                        </div>
+                        <p class="text-sm text-wood-700 leading-relaxed italic mb-4">«${escapeHtml(rev.text)}»</p>
+                    </div>
+                    <div class="pt-3 border-t border-cream-200 flex items-center justify-between">
+                        <div>
+                            <span class="block font-serif text-lg font-bold text-wood-800">${escapeHtml(rev.author)}</span>
+                            ${rev.item ? `<span class="text-xs text-sage-600 font-semibold">${escapeHtml(rev.item)}</span>` : ''}
+                        </div>
+                        <span class="w-8 h-8 rounded-full bg-roseblush-100 text-roseblush-600 flex items-center justify-center">
+                            <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function toggleReviewForm() {
+            const form = document.getElementById('newReviewForm');
+            form.classList.toggle('hidden');
+        }
+
+        function handleReviewSubmit(event) {
+            event.preventDefault();
+            const author = document.getElementById('reviewAuthor').value.trim();
+            const item = document.getElementById('reviewItem').value.trim();
+            const text = document.getElementById('reviewText').value.trim();
+            if (!author || !text) return;
+
+            const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            const newRev = {
+                author,
+                date: today,
+                item: item || 'Изделие мастерской',
+                text
+            };
+
+            const local = getLocalReviews();
+            local.unshift(newRev);
+            try {
+                localStorage.setItem(STORAGE_KEYS.LOCAL_REVIEWS, JSON.stringify(local));
+            } catch (e) {}
+
+            reviews.unshift(newRev);
+            renderReviews();
+
+            document.getElementById('newReviewForm').reset();
+            document.getElementById('newReviewForm').classList.add('hidden');
+            showToast('Спасибо! Ваш отзыв опубликован.');
+        }
+
+        function normalizeContactLink(type, value) {
+            const val = value.trim();
+            const t = type.toLowerCase();
+            if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('tel:') || val.startsWith('mailto:')) {
+                return val;
+            }
+            if (t.includes('telegram') || t.includes('тг') || val.startsWith('@')) {
+                return `https://t.me/${val.replace(/^@/, '')}`;
+            }
+            if (t.includes('vk') || t.includes('вк')) {
+                return `https://vk.com/${val.replace(/^@/, '')}`;
+            }
+            if (t.includes('тел') || t.includes('phone') || /^[\d+\s()-]+$/.test(val)) {
+                return `tel:${val.replace(/[^\d+]/g, '')}`;
+            }
+            return val;
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('footerContactsList');
+            if (!container) return;
+
+            container.innerHTML = contacts.map(c => {
+                const href = normalizeContactLink(c.type, c.value);
+                return `
+                    <a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-wood-700 hover:bg-sage-600 text-cream-100 border border-wood-600 text-xs sm:text-sm font-semibold transition-colors">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-roseblush-300"></i>
+                        <span>${escapeHtml(c.type)}</span>
+                    </a>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // 7. КОРЗИНА И СОХРАНЕНИЕ В LOCALSTORAGE
+        function loadCartFromStorage() {
+            try {
+                const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
+                if (savedCart) {
+                    const parsed = JSON.parse(savedCart);
+                    if (Array.isArray(parsed)) {
+                        cart = parsed;
+                    }
+                }
+                const savedCustomer = localStorage.getItem(STORAGE_KEYS.CUSTOMER);
+                if (savedCustomer) {
+                    const cust = JSON.parse(savedCustomer);
+                    if (cust.name) document.getElementById('customerName').value = cust.name;
+                    if (cust.contact) document.getElementById('customerContact').value = cust.contact;
+                    if (cust.comment) document.getElementById('customerComment').value = cust.comment;
+                }
+            } catch (e) {
+                console.warn('Ошибка чтения localStorage:', e);
+            }
+        }
+
+        function saveCartToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
+            } catch (e) {}
+        }
+
+        function saveCustomerForm() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify({
+                    name: document.getElementById('customerName').value,
+                    contact: document.getElementById('customerContact').value,
+                    comment: document.getElementById('customerComment').value
+                }));
+            } catch (e) {}
+        }
+
+        function syncCartWithLatestProducts() {
+            let changed = false;
+            cart.forEach(item => {
+                const fresh = products.find(p => p.name === item.product.name || p.id === item.product.id);
+                if (fresh) {
+                    item.product = { ...fresh };
+                    changed = true;
+                }
+            });
+            if (changed) {
+                saveCartToStorage();
+                updateCartUI();
+            }
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.product.id === productId || item.product.name === product.name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ product: { ...product }, quantity: 1 });
+            }
+
+            saveCartToStorage();
+            updateCartUI();
+            showToast(`«${product.name}» добавлено в корзину`);
+        }
+
+        function changeCartQuantity(index, delta) {
+            if (!cart[index]) return;
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            saveCartToStorage();
+            updateCartUI();
+        }
+
+        function toggleCart(open) {
+            const overlay = document.getElementById('cartDrawerOverlay');
+            if (open) {
+                overlay.classList.remove('hidden');
+                updateCartUI();
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const emptyMsg = document.getElementById('emptyCartMessage');
+            const listEl = document.getElementById('cartItemsList');
+            const formEl = document.getElementById('checkoutForm');
+            const footerEl = document.getElementById('cartFooter');
+            const totalEl = document.getElementById('cartTotalPrice');
+            const successEl = document.getElementById('orderSuccessState');
+
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalSum = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+            if (badge) badge.textContent = totalCount;
+
+            if (cart.length === 0) {
+                if (successEl && !successEl.classList.contains('hidden')) {
+                    return;
+                }
+                emptyMsg.classList.remove('hidden');
+                listEl.classList.add('hidden');
+                formEl.classList.add('hidden');
+                footerEl.classList.add('hidden');
+                return;
+            }
+
+            if (successEl) successEl.classList.add('hidden');
+            emptyMsg.classList.add('hidden');
+            listEl.classList.remove('hidden');
+            formEl.classList.remove('hidden');
+            footerEl.classList.remove('hidden');
+
+            listEl.innerHTML = cart.map((item, idx) => `
+                <div class="flex items-center justify-between gap-3 bg-cream-50 border border-cream-300 rounded-2xl p-3.5">
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-serif text-base font-bold text-wood-800 truncate">${escapeHtml(item.product.name)}</h4>
+                        <span class="text-xs text-wood-600">${formatPrice(item.product.price)} × ${item.quantity} шт.</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="button" onclick="changeCartQuantity(${idx}, -1)" class="w-7 h-7 rounded-lg bg-cream-200 hover:bg-cream-300 text-wood-800 font-bold flex items-center justify-center cursor-pointer">−</button>
+                        <span class="text-sm font-bold w-5 text-center">${item.quantity}</span>
+                        <button type="button" onclick="changeCartQuantity(${idx}, 1)" class="w-7 h-7 rounded-lg bg-cream-200 hover:bg-cream-300 text-wood-800 font-bold flex items-center justify-center cursor-pointer">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            totalEl.textContent = formatPrice(totalSum);
+            lucide.createIcons();
+        }
+
         // 8. ОФОРМЛЕНИЕ ЗАКАЗА И ОТПРАВКА В GOOGLE ТАБЛИЦУ («ЗАКАЗЫ»)
         async function handleOrderSubmit(event) {
             event.preventDefault();
@@ -818,7 +1460,7 @@
             document.getElementById('cartFooter').classList.add('hidden');
 
             document.getElementById('orderSuccessDetails').innerHTML = `
-                Спасибо, <span class="font-bold text-wood-900">${name}</span>! 
+                Спасибо, <span class="font-bold text-wood-900">${escapeHtml(name)}</span>! 
                 Заявка сохранена в журнале мастерской. При желании продублируйте её в мессенджер:
             `;
             document.getElementById('orderSummaryText').textContent = lastGeneratedOrderText;
@@ -861,4 +1503,95 @@
         }
 
         function copyLastOrderText(silent = false) {
-// ... existing code ... -->
+            if (!lastGeneratedOrderText) return;
+            const textarea = document.createElement('textarea');
+            textarea.value = lastGeneratedOrderText;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                if (!silent) showToast('Текст заказа скопирован в буфер обмена');
+            } catch (e) {}
+            document.body.removeChild(textarea);
+        }
+
+        function resetAfterOrder() {
+            document.getElementById('orderSuccessState').classList.add('hidden');
+            toggleCart(false);
+            updateCartUI();
+        }
+
+        // 9. УВЕДОМЛЕНИЯ (TOASTS) И ИНИЦИАЛИЗАЦИЯ
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto bg-wood-800 text-cream-50 border border-cream-400/40 px-4 py-3 rounded-2xl shadow-wood flex items-center gap-2.5 text-xs sm:text-sm transition-all duration-300';
+            toast.innerHTML = `
+                <i data-lucide="sparkles" class="w-4 h-4 text-roseblush-300 shrink-0"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function setupSearchInputs() {
+            const desktopInput = document.getElementById('searchInputDesktop');
+            const mobileInput = document.getElementById('searchInputMobile');
+            const clearBtn = document.getElementById('clearSearchDesktop');
+
+            if (desktopInput) {
+                desktopInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    if (mobileInput) mobileInput.value = searchQuery;
+                    if (clearBtn) clearBtn.classList.toggle('hidden', !searchQuery);
+                    renderProducts();
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchQuery = '';
+                    if (desktopInput) desktopInput.value = '';
+                    if (mobileInput) mobileInput.value = '';
+                    clearBtn.classList.add('hidden');
+                    renderProducts();
+                });
+            }
+
+            if (mobileInput) {
+                mobileInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    if (desktopInput) desktopInput.value = searchQuery;
+                    renderProducts();
+                });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const localRevs = getLocalReviews();
+            if (localRevs.length > 0) {
+                reviews = [...localRevs, ...FALLBACK_REVIEWS];
+            }
+            loadCartFromStorage();
+            setupSearchInputs();
+            renderCategoryButtons();
+            renderProducts();
+            renderReviews();
+            renderContacts();
+            updateCartUI();
+            lucide.createIcons();
+            loadFromGoogleSheets(false);
+        });
+    </script>
+</body>
+</html>
