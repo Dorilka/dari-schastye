@@ -113,6 +113,7 @@
     <div class="bg-wood-800 text-cream-100 text-xs py-2 px-4 text-center tracking-wide">
         <span class="inline-flex items-center gap-2">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-roseblush-300"></i>
+            Ручная работа из натуральных материалов • Бережная доставка по всей России
         </span>
     </div>
 
@@ -155,7 +156,7 @@
                     placeholder="Найти панно, букет, бокс..." 
                     class="w-full bg-cream-50 border border-cream-300 text-sm text-wood-800 placeholder-wood-500/60 rounded-xl pl-10 pr-8 py-2 focus:outline-none focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 transition-all"
                 >
-                <button id="clearSearchDesktop" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-wood-500 hover:text-wood-800">
+                <button id="clearSearchDesktop" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-wood-500 hover:text-wood-800 cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -382,13 +383,12 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ «ОТЗЫВЫ» (В СТИЛЕ ЦЕНТРАЛЬНОГО БАННЕРА С ПРИСЛАННОГО ФОТО) -->
+        <!-- РАЗДЕЛ «ОТЗЫВЫ» -->
         <section id="reviews" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
             
-            <!-- Декоративный заголовок «Отзывы» в стиле фото (дерево, плетение, веточки, каллиграфия) -->
+            <!-- Декоративный заголовок «Отзывы» -->
             <div class="relative rounded-3xl rustic-wood-bg p-6 sm:p-10 shadow-wood mb-10 overflow-hidden">
                 <div class="relative rounded-2xl border-2 border-cream-300/80 py-8 px-6 text-center bg-wood-900/35 backdrop-blur-[2px]">
-                    <!-- Декоративная плетеная нить сверху -->
                     <svg class="w-48 h-7 mx-auto mb-2 text-cream-200" viewBox="0 0 200 28" fill="none">
                         <path d="M10 14H65M135 14H190" stroke="#F3E9DC" stroke-width="2" stroke-linecap="round"/>
                         <path d="M65 14C75 4 90 4 100 14C110 24 125 24 135 14" stroke="#F3E9DC" stroke-width="2.2" stroke-linecap="round"/>
@@ -396,7 +396,6 @@
                     </svg>
 
                     <div class="inline-flex items-center justify-center gap-3 sm:gap-5">
-                        <!-- Левая веточка эвкалипта -->
                         <svg class="w-10 h-10 sm:w-14 sm:h-14 text-cream-200" viewBox="0 0 60 60" fill="none">
                             <path d="M52 48C35 42 20 28 10 12" stroke="#F3E9DC" stroke-width="2" stroke-linecap="round"/>
                             <ellipse cx="22" cy="24" rx="7" ry="4" transform="rotate(-35 22 24)" fill="#F3E9DC" fill-opacity="0.85"/>
@@ -408,7 +407,6 @@
                             Отзывы
                         </h2>
 
-                        <!-- Правая веточка эвкалипта -->
                         <svg class="w-10 h-10 sm:w-14 sm:h-14 text-cream-200 scale-x-[-1]" viewBox="0 0 60 60" fill="none">
                             <path d="M52 48C35 42 20 28 10 12" stroke="#F3E9DC" stroke-width="2" stroke-linecap="round"/>
                             <ellipse cx="22" cy="24" rx="7" ry="4" transform="rotate(-35 22 24)" fill="#F3E9DC" fill-opacity="0.85"/>
@@ -487,438 +485,390 @@
                         <li><a href="#catalog" class="hover:text-roseblush-300 transition-colors">Каталог изделий</a></li>
                         <li><a href="#about" class="hover:text-roseblush-300 transition-colors">О нашей мастерской</a></li>
                         <li><a href="#reviews" class="hover:text-roseblush-300 transition-colors">Отзывы покупателей</a></li>
-                        <li><button onclick="toggleCart(true)" class="hover:text-roseblush-300 transition-colors cursor-pointer">Открыть корзину</button></li>
+                        <li><button onclick="toggleCart(true)" class="hover:text-roseblush-300 transition-colors cursor-pointer">Корзина и оформление заказа</button></li>
                     </ul>
                 </div>
 
-                <!-- Контакты и соцсети -->
+                <!-- Контакты -->
                 <div>
                     <h4 class="font-serif text-xl font-bold text-cream-50 mb-3">Связаться с мастером</h4>
-                    <p class="text-sm text-cream-300/85 mb-4">
-                        Хотите индивидуальный размер панно или особый оттенок шнура? Напишите нам в мессенджеры:
-                    </p>
-                    <div class="flex flex-wrap gap-2.5">
-                        <a href="#contacts" onclick="showToast('Пока нету!')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-wood-700 hover:bg-sage-600 text-cream-50 text-xs font-semibold transition-colors">
-                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                            <span>Telegram</span>
-                        </a>
-                        <a href="https://vk.ru/club238195816" target="_blank") class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-wood-700 hover:bg-sage-600 text-cream-50 text-xs font-semibold transition-colors">
-                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                            <span>ВКонтакте</span>
-                        </a>
-                        <a href="#contacts" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-wood-700 hover:bg-sage-600 text-cream-50 text-xs font-semibold transition-colors">
-                            <i data-lucide="phone" class="w-3.5 h-3.5"></i>
-                            <span>Людмила  8-908-727-05-20</span>
-                            <span>Ирина  8-915-930-00-71</span>
-                        </a>
-                    </div>
+                    <ul class="space-y-2.5 text-sm text-cream-300">
+                        <li class="flex items-center gap-2.5">
+                            <i data-lucide="mail" class="w-4 h-4 text-roseblush-300 shrink-0"></i>
+                            <a href="mailto:dari.schastye@example.ru" id="footerEmailLink" class="hover:text-cream-50 transition-colors">dari.schastye@example.ru</a>
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <i data-lucide="phone" class="w-4 h-4 text-sage-200 shrink-0"></i>
+                            <a href="tel:+79990000000" class="hover:text-cream-50 transition-colors">+7 (999) 000-00-00</a>
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <i data-lucide="clock" class="w-4 h-4 text-cream-400 shrink-0"></i>
+                            <span>Ежедневно с 10:00 до 20:00</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-300/70">
-                <span>© 2026 Мастерская «Дари счастье». Сделано с теплом и любовью.</span>
-                <span>Натуральный хлопок • Дерево • Сухоцветы</span>
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream-400">
+                <p>© 2026 Мастерская «Дари счастье». Все права защищены.</p>
+                <p>Сплетено с теплом и заботой о вашем доме</p>
             </div>
         </div>
     </footer>
 
-    <!-- ВЫДВИЖНАЯ ПАНЕЛЬ КОРЗИНЫ (DRAWER) -->
-    <div id="cartDrawerOverlay" class="fixed inset-0 z-50 hidden">
-        <!-- Затемнение фона -->
-        <div onclick="toggleCart(false)" class="fixed inset-0 bg-wood-900/60 backdrop-blur-xs transition-opacity"></div>
+    <!-- ВЫДВИЖНАЯ КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА -->
+    <div id="cartOverlay" onclick="toggleCart(false)" class="fixed inset-0 bg-wood-900/50 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+
+    <aside id="cartDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream-100 border-l border-cream-300 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
         
-        <!-- Панель корзины справа -->
-        <div class="fixed inset-y-0 right-0 max-w-full w-full sm:w-[450px] bg-cream-100 border-l-2 border-cream-300 shadow-2xl flex flex-col z-10">
+        <!-- Шапка корзины -->
+        <div class="px-6 py-5 bg-cream-50 border-b border-cream-300 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-sage-600"></i>
+                <h3 class="font-serif text-2xl font-bold text-wood-800">Ваша корзина</h3>
+            </div>
+            <button onclick="toggleCart(false)" class="p-2 rounded-xl text-wood-600 hover:bg-cream-200 transition-colors cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Содержимое корзины -->
+        <div id="cartBody" class="flex-1 overflow-y-auto p-6 space-y-6">
             
-            <!-- Шапка корзины -->
-            <div class="px-6 py-5 bg-cream-50 border-b border-cream-300 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <i data-lucide="shopping-bag" class="w-5 h-5 text-sage-600"></i>
-                    <h2 class="font-serif text-2xl font-bold text-wood-800">Ваша корзина</h2>
+            <!-- Список товаров -->
+            <div id="cartItemsList" class="space-y-3">
+                <!-- Товары рендерятся через JS -->
+            </div>
+
+            <!-- Пустая корзина -->
+            <div id="emptyCartMessage" class="text-center py-12">
+                <div class="w-16 h-16 rounded-2xl bg-cream-200 flex items-center justify-center mx-auto mb-3 text-wood-500">
+                    <i data-lucide="shopping-bag" class="w-8 h-8"></i>
                 </div>
-                <button onclick="toggleCart(false)" class="p-2 rounded-xl text-wood-500 hover:text-wood-800 hover:bg-cream-200 transition-colors cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <p class="font-serif text-xl font-bold text-wood-800 mb-1">В корзине пока пусто</p>
+                <p class="text-sm text-wood-500 mb-5">Выберите изделие из каталога, чтобы порадовать себя или близких.</p>
+                <button onclick="toggleCart(false)" class="px-5 py-2.5 rounded-xl bg-sage-500 hover:bg-sage-600 text-cream-50 text-sm font-semibold transition-colors cursor-pointer">
+                    Перейти в каталог
                 </button>
             </div>
 
-            <!-- Содержимое корзины -->
-            <div id="cartBody" class="flex-1 overflow-y-auto p-6 space-y-6">
-                
-                <!-- Пустая корзина -->
-                <div id="emptyCartMessage" class="text-center py-12">
-                    <div class="w-16 h-16 rounded-2xl bg-cream-200 flex items-center justify-center mx-auto mb-4 text-wood-500">
-                        <i data-lucide="shopping-basket" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="font-serif text-2xl font-bold text-wood-800 mb-1">В корзине пока пусто</h3>
-                    <p class="text-sm text-wood-500 mb-6">Выберите уютное панно, букет из сухоцветов или подарочный бокс в нашем каталоге.</p>
-                    <button onclick="toggleCart(false)" class="px-5 py-2.5 rounded-xl bg-sage-500 hover:bg-sage-600 text-cream-50 text-sm font-semibold transition-colors cursor-pointer">
-                        Перейти в каталог
-                    </button>
+            <!-- Форма оформления заказа (показывается, когда в корзине есть товары) -->
+            <form id="checkoutForm" onsubmit="submitOrderToEmail(event)" class="hidden bg-cream-50 border border-cream-300 rounded-2xl p-5 space-y-4 shadow-wood-sm">
+                <div class="border-b border-cream-200 pb-3">
+                    <h4 class="font-serif text-xl font-bold text-wood-800">Оформление заказа</h4>
+                    <p class="text-xs text-wood-500 mt-0.5">Заявка отправится мастеру на почту — мы свяжемся с вами для подтверждения</p>
                 </div>
 
-                <!-- Список добавленных изделий -->
-                <div id="cartItemsList" class="space-y-3 hidden">
-                    <!-- Рендерится через JS -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1">Ваше имя *</label>
+                    <input type="text" id="orderName" required placeholder="Анна" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 focus:outline-none focus:border-sage-500">
                 </div>
 
-                <!-- Форма оформления заказа -->
-                <form id="checkoutForm" onsubmit="handleOrderSubmit(event)" class="hidden pt-5 border-t border-cream-300 space-y-4">
-                    <h3 class="font-serif text-xl font-bold text-wood-800">Оформление заказа</h3>
-                    
-                    <!-- Выбор способа получения -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1.5">Способ получения</label>
-                        <div class="grid grid-cols-2 gap-2.5">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="deliveryType" value="Доставка (СДЭК / Почта)" checked onchange="updateCartUI()" class="peer sr-only">
-                                <div class="p-2.5 rounded-xl border border-cream-300 bg-cream-50 peer-checked:border-sage-500 peer-checked:bg-sage-100/70 text-center text-xs font-semibold text-wood-800 transition-all">
-                                    Доставка по РФ
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="deliveryType" value="Самовывоз из мастерской" onchange="updateCartUI()" class="peer sr-only">
-                                <div class="p-2.5 rounded-xl border border-cream-300 bg-cream-50 peer-checked:border-sage-500 peer-checked:bg-sage-100/70 text-center text-xs font-semibold text-wood-800 transition-all">
-                                    Самовывоз (0 ₽)
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="customerName" class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1.5">Ваше имя *</label>
-                        <input 
-                            type="text" 
-                            id="customerName" 
-                            required 
-                            placeholder="Например, Анна"
-                            class="w-full bg-cream-50 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 placeholder-wood-500/50 focus:outline-none focus:border-sage-500 transition-colors"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="customerContact" class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1.5">Телефон или мессенджер *</label>
-                        <input 
-                            type="text" 
-                            id="customerContact" 
-                            required 
-                            placeholder="+7 (999) 000-00-00 или @username"
-                            class="w-full bg-cream-50 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 placeholder-wood-500/50 focus:outline-none focus:border-sage-500 transition-colors"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="customerComment" class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1.5">Пожелания к заказу или открытке</label>
-                        <textarea 
-                            id="customerComment" 
-                            rows="2" 
-                            placeholder="Подписать открытку, уточнить оттенок шнура или адрес..."
-                            class="w-full bg-cream-50 border border-cream-300 rounded-xl px-3.5 py-2 text-sm text-wood-800 placeholder-wood-500/50 focus:outline-none focus:border-sage-500 transition-colors resize-none"
-                        ></textarea>
-                    </div>
-                </form>
-
-                <!-- Экран успешного оформления заказа -->
-                <div id="orderSuccessState" class="hidden text-center py-8 px-5 bg-sage-100 border border-sage-200 rounded-3xl">
-                    <div class="w-14 h-14 rounded-full bg-sage-500 text-cream-50 flex items-center justify-center mx-auto mb-4 shadow-md">
-                        <i data-lucide="heart" class="w-7 h-7 fill-current"></i>
-                    </div>
-                    <h3 class="font-serif text-2xl font-bold text-wood-800 mb-2">Благодарим за заказ!</h3>
-                    <p id="orderSuccessDetails" class="text-sm text-wood-700 mb-6 leading-relaxed">
-                        Мастер скоро свяжется с вами для уточнения деталей.
-                    </p>
-                    <button onclick="resetAfterOrder()" class="w-full py-3 rounded-xl bg-wood-700 hover:bg-wood-800 text-cream-50 font-semibold text-sm transition-colors cursor-pointer">
-                        Вернуться в мастерскую
-                    </button>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1">Телефон или мессенджер для связи *</label>
+                    <input type="text" id="orderContact" required placeholder="+7 (999) 123-45-67 или @telegram" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 focus:outline-none focus:border-sage-500">
                 </div>
-            </div>
 
-            <!-- Футер корзины -->
-            <div id="cartFooter" class="hidden p-6 border-t border-cream-300 bg-cream-50 space-y-3.5">
-                <div class="flex items-center justify-between text-xs text-wood-600">
-                    <span>Подарочная упаковка и открытка</span>
-                    <span class="text-sage-600 font-bold">В подарок</span>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1">Ваш Email (для копии заказа)</label>
+                    <input type="email" id="orderEmail" placeholder="anna@mail.ru" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 focus:outline-none focus:border-sage-500">
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-base font-semibold text-wood-700">Итоговая сумма:</span>
-                    <span id="cartTotalPrice" class="font-serif text-2xl font-bold text-wood-800">0 ₽</span>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1">Способ получения</label>
+                    <select id="orderDelivery" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-3.5 py-2.5 text-sm text-wood-800 focus:outline-none focus:border-sage-500">
+                        <option value="СДЭК / Почта России">Доставка СДЭК / Почта России</option>
+                        <option value="Курьер по городу">Доставка курьером по городу</option>
+                        <option value="Самовывоз из мастерской">Самовывоз из мастерской</option>
+                    </select>
                 </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-600 mb-1">Адрес или пожелания к заказу</label>
+                    <textarea id="orderComment" rows="2" placeholder="Город, адрес ПВЗ или текст для подарочной открытки..." class="w-full bg-cream-100 border border-cream-300 rounded-xl px-3.5 py-2 text-sm text-wood-800 focus:outline-none focus:border-sage-500 resize-none"></textarea>
+                </div>
+
+                <!-- Блок ошибки отправки -->
+                <div id="orderErrorBox" class="hidden p-3 rounded-xl bg-roseblush-100 border border-roseblush-300 text-xs text-roseblush-600 space-y-2">
+                    <p id="orderErrorText">Не удалось отправить автоматически. Вы можете отправить заказ через почтовую программу:</p>
+                    <a id="mailtoFallbackBtn" href="#" class="inline-flex items-center gap-1.5 font-bold underline">
+                        Открыть письмо в почте
+                    </a>
+                </div>
+
                 <button 
                     type="submit" 
-                    form="checkoutForm"
-                    class="w-full py-3.5 px-4 rounded-2xl bg-sage-500 hover:bg-sage-600 text-cream-50 font-semibold text-sm shadow-wood transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    id="submitOrderBtn"
+                    class="w-full py-3.5 px-5 rounded-xl bg-sage-500 hover:bg-sage-600 text-cream-50 font-semibold text-sm shadow-wood transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                    <span>Оформить заказ</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>Отправить заказ на почту</span>
                 </button>
+            </form>
+
+            <!-- Сообщение об успешном заказе -->
+            <div id="orderSuccessBox" class="hidden bg-sage-100 border border-sage-200 rounded-2xl p-6 text-center space-y-3">
+                <div class="w-14 h-14 rounded-full bg-sage-500 text-cream-50 flex items-center justify-center mx-auto shadow-wood-sm">
+                    <i data-lucide="check" class="w-7 h-7"></i>
+                </div>
+                <h4 class="font-serif text-2xl font-bold text-wood-800">Заказ отправлен мастеру!</h4>
+                <p class="text-sm text-wood-600 leading-relaxed">
+                    Спасибо за доверие! Мы получили ваш заказ на почту и скоро напишем вам, чтобы уточнить детали доставки.
+                </p>
+                <button onclick="resetOrderSuccess()" class="mt-2 px-5 py-2.5 rounded-xl bg-wood-700 hover:bg-wood-800 text-cream-50 text-xs font-semibold transition-colors cursor-pointer">
+                    Вернуться к покупкам
+                </button>
+            </div>
+        </div>
+
+        <!-- Итоговая панель внизу корзины -->
+        <div id="cartFooter" class="hidden px-6 py-4 bg-cream-50 border-t border-cream-300 flex items-center justify-between">
+            <span class="text-sm font-semibold text-wood-600">Итого за изделия:</span>
+            <span id="cartTotalPrice" class="font-serif text-2xl font-bold text-wood-800">0 ₽</span>
+        </div>
+    </aside>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИЗДЕЛИЯ (БЫСТРЫЙ ПРОСМОТР) -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-wood-900/60 backdrop-blur-xs">
+        <div class="bg-cream-50 border border-cream-300 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl relative animate-fadeIn">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-cream-100/90 hover:bg-cream-200 text-wood-800 flex items-center justify-center shadow-wood-sm cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="productModalContent" class="grid grid-cols-1 md:grid-cols-2">
+                <!-- Контент подставляется через JS -->
             </div>
         </div>
     </div>
 
-    <!-- КОНТЕЙНЕР ДЛЯ ВСПЛЫВАЮЩИХ УВЕДОМЛЕНИЙ (TOASTS) -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+    <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-wood-800 text-cream-50 px-5 py-3.5 rounded-2xl shadow-wood flex items-center gap-3 border border-wood-600">
+            <span class="w-7 h-7 rounded-full bg-sage-500 flex items-center justify-center shrink-0">
+                <i data-lucide="check" class="w-4 h-4 text-white"></i>
+            </span>
+            <span id="toastMessage" class="text-sm font-semibold">Изделие добавлено в корзину</span>
+        </div>
+    </div>
 
-    <!-- СКРИПТЫ ЛОГИКИ МАСТЕРСКОЙ -->
+    <!-- СКРИПТ МАСТЕРСКОЙ -->
     <script>
-        // 1. КАТАЛОГ ИЗДЕЛИЙ РУЧНОЙ РАБОТЫ (С УНИКАЛЬНЫМИ SVG-ИЛЛЮСТРАЦИЯМИ В СТИЛЕ МАКРАМЕ И ФЛОРИСТИКИ)
-        const products = [
+        // =========================================================================
+        // 1. НАСТРОЙКА ПОЧТЫ МАСТЕРСКОЙ ДЛЯ ПОЛУЧЕНИЯ ЗАКАЗОВ
+        // =========================================================================
+        // Укажите здесь ваш реальный Email, на который будут приходить заказы.
+        // При первом заказе сервис FormSubmit пришлет письмо для подтверждения адреса —
+        // нажмите "Activate Form", и все следующие заказы будут приходить автоматически!
+        const WORKSHOP_EMAIL = "dari.schastye@example.ru";
+
+        // Подставляем email в подвал сайта
+        document.getElementById("footerEmailLink").textContent = WORKSHOP_EMAIL;
+        document.getElementById("footerEmailLink").href = `mailto:${WORKSHOP_EMAIL}`;
+
+        // =========================================================================
+        // 2. КАТАЛОГ ИЗДЕЛИЙ (С РЕАЛЬНЫМИ ФОТОГРАФИЯМИ И УДОБНОЙ ЗАМЕНОЙ)
+        // =========================================================================
+        // КАК ВСТАВИТЬ СВОИ ФОТОГРАФИИ:
+        // Вариант А (локально на GitHub): создайте папку images рядом с index.html,
+        // загрузите туда фото (например, panno1.jpg) и замените ссылку ниже на "images/panno1.jpg"
+        // Вариант Б (по ссылке): вставьте прямую ссылку на фото в поле image.
+        const PRODUCTS = [
             {
                 id: 1,
-                name: "Панно макраме «Нежность»",
+                title: "Панно «Лесное утро» на коряге",
                 category: "Макраме и панно",
-                description: "Настенное панно из неотбеленного хлопкового шнура на шлифованной ветке с буковыми бусинами и пышными кистями.",
-                price: 500,
+                price: 3400,
                 badge: "Хит мастерской",
-                bgClass: "from-cream-200 via-cream-100 to-roseblush-100/60",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <line x1="18" y1="22" x2="102" y2="22" stroke="#6E4E37" stroke-width="4.5" stroke-linecap="round"/>
-                        <path d="M28 22C28 42 60 48 60 72C60 48 92 42 92 22" stroke="#D4BC9E" stroke-width="3" fill="#FAF5EE"/>
-                        <path d="M36 22L60 52L84 22" stroke="#8B6548" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="M46 22L60 38L74 22" stroke="#6A846B" stroke-width="1.8"/>
-                        <circle cx="34" cy="48" r="3.5" fill="#C49A6C"/>
-                        <circle cx="34" cy="56" r="3.5" fill="#C49A6C"/>
-                        <circle cx="86" cy="48" r="3.5" fill="#C49A6C"/>
-                        <circle cx="86" cy="56" r="3.5" fill="#C49A6C"/>
-                        <path d="M34 60V88M30 62L27 86M38 62L41 86" stroke="#D4BC9E" stroke-width="2.2" stroke-linecap="round"/>
-                        <path d="M86 60V88M82 62L79 86M90 62L93 86" stroke="#D4BC9E" stroke-width="2.2" stroke-linecap="round"/>
-                        <path d="M60 72V102M55 74L52 99M65 74L68 99" stroke="#D4BC9E" stroke-width="2.5" stroke-linecap="round"/>
-                        <circle cx="24" cy="24" r="6" fill="#E3A5B0"/>
-                        <ellipse cx="18" cy="31" rx="5" ry="3" transform="rotate(-30 18 31)" fill="#6A846B"/>
-                    </svg>`
+                size: "Ширина 45 см × Длина 65 см",
+                materials: "Неотбеленный хлопковый шнур, шлифованная ветка сосны",
+                image: "https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=800&q=80",
+                description: "Воздушное плетеное панно с объемными листьями и бахромой. Наполняет спальню или гостиную теплом натурального дерева и мягкого хлопка."
             },
             {
                 id: 2,
-                name: "Композиция «Прованс» с розами и эвкалиптом",
+                title: "Букет сухоцветов «Нежный эвкалипт»",
                 category: "Флористика и букеты",
-                description: "Интерьерный букет из стабилизированных пионовидных роз, ароматной лаванды и веточек серебристого эвкалипта.",
-                price: 2950,
+                price: 2200,
                 badge: "Аромат лаванды",
-                bgClass: "from-sage-100 via-cream-100 to-lavender-100",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <path d="M45 78H75L70 104H50L45 78Z" fill="#E6D5C1" stroke="#8B6548" stroke-width="2"/>
-                        <path d="M46 84H74" stroke="#C97A88" stroke-width="2.5"/>
-                        <path d="M55 78C48 58 36 42 28 28" stroke="#4E6650" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M65 78C72 56 84 40 92 26" stroke="#4E6650" stroke-width="2" stroke-linecap="round"/>
-                        <ellipse cx="36" cy="44" rx="7" ry="4" transform="rotate(-35 36 44)" fill="#6A846B"/>
-                        <ellipse cx="82" cy="42" rx="7" ry="4" transform="rotate(35 82 42)" fill="#6A846B"/>
-                        <circle cx="52" cy="52" r="12" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <circle cx="52" cy="52" r="5" fill="#C97A88" fill-opacity="0.5"/>
-                        <circle cx="70" cy="56" r="10" fill="#FAF5EE" stroke="#D4BC9E" stroke-width="1.5"/>
-                        <circle cx="60" cy="36" r="9" fill="#C97A88"/>
-                        <circle cx="42" cy="34" r="4" fill="#8A729E"/>
-                        <circle cx="76" cy="34" r="4" fill="#8A729E"/>
-                    </svg>`
+                size: "Высота 38 см × Диаметр 24 см",
+                materials: "Стабилизированный эвкалипт, горная лаванда, лагурус, хлопок",
+                image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=800&q=80",
+                description: "Интерьерный букет, который не требует воды и сохраняет природную красоту и легкий травяной аромат до 3–5 лет."
             },
             {
                 id: 3,
-                name: "Подарочный бокс «Дари счастье»",
+                title: "Подарочный бокс «Тепло дома»",
                 category: "Подарочные наборы",
-                description: "Деревянная шкатулка с мини-панно макраме, свечой из вощины, букетиком сухоцветов и каллиграфической открыткой.",
-                price: 3400,
+                price: 3900,
                 badge: "Готовый подарок",
-                bgClass: "from-roseblush-100 via-cream-100 to-cream-200",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <rect x="24" y="48" width="72" height="48" rx="8" fill="#F3E9DC" stroke="#8B6548" stroke-width="2.2"/>
-                        <rect x="20" y="38" width="80" height="14" rx="5" fill="#E6D5C1" stroke="#6E4E37" stroke-width="2.2"/>
-                        <line x1="60" y1="38" x2="60" y2="96" stroke="#C97A88" stroke-width="4"/>
-                        <path d="M60 38C48 24 38 30 48 38C38 44 48 50 60 38Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <path d="M60 38C72 24 82 30 72 38C82 44 72 50 60 38Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <circle cx="80" cy="28" r="5" fill="#6A846B" fill-opacity="0.7"/>
-                    </svg>`
+                size: "Коробка 25 × 25 × 10 см",
+                materials: "Подсвечник макраме, соевая свеча с инжиром, мини-букет, открытка",
+                image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+                description: "Душевный набор в крафтовой коробке с атласной лентой. Внутри — плетеный подсвечник, ароматная свеча ручной заливки и сухоцветы."
             },
             {
                 id: 4,
-                name: "Подвес для кашпо в стиле бохо",
+                title: "Кашпо-подвес «Бохо-сад»",
                 category: "Декор для дома",
-                description: "Плетеный держатель для комнатных растений с деревянным кольцом и декоративными узлами. Длина 95 см.",
                 price: 1650,
-                badge: null,
-                bgClass: "from-sage-100/80 via-cream-100 to-cream-200",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <circle cx="60" cy="18" r="6" stroke="#6E4E37" stroke-width="2.5"/>
-                        <path d="M60 24L40 58M60 24L80 58M60 24V58" stroke="#D4BC9E" stroke-width="2.2"/>
-                        <path d="M40 58H80L74 84H46L40 58Z" fill="#C97A88" fill-opacity="0.3" stroke="#8B6548" stroke-width="2"/>
-                        <path d="M52 58C46 46 38 42 34 46C38 52 46 54 52 58Z" fill="#6A846B"/>
-                        <path d="M68 58C74 46 82 42 86 46C82 52 74 54 68 58Z" fill="#6A846B"/>
-                        <path d="M60 58C56 44 60 36 64 44C64 50 62 54 60 58Z" fill="#4E6650"/>
-                        <path d="M60 84V104M56 86L53 102M64 86L67 102" stroke="#D4BC9E" stroke-width="2" stroke-linecap="round"/>
-                    </svg>`
+                badge: "",
+                size: "Длина 85 см (под горшок до 18 см)",
+                materials: "Крученый хлопковый шпагат 4 мм, деревянное кольцо",
+                image: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=800&q=80",
+                description: "Изящный подвес для комнатных растений с фактурными узлами. Поможет красиво разместить любимый цветок у окна."
             },
             {
                 id: 5,
-                name: "Ловец снов «Лесной шепот»",
+                title: "Ловец снов «Лунный шепот»",
                 category: "Макраме и панно",
-                description: "Ажурный ловец снов диаметром 28 см с кружевным узором, деревянными бусинами и нежными хлопковыми перьями.",
-                price: 2490,
-                badge: "Новинка",
-                bgClass: "from-cream-100 via-lavender-100/60 to-cream-200",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <circle cx="60" cy="44" r="24" stroke="#8B6548" stroke-width="3" fill="#FAF5EE"/>
-                        <circle cx="60" cy="44" r="16" stroke="#D4BC9E" stroke-width="1.5" stroke-dasharray="3 3"/>
-                        <path d="M60 20L76 44L60 68L44 44Z" stroke="#6A846B" stroke-width="1.5"/>
-                        <circle cx="60" cy="44" r="3" fill="#C97A88"/>
-                        <path d="M44 64V94M60 68V102M76 64V94" stroke="#D4BC9E" stroke-width="2" stroke-linecap="round"/>
-                        <ellipse cx="44" cy="86" rx="4" ry="8" fill="#E6D5C1"/>
-                        <ellipse cx="60" cy="94" rx="4.5" ry="9" fill="#E3A5B0" fill-opacity="0.7"/>
-                        <ellipse cx="76" cy="86" rx="4" ry="8" fill="#E6D5C1"/>
-                    </svg>`
+                price: 2750,
+                badge: "Ручное кружево",
+                size: "Диаметр кольца 25 см, длина 70 см",
+                materials: "Хлопковая нить, буковое кольцо, кружевные ленты, деревянные бусины",
+                image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80",
+                description: "Ажурный оберег для спокойных снов и уюта в спальне. Мягкие кисти красиво колышутся от легкого ветерка."
             },
             {
                 id: 6,
-                name: "Набор салфеток макраме (2 шт.)",
-                category: "Декор для дома",
-                description: "Сервировочные салфетки под тарелки с бахромой из 100% хлопкового шнура для уютных семейных завтраков.",
-                price: 1890,
-                badge: null,
-                bgClass: "from-cream-200 via-cream-50 to-cream-200",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <rect x="26" y="34" width="68" height="52" rx="6" fill="#FAF5EE" stroke="#D4BC9E" stroke-width="2.5"/>
-                        <rect x="34" y="42" width="52" height="36" rx="3" stroke="#8B6548" stroke-width="1.5" stroke-dasharray="4 3"/>
-                        <path d="M20 40H26M20 48H26M20 56H26M20 64H26M20 72H26M20 80H26" stroke="#D4BC9E" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M94 40H100M94 48H100M94 56H100M94 64H100M94 72H100M94 80H100" stroke="#D4BC9E" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="60" cy="60" r="8" stroke="#6A846B" stroke-width="1.5"/>
-                    </svg>`
+                title: "Композиция в керамике «Прованс»",
+                category: "Флористика и букеты",
+                price: 2850,
+                badge: "Новинка",
+                size: "Высота 26 см × Ширина 22 см",
+                materials: "Керамическое кашпо, стабилизированные розы, гипсофила, эвкалипт",
+                image: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80",
+                description: "Нежная настольная композиция в пудрово-лавандовых тонах. Станет изящным акцентом на туалетном столике или праздничном столе."
             },
             {
                 id: 7,
-                name: "Букет-комплимент «Нежный рассвет»",
-                category: "Флористика и букеты",
-                description: "Мини-букет из пудровой кустовой розы, хлопка, лагуруса и гипсофилы в крафтовой упаковке с атласной лентой.",
-                price: 1750,
-                badge: "Комплимент",
-                bgClass: "from-roseblush-100/90 via-cream-100 to-sage-100/70",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <path d="M36 52L60 98L84 52L60 62L36 52Z" fill="#E6D5C1" stroke="#8B6548" stroke-width="2" stroke-linejoin="round"/>
-                        <circle cx="50" cy="44" r="10" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <circle cx="70" cy="44" r="10" fill="#FAF5EE" stroke="#D4BC9E" stroke-width="1.5"/>
-                        <circle cx="60" cy="34" r="9" fill="#C97A88"/>
-                        <ellipse cx="38" cy="40" rx="6" ry="3.5" transform="rotate(-30 38 40)" fill="#6A846B"/>
-                        <ellipse cx="82" cy="40" rx="6" ry="3.5" transform="rotate(30 82 40)" fill="#6A846B"/>
-                        <path d="M54 78C58 74 62 74 66 78" stroke="#C97A88" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>`
+                title: "Набор салфеток «Уютный завтрак» (2 шт.)",
+                category: "Декор для дома",
+                price: 1900,
+                badge: "",
+                size: "Диаметр 32 см каждая",
+                materials: "100% натуральный хлопковый шнур",
+                image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80",
+                description: "Плетеные сервировочные плейсматы с мягкой бахромой для красивой подачи завтраков и семейных ужинов."
             },
             {
                 id: 8,
-                name: "Набор «Уютный вечер» со свечами",
+                title: "Набор «Дари счастье» с панно и свечой",
                 category: "Подарочные наборы",
-                description: "Две резные свечи из натурального пчелиного воска с ароматом меда, подсвечник из спила дерева и пучок лаванды.",
-                price: 2200,
-                badge: null,
-                bgClass: "from-cream-200 via-amber-50 to-lavender-100/70",
-                svgArt: `
-                    <svg class="w-32 h-32" viewBox="0 0 120 120" fill="none">
-                        <ellipse cx="60" cy="92" rx="34" ry="8" fill="#8B6548"/>
-                        <rect x="42" y="46" width="14" height="44" rx="3" fill="#F3E9DC" stroke="#D4BC9E" stroke-width="2"/>
-                        <rect x="64" y="56" width="14" height="34" rx="3" fill="#E6D5C1" stroke="#D4BC9E" stroke-width="2"/>
-                        <path d="M49 34C46 39 46 42 49 44C52 42 52 39 49 34Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <path d="M71 44C68 49 68 52 71 54C74 52 74 49 71 44Z" fill="#E3A5B0" stroke="#C97A88" stroke-width="1.5"/>
-                        <path d="M32 88C28 76 26 68 24 60" stroke="#6A846B" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="24" cy="60" r="3" fill="#8A729E"/>
-                    </svg>`
+                price: 4500,
+                badge: "Выбор гостей",
+                size: "Коробка 30 × 25 × 12 см",
+                materials: "Мини-панно макраме, свеча в кокосе, связка лаванды, открытка",
+                image: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=80",
+                description: "Фирменный подарочный бокс нашей мастерской — готовое решение для дня рождения, новоселья или теплого знака внимания."
             }
         ];
 
-        // 2. ОТЗЫВЫ ПОКУПАТЕЛЕЙ
-        const reviews = [
+        // =========================================================================
+        // 3. НАЧАЛЬНЫЕ ОТЗЫВЫ
+        // =========================================================================
+        const DEFAULT_REVIEWS = [
             {
                 author: "Марина Соколова",
-                item: "Панно макраме «Нежность»",
+                item: "Панно «Лесное утро» на коряге",
                 date: "14 ноября 2026",
-                text: "Заказывала панно в спальню над кроватью. Оно невероятно мягкое, пахнет натуральным хлопком и деревом! Упаковано было как настоящий подарок, даже положили веточку лаванды и теплую открытку. Огромное спасибо мастерской!"
+                text: "Панно приехало невероятно бережно упакованным, с открыткой и памяткой. Коряга гладкая, аромат дерева и хлопка — сразу стало так уютно в спальне! Спасибо мастерской «Дари счастье»."
             },
             {
-                author: "Елена и Дмитрий",
-                item: "Композиция «Прованс» и салфетки",
+                author: "Елена Кравцова",
+                item: "Подарочный бокс «Тепло дома»",
                 date: "2 ноября 2026",
-                text: "Брали букет с эвкалиптом и розами в подарок маме на юбилей. Мама в полном восторге — цветы выглядят как живые, а аромат лаванды стоит на всю комнату. Теперь присматриваем подвес для кашпо себе домой."
+                text: "Заказывала набор в подарок сестре на новоселье. Она в полном восторге! Свеча пахнет потрясающе, а подсвечник макраме теперь главное украшение вечерних чаепитий."
             },
             {
                 author: "Ольга Верещагина",
-                item: "Подарочный бокс «Дари счастье»",
+                item: "Букет сухоцветов «Нежный эвкалипт»",
                 date: "25 октября 2026",
-                text: "Название мастерской говорит само за себя! Открываешь коробочку — и сразу ощущение праздника и домашнего тепла. Все выполнено аккуратно, до каждого узелка. Обязательно вернусь за новогодними подарками!"
+                text: "Очень нежный и пышный букет, цвета вживую еще красивее, чем на фото. Стоит в вазе уже месяц и радует глаз каждый день."
             }
         ];
 
-        // 3. СОСТОЯНИЕ ПРИЛОЖЕНИЯ
-        let cart = [];
+        // =========================================================================
+        // 4. СОСТОЯНИЕ ПРИЛОЖЕНИЯ (КОРЗИНА, ФИЛЬТРЫ, ОТЗЫВЫ)
+        // =========================================================================
         let currentCategory = "Все";
         let searchQuery = "";
+        let cart = JSON.parse(localStorage.getItem("dari_schastye_cart") || "[]");
+        let reviews = JSON.parse(localStorage.getItem("dari_schastye_reviews") || "null") || DEFAULT_REVIEWS;
 
-        const formatPrice = (price) => price.toLocaleString('ru-RU') + ' ₽';
-
-        // 4. РЕНДЕР КАТАЛОГА ИЗДЕЛИЙ
+        // =========================================================================
+        // 5. РЕНДЕР КАТАЛОГА И ФИЛЬТРАЦИЯ
+        // =========================================================================
         function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            const emptyState = document.getElementById('emptySearchState');
-            const countText = document.getElementById('productsCountText');
+            const grid = document.getElementById("productsGrid");
+            const emptyState = document.getElementById("emptySearchState");
+            const countText = document.getElementById("productsCountText");
 
-            const filtered = products.filter(item => {
-                const matchesCategory = currentCategory === "Все" || item.category === currentCategory;
-                const query = searchQuery.toLowerCase().trim();
-                const matchesSearch = item.name.toLowerCase().includes(query) || 
-                                      item.description.toLowerCase().includes(query) ||
-                                      item.category.toLowerCase().includes(query);
+            const filtered = PRODUCTS.filter(product => {
+                const matchesCategory = currentCategory === "Все" || product.category === currentCategory;
+                const q = searchQuery.trim().toLowerCase();
+                const matchesSearch = !q || 
+                    product.title.toLowerCase().includes(q) || 
+                    product.description.toLowerCase().includes(q) ||
+                    product.category.toLowerCase().includes(q);
                 return matchesCategory && matchesSearch;
             });
 
-            countText.textContent = `Найдено изделий: ${filtered.length}`;
+            countText.textContent = `Показано ${filtered.length} ${getNoun(filtered.length, "изделие", "изделия", "изделий")}`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = '';
-                grid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
+                grid.innerHTML = "";
+                emptyState.classList.remove("hidden");
                 lucide.createIcons();
                 return;
             }
 
-            grid.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-
+            emptyState.classList.add("hidden");
             grid.innerHTML = filtered.map(product => `
-                <article class="bg-cream-50 border border-cream-300 hover:border-sage-500/70 rounded-3xl overflow-hidden flex flex-col shadow-wood-sm hover:shadow-wood transition-all duration-300 hover:-translate-y-1 group">
-                    
-                    <!-- Художественная иллюстрация изделия -->
-                    <div class="relative h-48 bg-gradient-to-br ${product.bgClass} flex items-center justify-center p-5 border-b border-cream-300/70 overflow-hidden">
-                        
+                <article class="group bg-cream-50 border border-cream-300 rounded-3xl overflow-hidden shadow-wood-sm hover:shadow-wood transition-all duration-300 flex flex-col">
+                    <!-- Фото изделия -->
+                    <div class="relative aspect-[4/3] bg-cream-200 overflow-hidden cursor-pointer" onclick="openProductModal(${product.id})">
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.title}" 
+                            loading="lazy"
+                            onerror="this.src='https://placehold.co/800x600/F3E9DC/593E2B?text=Фото+изделия'"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        >
                         ${product.badge ? `
-                            <span class="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-xl bg-cream-50/90 backdrop-blur-xs border border-cream-300 text-[11px] font-bold text-wood-700 shadow-2xs">
+                            <span class="absolute top-3 left-3 bg-cream-50/95 backdrop-blur-xs text-wood-800 border border-cream-300 text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
                                 ${product.badge}
                             </span>
-                        ` : ''}
-
-                        <span class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-xl bg-wood-800/10 text-[11px] font-semibold text-wood-700">
-                            ${product.category}
-                        </span>
-
-                        <div class="group-hover:scale-105 transition-transform duration-300 drop-shadow-sm">
-                            ${product.svgArt}
-                        </div>
+                        ` : ""}
+                        <button 
+                            type="button"
+                            aria-label="Подробнее об изделии"
+                            class="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-cream-50/90 text-wood-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-wood-sm"
+                        >
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
                     </div>
 
-                    <!-- Описание и цена -->
-                    <div class="p-5 flex-1 flex flex-col">
-                        <h3 class="font-serif text-xl font-bold text-wood-800 leading-snug mb-2 group-hover:text-sage-700 transition-colors">
-                            ${product.name}
-                        </h3>
-                        <p class="text-xs sm:text-sm text-wood-600 leading-relaxed mb-5 flex-1">
-                            ${product.description}
-                        </p>
+                    <!-- Описание -->
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider text-sage-600 font-bold">${product.category}</span>
+                            <h3 
+                                onclick="openProductModal(${product.id})"
+                                class="font-serif text-xl font-bold text-wood-800 mt-1 mb-2 leading-snug hover:text-sage-600 transition-colors cursor-pointer"
+                            >
+                                ${product.title}
+                            </h3>
+                            <p class="text-xs text-wood-600 leading-relaxed line-clamp-2 mb-4">
+                                ${product.description}
+                            </p>
+                        </div>
 
-                        <div class="pt-4 border-t border-cream-200 flex items-center justify-between gap-3">
+                        <div class="pt-3 border-t border-cream-200 flex items-center justify-between gap-2">
                             <div>
-                                <span class="block text-[11px] text-wood-500">Стоимость</span>
-                                <span class="font-serif text-xl font-bold text-wood-800">${formatPrice(product.price)}</span>
+                                <span class="font-serif text-2xl font-bold text-wood-800">${formatPrice(product.price)}</span>
                             </div>
                             <button 
-                                onclick="addToCart(${product.id})" 
-                                class="inline-flex items-center gap-1.5 bg-sage-500 hover:bg-sage-600 active:scale-95 text-cream-50 text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all cursor-pointer"
+                                onclick="addToCart(${product.id})"
+                                class="inline-flex items-center gap-1.5 bg-sage-500 hover:bg-sage-600 active:scale-95 text-cream-50 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all cursor-pointer"
                             >
                                 <i data-lucide="plus" class="w-4 h-4"></i>
                                 <span>В корзину</span>
@@ -926,298 +876,380 @@
                         </div>
                     </div>
                 </article>
-            `).join('');
+            `).join("");
 
             lucide.createIcons();
         }
 
-        // 5. РЕНДЕР ОТЗЫВОВ
-        function renderReviews() {
-            const grid = document.getElementById('reviewsGrid');
-            grid.innerHTML = reviews.map(rev => `
-                <div class="bg-cream-50 border border-cream-300 rounded-3xl p-6 shadow-wood-sm flex flex-col justify-between relative">
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-3">
-                            <div class="flex items-center gap-1 text-amber-500">
-                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                            </div>
-                            <span class="text-xs text-wood-500">${rev.date}</span>
-                        </div>
-                        <p class="text-sm text-wood-700 leading-relaxed italic mb-4">
-                            «${rev.text}»
-                        </p>
-                    </div>
-                    <div class="pt-3 border-t border-cream-200 flex items-center justify-between">
-                        <div>
-                            <span class="font-serif text-lg font-bold text-wood-800 block leading-none">${rev.author}</span>
-                            ${rev.item ? `<span class="text-xs text-sage-600 font-semibold mt-1 block">${rev.item}</span>` : ''}
-                        </div>
-                        <span class="w-8 h-8 rounded-full bg-roseblush-100 text-roseblush-600 flex items-center justify-center">
-                            <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
-                        </span>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function toggleReviewForm() {
-            const form = document.getElementById('newReviewForm');
-            form.classList.toggle('hidden');
-            if (!form.classList.contains('hidden')) {
-                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-
-        function handleReviewSubmit(event) {
-            event.preventDefault();
-            const author = document.getElementById('reviewAuthor').value.trim();
-            const item = document.getElementById('reviewItem').value.trim();
-            const text = document.getElementById('reviewText').value.trim();
-
-            reviews.unshift({
-                author,
-                item: item || "Изделие мастерской",
-                date: "Сегодня",
-                text
-            });
-
-            renderReviews();
-            document.getElementById('newReviewForm').reset();
-            document.getElementById('newReviewForm').classList.add('hidden');
-            showToast("Спасибо! Ваш теплый отзыв опубликован.");
-        }
-
-        // 6. ЛОГИКА КОРЗИНЫ
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-
-            const existingItem = cart.find(item => item.product.id === productId);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ product, quantity: 1 });
-            }
-
-            document.getElementById('orderSuccessState').classList.add('hidden');
-            updateCartUI();
-            showToast(`«${product.name}» добавлено в корзину`);
-        }
-
-        function changeQuantity(productId, delta) {
-            const index = cart.findIndex(item => item.product.id === productId);
-            if (index === -1) return;
-
-            cart[index].quantity += delta;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            updateCartUI();
-        }
-
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.product.id !== productId);
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const badge = document.getElementById('cartBadge');
-            const emptyMsg = document.getElementById('emptyCartMessage');
-            const itemsList = document.getElementById('cartItemsList');
-            const checkoutForm = document.getElementById('checkoutForm');
-            const cartFooter = document.getElementById('cartFooter');
-            const totalPriceEl = document.getElementById('cartTotalPrice');
-
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            badge.textContent = totalItems;
-
-            badge.classList.add('scale-125');
-            setTimeout(() => badge.classList.remove('scale-125'), 200);
-
-            if (cart.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                itemsList.classList.add('hidden');
-                checkoutForm.classList.add('hidden');
-                cartFooter.classList.add('hidden');
-                return;
-            }
-
-            emptyMsg.classList.add('hidden');
-            itemsList.classList.remove('hidden');
-            checkoutForm.classList.remove('hidden');
-            cartFooter.classList.remove('hidden');
-
-            itemsList.innerHTML = cart.map(({ product, quantity }) => `
-                <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-cream-50 border border-cream-300 shadow-2xs">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${product.bgClass} flex items-center justify-center shrink-0 border border-cream-300/60 overflow-hidden p-1">
-                        <div class="scale-[0.42] origin-center">${product.svgArt}</div>
-                    </div>
-                    
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-serif text-base font-bold text-wood-800 truncate">${product.name}</h4>
-                        <p class="text-xs text-sage-700 font-bold mt-0.5">${formatPrice(product.price * quantity)}</p>
-                    </div>
-
-                    <div class="flex items-center gap-1 bg-cream-100 border border-cream-300 rounded-xl p-1">
-                        <button 
-                            onclick="changeQuantity(${product.id}, -1)" 
-                            class="w-7 h-7 rounded-lg hover:bg-cream-200 text-wood-700 flex items-center justify-center transition-colors cursor-pointer"
-                            aria-label="Уменьшить"
-                        >
-                            <i data-lucide="minus" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <span class="text-xs font-bold text-wood-800 w-5 text-center">${quantity}</span>
-                        <button 
-                            onclick="changeQuantity(${product.id}, 1)" 
-                            class="w-7 h-7 rounded-lg hover:bg-cream-200 text-wood-700 flex items-center justify-center transition-colors cursor-pointer"
-                            aria-label="Увеличить"
-                        >
-                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-
-                    <button 
-                        onclick="removeFromCart(${product.id})" 
-                        class="p-1.5 text-wood-500 hover:text-roseblush-600 transition-colors cursor-pointer"
-                        title="Убрать из корзины"
-                    >
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `).join('');
-
-            const totalSum = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-            totalPriceEl.textContent = formatPrice(totalSum);
-
-            lucide.createIcons();
-        }
-
-        function toggleCart(open) {
-            const drawer = document.getElementById('cartDrawerOverlay');
-            if (open) {
-                drawer.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                drawer.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-        }
-
-        // 7. ОФОРМЛЕНИЕ ЗАКАЗА
-        function handleOrderSubmit(event) {
-            event.preventDefault();
-            
-            SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzckxsffq70sceiwveWDLMqpu9vCKY2wtNxlfbN4JEQKVSBnNRq9Ds0RCha57JJcoMb/exec";
-            
-            const name = document.getElementById('customerName').value.trim();
-            const contact = document.getElementById('customerContact').value.trim();
-            const delivery = document.querySelector('input[name="deliveryType"]:checked').value;
-            const totalSum = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-            const orderNumber = Math.floor(100 + Math.random() * 900);
-
-            cart = [];
-            document.getElementById('cartBadge').textContent = '0';
-            document.getElementById('cartItemsList').classList.add('hidden');
-            document.getElementById('checkoutForm').classList.add('hidden');
-            document.getElementById('cartFooter').classList.add('hidden');
-
-            const successDetails = document.getElementById('orderSuccessDetails');
-            successDetails.innerHTML = `
-                Спасибо, <span class="font-bold text-wood-900">${name}</span>! 
-                Ваша заявка <span class="font-bold text-sage-700">#${orderNumber}</span> на сумму 
-                <span class="font-bold text-wood-900">${formatPrice(totalSum)}</span> (${delivery.toLowerCase()}) принята. 
-                Мастер напишет вам по контакту <span class="font-semibold text-roseblush-600">${contact}</span> в ближайшее время.
-            `;
-            document.getElementById('orderSuccessState').classList.remove('hidden');
-            document.getElementById('checkoutForm').reset();
-
-            lucide.createIcons();
-            showToast(`Заказ #${orderNumber} принят мастерской!`);
-        }
-
-        function resetAfterOrder() {
-            document.getElementById('orderSuccessState').classList.add('hidden');
-            updateCartUI();
-            toggleCart(false);
-        }
-
-        // 8. ФИЛЬТРАЦИЯ И ПОИСК
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category-btn').forEach(b => {
-                    b.classList.remove('bg-wood-700', 'text-cream-50', 'shadow-wood-sm');
-                    b.classList.add('bg-cream-50', 'text-wood-700', 'border', 'border-cream-300');
+        // Обработка кликов по категориям
+        document.querySelectorAll(".category-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".category-btn").forEach(b => {
+                    b.classList.remove("active", "bg-wood-700", "text-cream-50", "shadow-wood-sm");
+                    b.classList.add("bg-cream-50", "text-wood-700", "border", "border-cream-300");
                 });
-                btn.classList.remove('bg-cream-50', 'text-wood-700', 'border', 'border-cream-300');
-                btn.classList.add('bg-wood-700', 'text-cream-50', 'shadow-wood-sm');
+                btn.classList.add("active", "bg-wood-700", "text-cream-50", "shadow-wood-sm");
+                btn.classList.remove("bg-cream-50", "text-wood-700", "border", "border-cream-300");
 
                 currentCategory = btn.dataset.category;
                 renderProducts();
             });
         });
 
-        const searchDesktop = document.getElementById('searchInputDesktop');
-        const searchMobile = document.getElementById('searchInputMobile');
-        const clearBtnDesktop = document.getElementById('clearSearchDesktop');
+        // Поиск (десктоп и мобильный)
+        const searchDesktop = document.getElementById("searchInputDesktop");
+        const clearDesktop = document.getElementById("clearSearchDesktop");
+        const searchMobile = document.getElementById("searchInputMobile");
 
-        function handleSearchInput(value) {
-            searchQuery = value;
-            searchDesktop.value = value;
-            searchMobile.value = value;
-
-            if (value.length > 0) {
-                clearBtnDesktop.classList.remove('hidden');
-            } else {
-                clearBtnDesktop.classList.add('hidden');
-            }
+        searchDesktop.addEventListener("input", (e) => {
+            searchQuery = e.target.value;
+            searchMobile.value = searchQuery;
+            clearDesktop.classList.toggle("hidden", !searchQuery);
             renderProducts();
-        }
+        });
 
-        searchDesktop.addEventListener('input', (e) => handleSearchInput(e.target.value));
-        searchMobile.addEventListener('input', (e) => handleSearchInput(e.target.value));
-        clearBtnDesktop.addEventListener('click', () => handleSearchInput(''));
+        clearDesktop.addEventListener("click", () => {
+            searchQuery = "";
+            searchDesktop.value = "";
+            searchMobile.value = "";
+            clearDesktop.classList.add("hidden");
+            renderProducts();
+        });
+
+        searchMobile.addEventListener("input", (e) => {
+            searchQuery = e.target.value;
+            searchDesktop.value = searchQuery;
+            clearDesktop.classList.toggle("hidden", !searchQuery);
+            renderProducts();
+        });
 
         function resetFilters() {
-            handleSearchInput('');
+            searchQuery = "";
+            searchDesktop.value = "";
+            searchMobile.value = "";
+            clearDesktop.classList.add("hidden");
             document.querySelector('.category-btn[data-category="Все"]').click();
         }
 
-        // 9. ВСПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ (TOASTS)
-        function showToast(message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            
-            toast.className = 'pointer-events-auto flex items-center gap-3 bg-wood-800 border border-cream-400/50 text-cream-50 px-4 py-3 rounded-2xl shadow-wood transform transition-all duration-300 translate-y-4 opacity-0';
-            toast.innerHTML = `
-                <div class="w-7 h-7 rounded-full bg-roseblush-500/25 text-roseblush-300 flex items-center justify-center shrink-0">
-                    <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+        // =========================================================================
+        // 6. МОДАЛЬНОЕ ОКНО ИЗДЕЛИЯ
+        // =========================================================================
+        function openProductModal(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) return;
+
+            const modal = document.getElementById("productModal");
+            const content = document.getElementById("productModalContent");
+
+            content.innerHTML = `
+                <div class="bg-cream-200 aspect-square md:aspect-auto">
+                    <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover">
                 </div>
-                <span class="text-sm font-medium leading-snug">${message}</span>
+                <div class="p-6 sm:p-8 flex flex-col justify-between space-y-5">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-sage-600 font-bold">${product.category}</span>
+                        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-wood-800 mt-1 mb-3">${product.title}</h3>
+                        <p class="text-sm text-wood-600 leading-relaxed mb-4">${product.description}</p>
+                        
+                        <div class="space-y-2 bg-cream-100 border border-cream-300 rounded-2xl p-3.5 text-xs text-wood-700">
+                            <div><span class="font-bold">Размер:</span> ${product.size}</div>
+                            <div><span class="font-bold">Материалы:</span> ${product.materials}</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-cream-200 flex items-center justify-between gap-4">
+                        <span class="font-serif text-3xl font-bold text-wood-800">${formatPrice(product.price)}</span>
+                        <button 
+                            onclick="addToCart(${product.id}); closeProductModal();"
+                            class="inline-flex items-center gap-2 bg-sage-500 hover:bg-sage-600 text-cream-50 font-semibold text-sm px-5 py-3 rounded-xl shadow-wood-sm transition-all cursor-pointer"
+                        >
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            <span>Добавить в корзину</span>
+                        </button>
+                    </div>
+                </div>
             `;
 
-            container.appendChild(toast);
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
             lucide.createIcons();
-
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            renderProducts();
-            renderReviews();
-            lucide.createIcons();
+        function closeProductModal() {
+            const modal = document.getElementById("productModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        document.getElementById("productModal").addEventListener("click", (e) => {
+            if (e.target.id === "productModal") closeProductModal();
         });
+
+        // =========================================================================
+        // 7. КОРЗИНА И ОТПРАВКА ЗАКАЗА НА ПОЧТУ
+        // =========================================================================
+        function saveCart() {
+            localStorage.setItem("dari_schastye_cart", JSON.stringify(cart));
+        }
+
+        function addToCart(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: product.id, title: product.title, price: product.price, image: product.image, qty: 1 });
+            }
+
+            saveCart();
+            updateCartUI();
+            showToast(`«${product.title}» добавлено в корзину`);
+        }
+
+        function changeQty(productId, delta) {
+            const index = cart.findIndex(item => item.id === productId);
+            if (index === -1) return;
+
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById("cartBadge");
+            const list = document.getElementById("cartItemsList");
+            const emptyMsg = document.getElementById("emptyCartMessage");
+            const checkoutForm = document.getElementById("checkoutForm");
+            const footer = document.getElementById("cartFooter");
+            const totalPriceEl = document.getElementById("cartTotalPrice");
+
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+            badge.textContent = totalItems;
+
+            if (cart.length === 0) {
+                list.innerHTML = "";
+                emptyMsg.classList.remove("hidden");
+                checkoutForm.classList.add("hidden");
+                footer.classList.add("hidden");
+                return;
+            }
+
+            emptyMsg.classList.add("hidden");
+            checkoutForm.classList.remove("hidden");
+            footer.classList.remove("hidden");
+            document.getElementById("orderSuccessBox").classList.add("hidden");
+
+            totalPriceEl.textContent = formatPrice(totalPrice);
+
+            list.innerHTML = cart.map(item => `
+                <div class="flex items-center gap-3.5 bg-cream-50 border border-cream-300 rounded-2xl p-3 shadow-2xs">
+                    <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-xl object-cover bg-cream-200 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h5 class="font-serif text-base font-bold text-wood-800 truncate">${item.title}</h5>
+                        <span class="text-xs font-semibold text-sage-700">${formatPrice(item.price)}</span>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 rounded-lg bg-cream-200 hover:bg-cream-300 text-wood-800 flex items-center justify-center font-bold text-xs cursor-pointer">−</button>
+                            <span class="text-xs font-bold w-5 text-center">${item.qty}</span>
+                            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 rounded-lg bg-cream-200 hover:bg-cream-300 text-wood-800 flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
+                        </div>
+                    </div>
+                    <div class="text-right font-serif font-bold text-wood-800 text-base">
+                        ${formatPrice(item.price * item.qty)}
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function toggleCart(open) {
+            const overlay = document.getElementById("cartOverlay");
+            const drawer = document.getElementById("cartDrawer");
+            if (open) {
+                overlay.classList.remove("hidden");
+                setTimeout(() => drawer.classList.remove("translate-x-full"), 10);
+            } else {
+                drawer.classList.add("translate-x-full");
+                setTimeout(() => overlay.classList.add("hidden"), 250);
+            }
+        }
+
+        // Отправка заказа на Email через FormSubmit AJAX (работает на GitHub Pages без сервера)
+        async function submitOrderToEmail(event) {
+            event.preventDefault();
+            if (cart.length === 0) return;
+
+            const btn = document.getElementById("submitOrderBtn");
+            const errorBox = document.getElementById("orderErrorBox");
+            const mailtoFallback = document.getElementById("mailtoFallbackBtn");
+
+            const name = document.getElementById("orderName").value.trim();
+            const contact = document.getElementById("orderContact").value.trim();
+            const customerEmail = document.getElementById("orderEmail").value.trim();
+            const delivery = document.getElementById("orderDelivery").value;
+            const comment = document.getElementById("orderComment").value.trim();
+
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const itemsText = cart.map((item, idx) => 
+                `${idx + 1}. ${item.title} — ${item.qty} шт. × ${item.price} ₽ = ${item.price * item.qty} ₽`
+            ).join("\n");
+
+            const fullOrderSummary = 
+                `Новый заказ в мастерской «Дари счастье»!\n\n` +
+                `Имя покупателя: ${name}\n` +
+                `Контакт для связи: ${contact}\n` +
+                `Email покупателя: ${customerEmail || "не указан"}\n` +
+                `Способ получения: ${delivery}\n` +
+                `Комментарий / адрес: ${comment || "нет"}\n\n` +
+                `Состав заказа:\n${itemsText}\n\n` +
+                `ИТОГО: ${totalPrice} ₽`;
+
+            // Готовим запасную mailto-ссылку на случай блокировки сети
+            const mailSubject = encodeURIComponent(`Заказ «Дари счастье» от ${name}`);
+            const mailBody = encodeURIComponent(fullOrderSummary);
+            mailtoFallback.href = `mailto:${WORKSHOP_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Отправляем заказ...</span>`;
+            errorBox.classList.add("hidden");
+
+            try {
+                const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(WORKSHOP_EMAIL)}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        _subject: `Новый заказ «Дари счастье» от ${name} (${totalPrice} ₽)`,
+                        _template: "table",
+                        _captcha: "false",
+                        "Имя_покупателя": name,
+                        "Телефон_или_мессенджер": contact,
+                        "Email_покупателя": customerEmail || "Не указан",
+                        "Способ_доставки": delivery,
+                        "Адрес_и_комментарий": comment || "Без комментариев",
+                        "Состав_заказа": itemsText,
+                        "Итоговая_сумма": `${totalPrice} ₽`
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Ошибка отправки формы");
+                }
+
+                // Успешная отправка
+                cart = [];
+                saveCart();
+                updateCartUI();
+                document.getElementById("emptyCartMessage").classList.add("hidden");
+                document.getElementById("orderSuccessBox").classList.remove("hidden");
+                document.getElementById("checkoutForm").reset();
+            } catch (err) {
+                errorBox.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Отправить заказ на почту</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        function resetOrderSuccess() {
+            document.getElementById("orderSuccessBox").classList.add("hidden");
+            updateCartUI();
+            toggleCart(false);
+        }
+
+        // =========================================================================
+        // 8. ОТЗЫВЫ
+        // =========================================================================
+        function renderReviews() {
+            const grid = document.getElementById("reviewsGrid");
+            grid.innerHTML = reviews.map(rev => `
+                <article class="bg-cream-50 border border-cream-300 rounded-3xl p-6 shadow-wood-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-1 text-amber-500">
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-500"></i>
+                            </div>
+                            <span class="text-xs text-wood-500">${rev.date}</span>
+                        </div>
+                        <p class="text-sm text-wood-700 leading-relaxed italic mb-4">«${rev.text}»</p>
+                    </div>
+                    <div class="pt-3 border-t border-cream-200">
+                        <span class="block font-serif text-lg font-bold text-wood-800">${rev.author}</span>
+                        ${rev.item ? `<span class="text-xs text-sage-600 font-semibold">${rev.item}</span>` : ""}
+                    </div>
+                </article>
+            `).join("");
+            lucide.createIcons();
+        }
+
+        function toggleReviewForm() {
+            const form = document.getElementById("newReviewForm");
+            form.classList.toggle("hidden");
+        }
+
+        function handleReviewSubmit(event) {
+            event.preventDefault();
+            const author = document.getElementById("reviewAuthor").value.trim();
+            const item = document.getElementById("reviewItem").value.trim();
+            const text = document.getElementById("reviewText").value.trim();
+
+            if (!author || !text) return;
+
+            const today = new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+            reviews.unshift({ author, item, date: today, text });
+            localStorage.setItem("dari_schastye_reviews", JSON.stringify(reviews));
+
+            renderReviews();
+            document.getElementById("newReviewForm").reset();
+            document.getElementById("newReviewForm").classList.add("hidden");
+            showToast("Спасибо! Ваш отзыв опубликован");
+        }
+
+        // =========================================================================
+        // 9. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // =========================================================================
+        function formatPrice(num) {
+            return num.toLocaleString("ru-RU") + " ₽";
+        }
+
+        function getNoun(number, one, two, five) {
+            let n = Math.abs(number) % 100;
+            if (n >= 5 && n <= 20) return five;
+            n %= 10;
+            if (n === 1) return one;
+            if (n >= 2 && n <= 4) return two;
+            return five;
+        }
+
+        let toastTimer;
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMessage").textContent = message;
+            toast.classList.remove("translate-y-24", "opacity-0");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add("translate-y-24", "opacity-0");
+            }, 2600);
+        }
+
+        // Инициализация при загрузке страницы
+        renderProducts();
+        renderReviews();
+        updateCartUI();
+        lucide.createIcons();
     </script>
 </body>
 </html>
