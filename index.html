@@ -1112,6 +1112,8 @@
         function handleOrderSubmit(event) {
             event.preventDefault();
             
+            SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzckxsffq70sceiwveWDLMqpu9vCKY2wtNxlfbN4JEQKVSBnNRq9Ds0RCha57JJcoMb/exec";
+            
             const name = document.getElementById('customerName').value.trim();
             const contact = document.getElementById('customerContact').value.trim();
             const delivery = document.querySelector('input[name="deliveryType"]:checked').value;
