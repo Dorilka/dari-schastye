@@ -1646,7 +1646,15 @@
             const linksHtml = [];
             contacts.forEach(c => {
                 const val = c.value.trim();
-                if (val.startsWith('http://') || val.startsWith('https://')) {
+                const typeLower = c.type.trim().toLowerCase();
+                const isMapOrAddress =
+                    typeLower.includes('адрес') ||
+                    typeLower.includes('карт') ||
+                    val.includes('yandex.ru/maps') ||
+                    val.includes('maps.google') ||
+                    val.includes('2gis.ru');
+
+                if (!isMapOrAddress && (val.startsWith('http://') || val.startsWith('https://'))) {
                     linksHtml.push(`<a href="${escapeHtml(val)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-sage-600 hover:bg-sage-700 text-cream-50 text-xs font-semibold">Написать в ${escapeHtml(c.type)}</a>`);
                 }
             });
@@ -2010,43 +2018,22 @@
             };
 
             try {
-                // Отправляем через скрытый iframe и обычную форму, чтобы e.parameter работал даже при старом коде Apps Script
-                let iframe = document.getElementById('sheetHiddenPostFrame');
-                if (!iframe) {
-                    iframe = document.createElement('iframe');
-                    iframe.id = 'sheetHiddenPostFrame';
-                    iframe.name = 'sheetHiddenPostFrame';
-                    iframe.className = 'hidden';
-                    document.body.appendChild(iframe);
-                }
+                // Используем URLSearchParams, чтобы Google Apps Script всегда считывал поля в e.parameter
+                const formBody = new URLSearchParams();
+                formBody.append('type', 'review');
+                formBody.append('author', author);
+                formBody.append('name', author);
+                formBody.append('date', dateStr);
+                formBody.append('rating', String(rating));
+                formBody.append('text', text);
+                formBody.append('payload', JSON.stringify(reviewPayload));
 
-                const formEl = document.createElement('form');
-                formEl.method = 'POST';
-                formEl.action = ORDER_WEBHOOK_URL;
-                formEl.target = 'sheetHiddenPostFrame';
-                formEl.className = 'hidden';
-
-                const fieldsToSend = {
-                    type: 'review',
-                    author,
-                    name: author,
-                    date: dateStr,
-                    rating: String(rating),
-                    text,
-                    payload: JSON.stringify(reviewPayload)
-                };
-
-                Object.entries(fieldsToSend).forEach(([key, val]) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = String(val);
-                    formEl.appendChild(input);
+                await fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: formBody.toString()
                 });
-
-                document.body.appendChild(formEl);
-                formEl.submit();
-                setTimeout(() => formEl.remove(), 1500);
 
                 showToast('Спасибо! Отзыв опубликован и отправлен в таблицу', 'success');
             } catch (err) {
