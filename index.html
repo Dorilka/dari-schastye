@@ -140,7 +140,7 @@
                 <div>
                     <span class="font-script text-2xl sm:text-3xl font-bold text-wood-800 leading-none block">Дари счастье</span>
                     <span class="text-[11px] uppercase tracking-[0.16em] text-wood-500 font-medium hidden sm:block">мастерская ручной работы</span>
-                    <span class="text-[11px] uppercase tracking-[0.500em] text-wood-900 font-medium hidden sm:block">Бета-версия</span>
+                    <span class="text-[11px] uppercase tracking-[0.500em] text-wood-900 font-medium hidden sm:block">бета-версия</span>
                 </div>
             </a>
 
@@ -527,7 +527,7 @@
                 <div>
                     <h4 class="font-serif font-bold text-base text-wood-900 mb-1">4. Ваши права и удаление данных</h4>
                     <p>
-                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Связь с мастерской».
+                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Контакты».
                     </p>
                 </div>
             </div>
@@ -760,18 +760,21 @@
                 author: 'Екатерина М.',
                 date: '18.11.2026',
                 rating: 5,
+                source: 'Сайт',
                 text: 'Заказывала панно ручной работы в спальню — вживую оно ещё уютнее, чем на фото! Шнур мягкий, узелки ровные, всё аккуратно упаковано.'
             },
             {
                 author: 'Дарья С.',
                 date: '10.11.2026',
                 rating: 5,
+                source: 'ВКонтакте',
                 text: 'Брала подарочный набор от мастерской «Дари счастье» на день рождения подруге. Остались в восторге обе: чувствуется тепло и внимание к деталям.'
             },
             {
                 author: 'Артём В.',
                 date: '02.11.2026',
                 rating: 4,
+                source: 'Яндекс Карты',
                 text: 'Помогли подобрать вариант под нужный размер и бюджет, быстро ответили на вопросы. Заказ доехал бережно упакованным.'
             }
         ];
@@ -787,6 +790,7 @@
         let contacts = [...DEFAULT_CONTACTS];
 
         let activeCategory = 'Все';
+        let activeReviewSource = 'Все';
         let searchQuery = '';
         let sortMode = 'default';
 
@@ -927,7 +931,14 @@
                 if (!raw) return false;
                 const cached = JSON.parse(raw);
                 if (Array.isArray(cached.products) && cached.products.length > 0) {
-                    products = cached.products;
+                    products = cached.products.map((p, idx) => ({
+                        id: p.id || `cached-prod-${idx}`,
+                        name: p.name || '',
+                        price: Number(p.price) || 0,
+                        category: p.category || 'Ручная работа',
+                        description: p.description || '',
+                        photos: Array.isArray(p.photos) ? p.photos : parsePhotoList(p.photo)
+                    })).filter(p => p.name && p.price > 0);
                 }
                 if (Array.isArray(cached.reviews) && cached.reviews.length > 0) {
                     reviews = cached.reviews;
@@ -1172,8 +1183,9 @@
                     const description = getField(r, ['описание', 'description', 'desc']) || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
                     const rawPhoto = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
                     const photos = parsePhotoList(rawPhoto);
+                    const stableId = `sheet-prod-${idx}-${encodeURIComponent(name.slice(0, 18))}`;
                     return {
-                        id: `sheet-prod-${idx}-${name.slice(0, 12)}`,
+                        id: stableId,
                         name,
                         price,
                         category,
@@ -1193,10 +1205,12 @@
                     const rawRating = getField(r, ['оценка', 'рейтинг', 'rating', 'звезды', 'звёзды']);
                     const parsedRating = Math.min(5, Math.max(1, Math.round(parsePrice(rawRating) || 5)));
                     const text = getField(r, ['текст', 'отзыв', 'text', 'review', 'комментарий']);
+                    const source = getField(r, ['источник', 'площадка', 'source', 'platform', 'откуда']) || 'Сайт';
                     return {
                         author,
                         date,
                         rating: parsedRating,
+                        source,
                         text
                     };
                 })
@@ -1425,24 +1439,131 @@
                         </div>
 
                         <div class="mx-5 px-0 pb-5 pt-3 border-t border-cream-200 flex items-center justify-between gap-3">
-                            <div>
-                                <span class="block text-[11px] uppercase tracking-wider text-wood-500">Цена</span>
-                                <span class="font-serif text-xl font-bold text-wood-800">${formatPrice(product.price)}</span>
+                                    >
+                                        ✎
+                                    </button>
+                                </div>
+                                <p class="text-sm text-wood-600 line-clamp-2 leading-relaxed">
+                                    ${escapeHtml(product.description)}
+                                </p>
                             </div>
-                            <button
-                                type="button"
-                                onclick="addToCart('${safeId}')"
-                                class="inline-flex items-center gap-1.5 bg-sage-600 hover:bg-sage-700 text-cream-50 text-sm font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all active:scale-95 cursor-pointer"
-                            >
-                                <span>+</span>
-                                <span>В корзину</span>
-                            </button>
                         </div>
-                    </article>
-                `;
-            }).join('');
-        }
+        function openProductEditorModal(productId = null) {
+            const overlay = document.getElementById('productEditorModalOverlay');
+            const titleEl = document.getElementById('productEditorTitle');
+            const idInput = document.getElementById('editProductId');
+            const nameInput = document.getElementById('editProductName');
+            const priceInput = document.getElementById('editProductPrice');
+            const catInput = document.getElementById('editProductCategory');
+            const photosInput = document.getElementById('editProductPhotos');
+            const descInput = document.getElementById('editProductDescription');
+            const deleteBtn = document.getElementById('deleteProductBtn');
 
+            if (!overlay) return;
+
+            if (productId) {
+                const found = products.find(p => p.id === productId);
+                if (!found) {
+                    showToast('Карточка товара не найдена', 'error');
+                    return;
+                }
+                titleEl.textContent = 'Редактирование карточки товара';
+                idInput.value = found.id;
+                nameInput.value = found.name || '';
+                priceInput.value = String(found.price || '');
+                catInput.value = found.category || 'Ручная работа';
+                photosInput.value = getProductPhotos(found).join('\n');
+                descInput.value = found.description || '';
+                if (deleteBtn) deleteBtn.classList.remove('hidden');
+            } else {
+                titleEl.textContent = 'Новая карточка товара';
+                idInput.value = '';
+                nameInput.value = '';
+                priceInput.value = '';
+                catInput.value = activeCategory && activeCategory !== 'Все' ? activeCategory : 'Макраме';
+                photosInput.value = '';
+                descInput.value = '';
+                if (deleteBtn) deleteBtn.classList.add('hidden');
+            }
+
+            overlay.classList.remove('hidden');
+        }
+        window.openProductEditorModal = openProductEditorModal;
+
+        function closeProductEditorModal() {
+            const overlay = document.getElementById('productEditorModalOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+        window.closeProductEditorModal = closeProductEditorModal;
+
+        function saveProductEditorForm(event) {
+            event.preventDefault();
+
+            const existingId = (document.getElementById('editProductId')?.value || '').trim();
+            const name = (document.getElementById('editProductName')?.value || '').trim();
+            const price = parsePrice(document.getElementById('editProductPrice')?.value || '0');
+            const category = (document.getElementById('editProductCategory')?.value || '').trim() || 'Ручная работа';
+            const photos = parsePhotoList(document.getElementById('editProductPhotos')?.value || '');
+            const description = (document.getElementById('editProductDescription')?.value || '').trim() || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
+
+            if (!name || price <= 0) {
+                showToast('Укажите название и корректную цену товара', 'error');
+                return;
+            }
+
+            if (existingId) {
+                const idx = products.findIndex(p => p.id === existingId);
+                if (idx !== -1) {
+                    products[idx] = {
+                        ...products[idx],
+                        name,
+                        price,
+                        category,
+                        photos,
+                        description
+                    };
+                    cardPhotoIndexes[existingId] = 0;
+                    showToast('Карточка товара обновлена', 'success');
+                }
+            } else {
+                const newId = `manual-prod-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                products = [{
+                    id: newId,
+                    name,
+                    price,
+                    category,
+                    photos,
+                    description
+                }, ...products];
+                cardPhotoIndexes[newId] = 0;
+                showToast('Новый товар добавлен в каталог', 'success');
+            }
+
+            saveSheetCache();
+            renderCategoryFilters();
+            renderProducts();
+            renderAccountFavorites();
+            closeProductEditorModal();
+        }
+        window.saveProductEditorForm = saveProductEditorForm;
+
+        function deleteEditingProduct() {
+            const existingId = (document.getElementById('editProductId')?.value || '').trim();
+            if (!existingId) return;
+
+            products = products.filter(p => p.id !== existingId);
+            favorites = favorites.filter(id => id !== existingId);
+            cart = cart.filter(item => item.id !== existingId);
+
+            savePersistedState();
+            saveSheetCache();
+            updateCartBadge();
+            updateFavoriteBadge();
+            renderCategoryFilters();
+            renderProducts();
+            renderCartDrawer();
+            renderAccountFavorites();
+            closeProductEditorModal();
         function resetCatalogFilters() {
             activeCategory = 'Все';
             searchQuery = '';
@@ -1640,7 +1761,7 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы посмотреть в Связь с мастерской';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
@@ -1990,6 +2111,29 @@
             return '★'.repeat(count) + '☆'.repeat(5 - count);
         }
 
+        function getReviewSourceBadgeClass(source) {
+            const s = String(source || 'Сайт').toLowerCase();
+            if (s.includes('vk') || s.includes('вк') || s.includes('вконтакте')) {
+                return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+            }
+            if (s.includes('яндекс') || s.includes('yandex') || s.includes('карт')) {
+                return 'bg-amber-100 text-amber-800 border-amber-200';
+            }
+            if (s.includes('авито') || s.includes('avito')) {
+                return 'bg-sky-100 text-sky-800 border-sky-200';
+            }
+            if (s.includes('telegram') || s.includes('тг') || s.includes('tg')) {
+                return 'bg-lavender-100 text-lavender-600 border-lavender-200';
+            }
+            return 'bg-sage-100 text-sage-700 border-sage-200';
+        }
+
+        function selectReviewSource(sourceName) {
+            activeReviewSource = sourceName;
+            renderReviews();
+        }
+        window.selectReviewSource = selectReviewSource;
+
         function renderReviews() {
             const listEl = document.getElementById('reviewsList');
             const avgStarsEl = document.getElementById('avgRatingStars');
@@ -1999,6 +2143,76 @@
             if (countEl) {
                 countEl.textContent = `отзывов: ${reviews.length}`;
             }
+
+            if (reviews.length > 0) {
+                const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+                const avg = (sum / reviews.length).toFixed(1);
+                if (avgTextEl) avgTextEl.textContent = `${avg} из 5`;
+                if (avgStarsEl) avgStarsEl.textContent = renderStarsString(Math.round(Number(avg)));
+            }
+
+            if (!listEl) return;
+
+            if (reviews.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full rounded-3xl bg-cream-50 border border-cream-300 p-8 text-center text-sm text-wood-500">Пока отзывов нет — станьте первым!</div>`;
+                return;
+            }
+
+            const sources = ['Все', ...Array.from(new Set(reviews.map(r => (r.source || 'Сайт').trim() || 'Сайт')))];
+            if (!sources.includes(activeReviewSource)) {
+                activeReviewSource = 'Все';
+            }
+
+            const filteredReviews = activeReviewSource === 'Все'
+                ? reviews
+                : reviews.filter(r => ((r.source || 'Сайт').trim() || 'Сайт') === activeReviewSource);
+
+            const filterBarHtml = sources.length > 1 ? `
+                <div class="col-span-full flex items-center gap-2 overflow-x-auto pb-1">
+                    ${sources.map(src => {
+                        const isActive = src === activeReviewSource;
+                        return `
+                            <button
+                                type="button"
+                                onclick="selectReviewSource('${escapeHtml(src)}')"
+                                class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                                    isActive
+                                        ? 'bg-wood-700 text-cream-50 shadow-wood-sm'
+                                        : 'bg-cream-50 hover:bg-cream-200 text-wood-700 border border-cream-300'
+                                }"
+                            >
+                                ${escapeHtml(src)}
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            const cardsHtml = filteredReviews.map((rev, idx) => {
+                const srcLabel = (rev.source || 'Сайт').trim() || 'Сайт';
+                const badgeCls = getReviewSourceBadgeClass(srcLabel);
+                return `
+                    <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                <span class="text-amber-500 text-base tracking-wider select-none" aria-label="Оценка ${rev.rating} из 5">${renderStarsString(rev.rating)}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeCls}">${escapeHtml(srcLabel)}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cream-200 text-wood-700">${escapeHtml(rev.rating)} / 5</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-wood-700 leading-relaxed">«${escapeHtml(rev.text)}»</p>
+                        </div>
+                        <div class="pt-3 border-t border-cream-200 flex items-center justify-between text-xs text-wood-500">
+                            <span class="font-semibold text-wood-800">${escapeHtml(rev.author)}</span>
+                            <span>${escapeHtml(rev.date || '')}</span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            listEl.innerHTML = filterBarHtml + cardsHtml;
+        }
 
             if (reviews.length > 0) {
                 const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
@@ -2095,6 +2309,7 @@
                 author,
                 date: dateStr,
                 rating,
+                source: 'Сайт',
                 text
             };
 
@@ -2117,6 +2332,7 @@
                 formBody.append('name', author);
                 formBody.append('date', dateStr);
                 formBody.append('rating', String(rating));
+                formBody.append('source', 'Сайт');
                 formBody.append('text', text);
 
                 fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
@@ -2126,7 +2342,7 @@
                     body: formBody.toString()
                 }).catch(() => {});
 
-                showToast('Отзыв добавлен!', 'info');
+                showToast('Отзыв добавлен! Проверьте в Apps Script: Управление развертываниями → Новая версия', 'info');
             }
 
             authorInput.value = '';
