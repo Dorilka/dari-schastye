@@ -73,7 +73,6 @@
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <style>
-        /* Мягкая текстура натурального полотна и дерева */
         body {
             background-color: #F6F0E4;
             background-image:
@@ -84,7 +83,6 @@
             overflow-x: hidden;
         }
 
-        /* Декоративная плетеная рамка в духе макраме для блока отзывов */
         .macrame-banner-frame {
             position: relative;
             background: linear-gradient(145deg, #FCF9F2 0%, #F4ECDC 55%, #EFE4CE 100%);
@@ -95,7 +93,6 @@
                 0 18px 40px -10px rgba(63, 46, 32, 0.16);
         }
 
-        /* Плавное появление элементов */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -110,7 +107,6 @@
             animation: fadeInUp 0.45s ease-out both;
         }
 
-        /* Аккуратный скроллбар */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -132,7 +128,6 @@
     <!-- ВЕРХНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
     <header class="sticky top-0 z-40 bg-cream-50/90 backdrop-blur-md border-b border-cream-300/90 shadow-wood-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
-            <!-- Логотип и название мастерской -->
             <a href="#" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
                 <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-sage-500 to-wood-600 text-cream-50 flex items-center justify-center shadow-wood-sm group-hover:scale-105 transition-transform">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -148,15 +143,14 @@
                 </div>
             </a>
 
-            <!-- Навигация по разделам (десктоп) -->
-            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-wood-700">
+            <nav class="hidden lg:flex items-center gap-5 text-sm font-medium text-wood-700">
                 <a href="#catalog" class="hover:text-sage-700 transition-colors py-1">Каталог</a>
                 <a href="#about" class="hover:text-sage-700 transition-colors py-1">О мастерской</a>
                 <a href="#reviews" class="hover:text-sage-700 transition-colors py-1">Отзывы</a>
                 <a href="#contacts" class="hover:text-sage-700 transition-colors py-1">Контакты</a>
+                <button type="button" onclick="openPrivacyModal()" class="hover:text-sage-700 transition-colors py-1 cursor-pointer">Персональные данные</button>
             </nav>
 
-            <!-- Кнопки действий: Обновить таблицу, Кабинет, Корзина -->
             <div class="flex items-center gap-2 sm:gap-2.5">
                 <button
                     type="button"
@@ -398,12 +392,20 @@
                             ></textarea>
                         </div>
 
+                        <label class="flex items-start gap-2.5 text-xs text-wood-600 cursor-pointer select-none">
+                            <input type="checkbox" required checked class="mt-0.5 rounded border-cream-300 text-sage-600 focus:ring-sage-400">
+                            <span>
+                                Согласен(на) на публикацию отзыва и обработку указанных данных в соответствии с
+                                <button type="button" onclick="openPrivacyModal()" class="underline text-sage-700 hover:text-wood-900 font-medium cursor-pointer">Политикой защиты персональных данных</button>.
+                            </span>
+                        </label>
+
                         <button
                             id="submitReviewBtn"
                             type="submit"
                             class="w-full py-3 px-5 rounded-xl bg-sage-600 hover:bg-sage-700 text-cream-50 font-semibold text-sm shadow-wood-sm transition-all active:scale-95 cursor-pointer"
                         >
-                            Пока не работает!
+                            Опубликовать отзыв
                         </button>
                     </form>
                 </div>
@@ -411,6 +413,32 @@
                 <div class="lg:col-span-7">
                     <div id="reviewsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК ЗАЩИТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ (КРАТКО НА СТРАНИЦЕ + КНОПКА ПОЛНОГО ТЕКСТА) -->
+    <section id="privacy-section" class="py-8 bg-cream-100/80 border-t border-cream-300/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl bg-cream-50 border border-cream-300 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-wood-sm">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-sage-100 text-sage-700 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-lg font-bold text-wood-900">Защита персональных данных</h3>
+                        <p class="text-xs sm:text-sm text-wood-600 leading-relaxed mt-0.5">
+                            Мы бережно относимся к вашим контактам: имя, телефон и адрес используются исключительно для оформления, доставки заказа и обратной связи. Данные не передаются третьим лицам и не используются для спам-рассылок.
+                        </p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onclick="openPrivacyModal()"
+                    class="shrink-0 px-4 py-2.5 rounded-xl bg-cream-100 hover:bg-cream-200 border border-cream-300 text-xs sm:text-sm font-semibold text-wood-800 transition-colors cursor-pointer"
+                >
+                    Подробнее о защите данных
+                </button>
             </div>
         </div>
     </section>
@@ -433,6 +461,7 @@
                         <li><a href="#about" class="hover:text-cream-50 transition-colors">О мастерской</a></li>
                         <li><a href="#reviews" class="hover:text-cream-50 transition-colors">Отзывы покупателей</a></li>
                         <li><button type="button" onclick="openAccountModal('orders')" class="hover:text-cream-50 transition-colors cursor-pointer">Личный кабинет и заказы</button></li>
+                        <li><button type="button" onclick="openPrivacyModal()" class="hover:text-cream-50 transition-colors cursor-pointer">Защита персональных данных</button></li>
                     </ul>
                 </div>
 
@@ -444,10 +473,71 @@
 
             <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
                 <span>© <span id="currentYear">2026</span> Мастерская «Дари счастье». Все права защищены.</span>
-                <span>Данные каталога, отзывов и заказов подключены к Google Таблице</span>
+                <button type="button" onclick="openPrivacyModal()" class="hover:text-cream-100 underline cursor-pointer">Политика конфиденциальности и обработки персональных данных</button>
             </div>
         </div>
     </footer>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ПОЛИТИКА ЗАЩИТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ -->
+    <div id="privacyModalOverlay" onclick="if (event.target === this) closePrivacyModal()" class="hidden fixed inset-0 z-50 bg-wood-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cream-50 border border-cream-300 rounded-3xl shadow-wood-lg max-w-2xl w-full overflow-hidden my-auto">
+            <div class="px-6 py-4 border-b border-cream-300 bg-cream-100/80 flex items-center justify-between">
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-wood-900">Политика защиты персональных данных</h3>
+                    <p class="text-xs text-wood-500">Мастерская ручной работы «Дари счастье» • Редакция 2026 г.</p>
+                </div>
+                <button type="button" onclick="closePrivacyModal()" aria-label="Закрыть окно" class="w-9 h-9 rounded-xl bg-cream-50 hover:bg-cream-200 border border-cream-300 text-wood-700 flex items-center justify-center cursor-pointer">✕</button>
+            </div>
+
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4 text-sm text-wood-700 leading-relaxed">
+                <div class="rounded-2xl bg-sage-100/70 border border-sage-200 p-4 text-xs sm:text-sm text-wood-800">
+                    Настоящая Политика определяет порядок обработки и защиты информации о покупателях и посетителях сайта мастерской «Дари счастье» в соответствии с Федеральным законом РФ от 27.07.2006 № 152-ФЗ «О персональных данных».
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-base text-wood-900 mb-1">1. Какие данные мы собираем</h4>
+                    <p>При оформлении заказа, заполнении личного кабинета или публикации отзыва вы добровольно предоставляете минимально необходимые сведения:</p>
+                    <ul class="list-disc pl-5 mt-1.5 space-y-1 text-wood-600">
+                        <li>Имя (или псевдоним для публикации отзыва);</li>
+                        <li>Контактные данные для связи (номер телефона, ник в Telegram или ссылка на страницу ВКонтакте);</li>
+                        <li>Адрес или пункт выдачи для доставки заказа;</li>
+                        <li>Текст отзыва и оценка изделия.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-base text-wood-900 mb-1">2. Цели обработки персональных данных</h4>
+                    <p>Ваши данные используются строго для следующих целей:</p>
+                    <ul class="list-disc pl-5 mt-1.5 space-y-1 text-wood-600">
+                        <li>Приём, согласование деталей, изготовление и доставка вашего заказа;</li>
+                        <li>Обратная связь по вопросам оплаты, сроков и упаковки изделий;</li>
+                        <li>Публикация вашего отзыва о работе мастерской на витрине сайта;</li>
+                        <li>Сохранение корзины, избранного и истории заказов в памяти вашего браузера (localStorage) для вашего удобства.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-base text-wood-900 mb-1">3. Хранение и защита информации</h4>
+                    <p>
+                        Передача данных с сайта осуществляется по защищённому протоколу HTTPS. Сведения о заказах хранятся в закрытой рабочей таблице мастерской с ограниченным доступом только для мастеров. Мы не продаём, не обмениваем и не передаём ваши персональные данные третьим лицам, за исключением служб доставки (СДЭК, Почта России, Яндекс Доставка) в объёме, необходимом для вручения посылки.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-base text-wood-900 mb-1">4. Ваши права и удаление данных</h4>
+                    <p>
+                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Контакты».
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-cream-300 bg-cream-100/70 flex justify-end">
+                <button type="button" onclick="closePrivacyModal()" class="px-5 py-2.5 rounded-xl bg-sage-600 hover:bg-sage-700 text-cream-50 text-sm font-semibold shadow-wood-sm cursor-pointer">
+                    Понятно, закрыть
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- МОДАЛЬНОЕ ОКНО КАРТОЧКИ ТОВАРА -->
     <div id="productModalOverlay" onclick="if (event.target === this) closeProductModal()" class="hidden fixed inset-0 z-50 bg-wood-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
@@ -530,7 +620,7 @@
                     </div>
 
                     <div id="paymentDetailsBox" class="rounded-2xl bg-sage-100/80 border border-sage-200 p-3.5 text-xs text-wood-800 space-y-1.5">
-                        <div class="font-semibold text-sage-700">реквизиты для оплаты:</div>
+                        <div class="font-semibold text-sage-700">Реквизиты для оплаты:</div>
                         <div id="paymentDetailsText" class="text-wood-700 leading-relaxed break-words">Укажите реквизиты на листе «Контакты» таблицы (например, «Оплата СБП» или «Карта») либо согласуйте оплату с мастером после подтверждения заказа.</div>
                     </div>
 
@@ -538,6 +628,14 @@
                         <label for="orderComment" class="block text-xs font-semibold text-wood-600 mb-1">Комментарий к заказу</label>
                         <textarea id="orderComment" rows="2" oninput="saveCheckoutDraft()" placeholder="Пожелания по цвету, размеру или подарочной открытке..." class="w-full px-3.5 py-2.5 rounded-xl bg-cream-100 border border-cream-300 text-sm text-wood-800 focus:outline-none focus:ring-2 focus:ring-sage-400 resize-none"></textarea>
                     </div>
+
+                    <label class="flex items-start gap-2 text-xs text-wood-600 cursor-pointer select-none">
+                        <input type="checkbox" required checked class="mt-0.5 rounded border-cream-300 text-sage-600 focus:ring-sage-400">
+                        <span>
+                            Даю согласие на обработку персональных данных согласно
+                            <button type="button" onclick="openPrivacyModal()" class="underline text-sage-700 hover:text-wood-900 font-medium cursor-pointer">Политике защиты данных</button>.
+                        </span>
+                    </label>
 
                     <button
                         id="submitOrderBtn"
@@ -622,7 +720,7 @@
 
     <script>
         const SHEET_ID = '1_FJbgq_Daepd5v4-voxwTwD0RNWdyndMdRuX5vft7lE';
-        const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzhJvx8GpHO0PB0pyWeQkaEHIjfZMOOnxhGAQ1z-kCc_FVOM5Am2OxHfKxm0wiwzNtm/exec';
+        const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwhZkLAUik8-Clh0mmtRJUbfRsoqobm56LaEL9Xp_ZGX66shl9FAoMY42Z646UUR-dm/exec';
 
         const STORAGE_KEYS = {
             state: 'dari_schastye_state_v2',
@@ -701,6 +799,18 @@
         const cardPhotoIndexes = {};
         let modalPhotoIndex = 0;
 
+        function openPrivacyModal() {
+            const modal = document.getElementById('privacyModalOverlay');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.openPrivacyModal = openPrivacyModal;
+
+        function closePrivacyModal() {
+            const modal = document.getElementById('privacyModalOverlay');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.closePrivacyModal = closePrivacyModal;
+
         function safeCreateIcons() {
             try {
                 if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -763,7 +873,7 @@
                 toast.style.opacity = '0';
                 toast.style.transition = 'opacity 0.25s ease';
                 setTimeout(() => toast.remove(), 260);
-            }, 3200);
+            }, 3400);
         }
 
         function savePersistedState() {
@@ -1529,11 +1639,11 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы посмотреть в Связь с мастерской.';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы можете добавить строку «Оплата СБП» на лист «Контакты» таблицы.';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
-                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки';
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки (или укажите строку «Карта» на листе «Контакты» таблицы).';
             } else {
                 boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
             }
@@ -1920,7 +2030,7 @@
             `).join('');
         }
 
-        function sendReviewViaJsonpFallback(reviewData) {
+        function sendReviewViaJsonpWithStatus(reviewData) {
             return new Promise(resolve => {
                 const cbName = `revCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
                 const script = document.createElement('script');
@@ -1930,13 +2040,17 @@
                 };
                 const timer = setTimeout(() => {
                     cleanup();
-                    resolve();
-                }, 4500);
+                    resolve({ ok: false, reason: 'timeout' });
+                }, 6000);
 
-                window[cbName] = function () {
+                window[cbName] = function (resp) {
                     clearTimeout(timer);
                     cleanup();
-                    resolve();
+                    if (resp && resp.status === 'success') {
+                        resolve({ ok: true, resp });
+                    } else {
+                        resolve({ ok: false, reason: 'script_error', resp });
+                    }
                 };
 
                 const qs = new URLSearchParams({
@@ -1953,7 +2067,7 @@
                 script.onerror = () => {
                     clearTimeout(timer);
                     cleanup();
-                    resolve();
+                    resolve({ ok: false, reason: 'network_error' });
                 };
                 document.body.appendChild(script);
             });
@@ -1991,7 +2105,11 @@
             saveSheetCache();
             renderReviews();
 
-            try {
+            const result = await sendReviewViaJsonpWithStatus(newReview);
+
+            if (result.ok) {
+                showToast('Спасибо! Отзыв сохранён в Google Таблицу и виден всем', 'success');
+            } else {
                 const formBody = new URLSearchParams();
                 formBody.append('type', 'review');
                 formBody.append('author', author);
@@ -2000,20 +2118,14 @@
                 formBody.append('rating', String(rating));
                 formBody.append('text', text);
 
-                await Promise.race([
-                    fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                        body: formBody.toString()
-                    }).catch(() => {}),
-                    sendReviewViaJsonpFallback(newReview)
-                ]);
+                fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: formBody.toString()
+                }).catch(() => {});
 
-                showToast('Спасибо! Отзыв опубликован и отправлен в таблицу', 'success');
-            } catch (err) {
-                console.warn('Ошибка отправки отзыва в таблицу:', err);
-                showToast('Отзыв добавлен на страницу', 'info');
+                showToast('Отзыв добавлен! Проверьте в Apps Script: Управление развертываниями → Новая версия', 'info');
             }
 
             authorInput.value = '';
