@@ -10,59 +10,108 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Marck+Script&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Подключение иконок Lucide -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                        serif: ['Cormorant Garamond', 'serif'],
-                        script: ['Marck Script', 'cursive'],
-                    },
-                    colors: {
-                        cream: {
-                            50: '#FDFBF7',
-                            100: '#FAF5EE',
-                            200: '#F3E9DC',
-                            300: '#E6D5C1',
-                            400: '#D4BC9E',
-                        },
-                        wood: {
-                            500: '#8B6548',
-                            600: '#6E4E37',
-                            700: '#593E2B',
-                            800: '#4A3322',
-                            900: '#362417',
-                        },
-                        sage: {
-                            100: '#EBF0EB',
-                            200: '#D5E0D6',
-                            500: '#6A846B',
-                            600: '#566E57',
-                            700: '#4E6650',
-                        },
-                        roseblush: {
-                            100: '#F9ECEE',
-                            300: '#E3A5B0',
-                            500: '#C97A88',
-                            600: '#B06270',
-                        },
-                        lavender: {
-                            100: '#F1EEF5',
-                            400: '#A38EB5',
-                            500: '#8A729E',
+        // Безопасная заглушка для иконок (чтобы сайт работал без внешних CDN и при блокировках)
+        if (!window.lucide || typeof window.lucide.createIcons !== 'function') {
+            window.lucide = {
+                createIcons: function() {
+                    const icons = {
+                        'sparkles': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>',
+                        'search': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+                        'x': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+                        'refresh-cw': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>',
+                        'shopping-bag': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+                        'shopping-basket': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg>',
+                        'heart-handshake': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+                        'arrow-down': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+                        'arrow-right': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+                        'star': '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+                        'sprout': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>',
+                        'gift': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>',
+                        'search-x': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+                        'pen-line': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+                        'maximize-2': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>',
+                        'plus': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M5 12h14"/><path d="M12 5v14"/></svg>',
+                        'heart': '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+                        'message-circle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>',
+                        'copy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+                        'send': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>'
+                    };
+                    document.querySelectorAll('[data-lucide]').forEach(el => {
+                        const name = el.getAttribute('data-lucide');
+                        if (icons[name]) {
+                            el.innerHTML = icons[name];
+                            el.style.display = 'inline-flex';
+                            el.style.alignItems = 'center';
+                            el.style.justifyContent = 'center';
                         }
-                    },
-                    boxShadow: {
-                        'wood': '0 12px 32px -8px rgba(74, 51, 34, 0.14)',
-                        'wood-sm': '0 4px 14px -2px rgba(74, 51, 34, 0.10)',
-                        'macrame': 'inset 0 0 0 1px rgba(139, 101, 72, 0.22), 0 10px 25px -5px rgba(74, 51, 34, 0.12)',
+                    });
+                }
+            };
+        }
+
+        function safeCreateIcons() {
+            try {
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            } catch (err) {
+                console.warn('Ошибка отрисовки иконок:', err);
+            }
+        }
+
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                            script: ['"Marck Script"', 'cursive'],
+                            sans: ['"Nunito"', 'system-ui', 'sans-serif'],
+                        },
+                        colors: {
+                            cream: {
+                                50: '#FDFBF7',
+                                100: '#FAF5EE',
+                                200: '#F3E9DC',
+                                300: '#E6D5C1',
+                                400: '#D4BC9E',
+                            },
+                            wood: {
+                                500: '#8B6548',
+                                600: '#6E4E37',
+                                700: '#593E2B',
+                                800: '#4A3322',
+                                900: '#332216',
+                            },
+                            sage: {
+                                100: '#EBF0EB',
+                                200: '#D2DDD2',
+                                500: '#6A846B',
+                                600: '#4E6650',
+                                700: '#3B4E3D',
+                            },
+                            roseblush: {
+                                100: '#F9ECEE',
+                                300: '#E3A5B0',
+                                500: '#C97A88',
+                                600: '#A85B69',
+                            },
+                            lavender: {
+                                100: '#F1EEF5',
+                                400: '#A38EB5',
+                                500: '#8A729E',
+                            }
+                        },
+                        boxShadow: {
+                            'wood': '0 12px 32px -8px rgba(74, 51, 34, 0.14)',
+                            'wood-sm': '0 4px 14px -2px rgba(74, 51, 34, 0.10)',
+                            'macrame': 'inset 0 0 0 1px rgba(139, 101, 72, 0.22), 0 10px 25px -5px rgba(74, 51, 34, 0.12)',
+                        }
                     }
                 }
-            }
+            };
         }
     </script>
 
@@ -722,7 +771,8 @@
         const STORAGE_KEYS = {
             CART: 'dari_schastye_cart',
             CUSTOMER: 'dari_schastye_customer',
-            LOCAL_REVIEWS: 'dari_schastye_local_reviews'
+            LOCAL_REVIEWS: 'dari_schastye_local_reviews',
+            CACHED_DATA: 'dari_schastye_cached_sheet_v1'
         };
 
         // 1. РЕЗЕРВНЫЕ ДЕМО-ТОВАРЫ (ПОКАЗЫВАЮТСЯ, ЕСЛИ ЛИСТ «ТОВАРЫ» ПУСТ ИЛИ ПОКА ИДЕТ ЗАГРУЗКА)
@@ -887,10 +937,37 @@
 
         async function fetchSheetTab(sheetName) {
             const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
-            const text = await res.text();
-            return parseGvizResponse(text);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 7000);
+            try {
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!res.ok) throw new Error(`Ошибка загрузки листа ${sheetName}`);
+                const text = await res.text();
+                return parseGvizResponse(text);
+            } catch (e) {
+                clearTimeout(timeoutId);
+                throw e;
+            }
+        }
+
+        function saveSheetCache() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.CACHED_DATA, JSON.stringify({
+                    products,
+                    contacts
+                }));
+            } catch (e) {}
+        }
+
+        function loadSheetCache() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.CACHED_DATA);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.products) && parsed.products.length > 0) products = parsed.products;
+                if (Array.isArray(parsed.contacts) && parsed.contacts.length > 0) contacts = parsed.contacts;
+            } catch (e) {}
         }
 
         async function loadFromGoogleSheets(isManual = false) {
@@ -964,6 +1041,7 @@
                 renderProducts();
                 renderReviews();
                 renderContacts();
+                if (loadedAny) saveSheetCache();
 
                 if (statusEl) {
                     statusEl.innerHTML = loadedAny
@@ -1046,7 +1124,7 @@
             if (filtered.length === 0) {
                 grid.innerHTML = '';
                 emptyState.classList.remove('hidden');
-                lucide.createIcons();
+                safeCreateIcons();
                 return;
             }
 
@@ -1098,7 +1176,7 @@
                 `;
             }).join('');
 
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function openProductModal(productId) {
@@ -1123,7 +1201,7 @@
             };
 
             document.getElementById('productModalOverlay').classList.remove('hidden');
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function closeProductModal() {
@@ -1171,7 +1249,7 @@
                 </div>
             `).join('');
 
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function toggleReviewForm() {
@@ -1240,7 +1318,7 @@
                 `;
             }).join('');
 
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         // 7. КОРЗИНА И СОХРАНЕНИЕ В LOCALSTORAGE
@@ -1378,7 +1456,7 @@
             `).join('');
 
             totalEl.textContent = formatPrice(totalSum);
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         // 8. ОФОРМЛЕНИЕ ЗАКАЗА И ОТПРАВКА В GOOGLE ТАБЛИЦУ («ЗАКАЗЫ»)
@@ -1498,7 +1576,7 @@
             msgButtonsContainer.innerHTML = actionButtons.join('');
             document.getElementById('orderSuccessState').classList.remove('hidden');
 
-            lucide.createIcons();
+            safeCreateIcons();
             showToast(`Заказ #${orderNumber} отправлен в мастерскую!`);
         }
 
@@ -1535,7 +1613,7 @@
                 <span>${escapeHtml(message)}</span>
             `;
             container.appendChild(toast);
-            lucide.createIcons();
+            safeCreateIcons();
 
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -1578,6 +1656,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadSheetCache();
             const localRevs = getLocalReviews();
             if (localRevs.length > 0) {
                 reviews = [...localRevs, ...FALLBACK_REVIEWS];
@@ -1589,7 +1668,7 @@
             renderReviews();
             renderContacts();
             updateCartUI();
-            lucide.createIcons();
+            safeCreateIcons();
             loadFromGoogleSheets(false);
         });
     </script>
