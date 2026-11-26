@@ -2010,13 +2010,44 @@
             };
 
             try {
-                const targetUrl = `${ORDER_WEBHOOK_URL}${ORDER_WEBHOOK_URL.includes('?') ? '&' : '?'}type=review`;
-                await fetch(targetUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(reviewPayload)
+                // Отправляем через скрытый iframe и обычную форму, чтобы e.parameter работал даже при старом коде Apps Script
+                let iframe = document.getElementById('sheetHiddenPostFrame');
+                if (!iframe) {
+                    iframe = document.createElement('iframe');
+                    iframe.id = 'sheetHiddenPostFrame';
+                    iframe.name = 'sheetHiddenPostFrame';
+                    iframe.className = 'hidden';
+                    document.body.appendChild(iframe);
+                }
+
+                const formEl = document.createElement('form');
+                formEl.method = 'POST';
+                formEl.action = ORDER_WEBHOOK_URL;
+                formEl.target = 'sheetHiddenPostFrame';
+                formEl.className = 'hidden';
+
+                const fieldsToSend = {
+                    type: 'review',
+                    author,
+                    name: author,
+                    date: dateStr,
+                    rating: String(rating),
+                    text,
+                    payload: JSON.stringify(reviewPayload)
+                };
+
+                Object.entries(fieldsToSend).forEach(([key, val]) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = String(val);
+                    formEl.appendChild(input);
                 });
+
+                document.body.appendChild(formEl);
+                formEl.submit();
+                setTimeout(() => formEl.remove(), 1500);
+
                 showToast('Спасибо! Отзыв опубликован и отправлен в таблицу', 'success');
             } catch (err) {
                 console.warn('Ошибка отправки отзыва в таблицу:', err);
