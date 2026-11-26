@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -2001,18 +2001,21 @@
             saveSheetCache();
             renderReviews();
 
+            const reviewPayload = {
+                type: 'review',
+                author,
+                date: dateStr,
+                rating,
+                text
+            };
+
             try {
-                await fetch(ORDER_WEBHOOK_URL, {
+                const targetUrl = `${ORDER_WEBHOOK_URL}${ORDER_WEBHOOK_URL.includes('?') ? '&' : '?'}type=review`;
+                await fetch(targetUrl, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        type: 'review',
-                        author,
-                        date: dateStr,
-                        rating,
-                        text
-                    })
+                    body: JSON.stringify(reviewPayload)
                 });
                 showToast('Спасибо! Отзыв опубликован и отправлен в таблицу', 'success');
             } catch (err) {
