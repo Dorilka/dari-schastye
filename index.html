@@ -135,7 +135,6 @@
             <!-- Логотип и название мастерской -->
             <a href="#" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
                 <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-sage-500 to-wood-600 text-cream-50 flex items-center justify-center shadow-wood-sm group-hover:scale-105 transition-transform">
-                    <!-- Иконка плетения / счастья -->
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 3v4"></path>
                         <path d="M5 7h14"></path>
@@ -197,7 +196,6 @@
     <section class="relative pt-8 pb-12 sm:pt-12 sm:pb-16 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-md p-6 sm:p-10 lg:p-12 relative overflow-hidden">
-                <!-- Декоративные ботанические акценты -->
                 <div class="hidden lg:block absolute -right-10 -top-10 w-64 h-64 rounded-full bg-sage-100/80 blur-2xl pointer-events-none"></div>
                 <div class="hidden lg:block absolute -left-12 -bottom-12 w-72 h-72 rounded-full bg-roseblush-100/80 blur-2xl pointer-events-none"></div>
 
@@ -226,14 +224,12 @@
                             </a>
                         </div>
 
-                        <!-- Статус синхронизации -->
                         <div class="pt-2 flex items-center justify-center lg:justify-start gap-2 text-xs text-wood-500">
                             <span id="sheetStatusDot" class="w-2 h-2 rounded-full bg-sage-500 inline-block"></span>
                             <span id="sheetStatusText">Каталог и отзывы синхронизированы с таблицей</span>
                         </div>
                     </div>
 
-                    <!-- Правая декоративная карточка-коллаж -->
                     <div class="lg:col-span-5">
                         <div class="macrame-banner-frame rounded-3xl p-6 sm:p-7 text-center">
                             <div class="text-xs uppercase tracking-[0.2em] text-wood-500 font-semibold mb-2">С любовью к деталям</div>
@@ -271,7 +267,6 @@
                     <h2 class="font-serif text-2xl sm:text-4xl font-bold text-wood-900 mt-1">Каталог изделий</h2>
                 </div>
 
-                <!-- Поиск и сортировка -->
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <div class="relative flex-1 sm:w-64">
                         <input
@@ -296,10 +291,7 @@
                 </div>
             </div>
 
-            <!-- Фильтры категорий -->
             <div id="categoryFilters" class="flex items-center gap-2 overflow-x-auto pb-3 mb-6"></div>
-
-            <!-- Сетка товаров -->
             <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </main>
@@ -341,10 +333,9 @@
         </div>
     </section>
 
-    <!-- ОТЗЫВЫ ПОКУПАТЕЛЕЙ (В СТИЛЕ ЗАГРУЖЕННОГО БАННЕРА + СОХРАНЕНИЕ В ТАБЛИЦУ + ОЦЕНКА 1–5) -->
+    <!-- ОТЗЫВЫ ПОКУПАТЕЛЕЙ -->
     <section id="reviews" class="py-12 sm:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Заголовочный баннер в стиле макраме и цветов -->
             <div class="macrame-banner-frame rounded-3xl p-6 sm:p-10 mb-8 text-center">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cream-50/90 border border-cream-300 text-wood-600 text-xs font-semibold mb-3">
                     <span>✿</span>
@@ -356,7 +347,6 @@
                     Новые отзывы сохраняются в общую таблицу мастерской и отображаются у всех посетителей сайта. Выберите оценку от 1 до 5 звёзд и поделитесь эмоциями!
                 </p>
 
-                <!-- Средний рейтинг и количество отзывов -->
                 <div id="reviewsSummaryBox" class="inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-cream-50/95 border border-cream-300 text-sm text-wood-800 shadow-wood-sm">
                     <span id="avgRatingStars" class="text-amber-500 font-bold tracking-wider">★★★★★</span>
                     <span id="avgRatingText" class="font-semibold">5.0 из 5</span>
@@ -366,7 +356,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <!-- Форма добавления отзыва с оценкой 1–5 звёзд -->
                 <div class="lg:col-span-5 rounded-3xl bg-cream-50 border border-cream-300 p-6 shadow-wood-md">
                     <h3 class="font-serif text-xl sm:text-2xl font-bold text-wood-900 mb-1">Оставить свой отзыв</h3>
                     <p class="text-xs sm:text-sm text-wood-500 mb-5">Опубликованный отзыв появится в ленте для всех покупателей.</p>
@@ -383,7 +372,6 @@
                             >
                         </div>
 
-                        <!-- Интерактивный выбор оценки от 1 до 5 звёзд -->
                         <div>
                             <span class="block text-xs font-semibold uppercase tracking-wider text-wood-600 mb-1.5">Ваша оценка (от 1 до 5) *</span>
                             <div class="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-cream-100 border border-cream-300">
@@ -420,7 +408,6 @@
                     </form>
                 </div>
 
-                <!-- Лента отзывов -->
                 <div class="lg:col-span-7">
                     <div id="reviewsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
@@ -462,14 +449,12 @@
         </div>
     </footer>
 
-    <!-- МОДАЛЬНОЕ ОКНО КАРТОЧКИ ТОВАРА (С ГАЛЕРЕЕЙ ИЗ НЕСКОЛЬКИХ ФОТО) -->
+    <!-- МОДАЛЬНОЕ ОКНО КАРТОЧКИ ТОВАРА -->
     <div id="productModalOverlay" onclick="if (event.target === this) closeProductModal()" class="hidden fixed inset-0 z-50 bg-wood-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cream-50 border border-cream-300 rounded-3xl shadow-wood-lg max-w-3xl w-full overflow-hidden my-auto">
             <div class="grid grid-cols-1 md:grid-cols-12">
-                <!-- Левая часть: галерея фото -->
                 <div id="modalProductMedia" class="md:col-span-7 bg-cream-200 min-h-[300px] sm:min-h-[380px] relative"></div>
 
-                <!-- Правая часть: описание, цена, избранное и покупка -->
                 <div class="md:col-span-5 p-6 sm:p-7 flex flex-col justify-between gap-5">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-3">
@@ -499,10 +484,9 @@
         </div>
     </div>
 
-    <!-- ВЫДВИЖНАЯ КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА С ВЫБОРОМ СПОСОБА ОПЛАТЫ -->
+    <!-- ВЫДВИЖНАЯ КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА -->
     <div id="cartDrawerOverlay" onclick="if (event.target === this) closeCartDrawer()" class="hidden fixed inset-0 z-50 bg-wood-900/55 backdrop-blur-xs flex justify-end">
         <aside class="w-full max-w-lg bg-cream-50 h-full shadow-wood-lg border-l border-cream-300 flex flex-col">
-            <!-- Шапка корзины -->
             <div class="px-5 py-4 border-b border-cream-300 flex items-center justify-between bg-cream-100/70">
                 <div>
                     <h3 class="font-serif text-xl font-bold text-wood-900">Ваша корзина</h3>
@@ -511,11 +495,9 @@
                 <button type="button" onclick="closeCartDrawer()" aria-label="Закрыть корзину" class="w-9 h-9 rounded-xl bg-cream-50 hover:bg-cream-200 border border-cream-300 text-wood-700 flex items-center justify-center cursor-pointer">✕</button>
             </div>
 
-            <!-- Содержимое корзины -->
             <div class="flex-1 overflow-y-auto p-5 space-y-5">
                 <div id="cartItemsList" class="space-y-3"></div>
 
-                <!-- Блок оформления заказа -->
                 <form id="checkoutForm" onsubmit="submitOrderForm(event)" class="hidden space-y-3.5 pt-4 border-t border-cream-300">
                     <h4 class="font-serif text-lg font-bold text-wood-900">Оформление заказа</h4>
 
@@ -547,10 +529,9 @@
                         </select>
                     </div>
 
-                    <!-- Подсказка с реквизитами из таблицы «Контакты» -->
                     <div id="paymentDetailsBox" class="rounded-2xl bg-sage-100/80 border border-sage-200 p-3.5 text-xs text-wood-800 space-y-1.5">
-                        <div class="font-semibold text-sage-700">Реквизиты для оплаты:</div>
-                        <div id="paymentDetailsText" class="text-wood-700 leading-relaxed break-words">Реквизиты 7465792652956924 (например, «Оплата СБП» или «Карта») либо согласуйте оплату с мастером после подтверждения заказа.</div>
+                        <div class="font-semibold text-sage-700">реквизиты для оплаты:</div>
+                        <div id="paymentDetailsText" class="text-wood-700 leading-relaxed break-words">Укажите реквизиты на листе «Контакты» таблицы (например, «Оплата СБП» или «Карта») либо согласуйте оплату с мастером после подтверждения заказа.</div>
                     </div>
 
                     <div>
@@ -567,7 +548,6 @@
                     </button>
                 </form>
 
-                <!-- Блок подтверждения после отправки заказа -->
                 <div id="orderSuccessBox" class="hidden rounded-2xl bg-sage-100 border border-sage-200 p-4 space-y-3">
                     <div class="font-serif text-lg font-bold text-sage-700">Заявка отправлена в мастерскую!</div>
                     <p class="text-xs text-wood-700 leading-relaxed">
@@ -583,7 +563,6 @@
                 </div>
             </div>
 
-            <!-- Нижняя панель с итоговой суммой -->
             <div id="cartFooterBar" class="px-5 py-4 border-t border-cream-300 bg-cream-100/80 flex items-center justify-between">
                 <div>
                     <span class="text-xs text-wood-500 block">Итого к оплате</span>
@@ -596,7 +575,7 @@
         </aside>
     </div>
 
-    <!-- ЛИЧНЫЙ КАБИНЕТ ПОКУПАТЕЛЯ (ПРОФИЛЬ, ИЗБРАННОЕ, ИСТОРИЯ ЗАКАЗОВ) -->
+    <!-- ЛИЧНЫЙ КАБИНЕТ ПОКУПАТЕЛЯ -->
     <div id="accountModalOverlay" onclick="if (event.target === this) closeAccountModal()" class="hidden fixed inset-0 z-50 bg-wood-900/55 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cream-50 border border-cream-300 rounded-3xl shadow-wood-lg max-w-2xl w-full overflow-hidden my-auto">
             <div class="px-6 py-4 border-b border-cream-300 bg-cream-100/80 flex items-center justify-between">
@@ -607,7 +586,6 @@
                 <button type="button" onclick="closeAccountModal()" aria-label="Закрыть кабинет" class="w-9 h-9 rounded-xl bg-cream-50 hover:bg-cream-200 border border-cream-300 text-wood-700 flex items-center justify-center cursor-pointer">✕</button>
             </div>
 
-            <!-- Вкладки кабинета -->
             <div class="px-6 pt-4 flex gap-2 border-b border-cream-200">
                 <button type="button" id="accTabProfile" onclick="switchAccountTab('profile')" class="px-4 py-2 rounded-t-xl text-sm font-semibold border-b-2 transition-colors cursor-pointer">Профиль</button>
                 <button type="button" id="accTabFavorites" onclick="switchAccountTab('favorites')" class="px-4 py-2 rounded-t-xl text-sm font-semibold border-b-2 transition-colors cursor-pointer">Избранное</button>
@@ -615,7 +593,6 @@
             </div>
 
             <div class="p-6 max-h-[65vh] overflow-y-auto space-y-4">
-                <!-- Вкладка 1: Профиль -->
                 <div id="accPanelProfile" class="space-y-4">
                     <div>
                         <label for="profileNameInput" class="block text-xs font-semibold text-wood-600 mb-1">Имя</label>
@@ -634,10 +611,7 @@
                     </button>
                 </div>
 
-                <!-- Вкладка 2: Избранное -->
                 <div id="accPanelFavorites" class="hidden space-y-3"></div>
-
-                <!-- Вкладка 3: История заказов -->
                 <div id="accPanelOrders" class="hidden space-y-3"></div>
             </div>
         </div>
@@ -647,9 +621,6 @@
     <div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
     <script>
-        // =========================================================================
-        // 1. КОНФИГУРАЦИЯ ПОДКЛЮЧЕНИЯ К GOOGLE ТАБЛИЦЕ И СОСТОЯНИЕ ПРИЛОЖЕНИЯ
-        // =========================================================================
         const SHEET_ID = '1_FJbgq_Daepd5v4-voxwTwD0RNWdyndMdRuX5vft7lE';
         const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzhJvx8GpHO0PB0pyWeQkaEHIjfZMOOnxhGAQ1z-kCc_FVOM5Am2OxHfKxm0wiwzNtm/exec';
 
@@ -730,17 +701,12 @@
         const cardPhotoIndexes = {};
         let modalPhotoIndex = 0;
 
-        // =========================================================================
-        // 2. БЕЗОПАСНЫЕ УТИЛИТЫ, ИКОНКИ И СОХРАНЕНИЕ СОСТОЯНИЯ
-        // =========================================================================
         function safeCreateIcons() {
             try {
                 if (window.lucide && typeof window.lucide.createIcons === 'function') {
                     window.lucide.createIcons();
                 }
-            } catch (_) {
-                // Игнорируем сбой внешнего CDN иконок
-            }
+            } catch (_) {}
         }
 
         function escapeHtml(value) {
@@ -802,14 +768,13 @@
 
         function savePersistedState() {
             try {
-                const payload = {
+                localStorage.setItem(STORAGE_KEYS.state, JSON.stringify({
                     cart,
                     favorites,
                     ordersHistory,
                     profile,
                     checkoutDraft
-                };
-                localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(payload));
+                }));
             } catch (err) {
                 console.warn('Ошибка сохранения состояния:', err);
             }
@@ -865,9 +830,6 @@
             }
         }
 
-        // =========================================================================
-        // 3. РАБОТА С НЕСКОЛЬКИМИ ФОТО И ССЫЛКАМИ GOOGLE DRIVE
-        // =========================================================================
         function getPlaceholderSvg() {
             return `
                 <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-cream-100 to-cream-200 text-wood-600 select-none">
@@ -1024,9 +986,6 @@
             `;
         }
 
-        // =========================================================================
-        // 4. ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE ТАБЛИЦЫ (JSONP GVIZ)
-        // =========================================================================
         function fetchSheetRowsViaJsonp(sheetName, timeoutMs = 7000) {
             return new Promise((resolve, reject) => {
                 const callbackName = `gvizCb_${sheetName.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
@@ -1141,7 +1100,6 @@
                     let type = getField(r, ['тип', 'название', 'канал', 'type', 'name']);
                     let value = getField(r, ['значение', 'ссылка', 'контакт', 'value', 'link']);
 
-                    // Фоллбэк на случай пустых/сдвинутых заголовков в листе «Контакты»
                     if (!type && keys.length > 0) {
                         type = String(r[keys[0]] || '').trim();
                     }
@@ -1226,9 +1184,6 @@
         }
         window.syncFromSheet = syncFromSheet;
 
-        // =========================================================================
-        // 5. КАТАЛОГ, ФИЛЬТРЫ, ПОИСК, СОРТИРОВКА И МОДАЛЬНОЕ ОКНО ТОВАРА
-        // =========================================================================
         function renderCategoryFilters() {
             const container = document.getElementById('categoryFilters');
             if (!container) return;
@@ -1434,9 +1389,6 @@
         }
         window.closeProductModal = closeProductModal;
 
-        // =========================================================================
-        // 6. КОРЗИНА, ОПЛАТА И ОТПРАВКА ЗАКАЗА В GOOGLE ТАБЛИЦУ
-        // =========================================================================
         function getCartItemCount() {
             return cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
         }
@@ -1577,11 +1529,11 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы можете посмотреть на Связь с мастерской.';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы посмотреть в Связь с мастерской.';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
-                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки .';
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки';
             } else {
                 boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
             }
@@ -1703,7 +1655,6 @@
                 console.warn('Ошибка отправки заказа в таблицу:', err);
             }
 
-            // Сохраняем заказ в личный кабинет покупателя
             const orderRecord = {
                 id: `ORD-${Date.now().toString().slice(-6)}`,
                 date: new Date().toLocaleString('ru-RU'),
@@ -1718,7 +1669,6 @@
             };
             ordersHistory.unshift(orderRecord);
 
-            // Обновляем профиль данными из заказа, если они ещё не заданы
             if (!profile.name) profile.name = name;
             if (!profile.contact) profile.contact = phone;
 
@@ -1769,9 +1719,6 @@
         }
         window.copyOrderSummary = copyOrderSummary;
 
-        // =========================================================================
-        // 7. ЛИЧНЫЙ КАБИНЕТ ПОКУПАТЕЛЯ (ПРОФИЛЬ, ИЗБРАННОЕ, ИСТОРИЯ ЗАКАЗОВ)
-        // =========================================================================
         function isFavorite(productId) {
             return favorites.includes(productId);
         }
@@ -1898,9 +1845,6 @@
             `).join('');
         }
 
-        // =========================================================================
-        // 8. ОТЗЫВЫ С ОЦЕНКОЙ 1–5 ЗВЁЗД И СОХРАНЕНИЕМ В GOOGLE ТАБЛИЦУ
-        // =========================================================================
         const RATING_LABELS = {
             1: '1 / 5 — Очень плохо',
             2: '2 / 5 — Ниже ожиданий',
@@ -1976,6 +1920,45 @@
             `).join('');
         }
 
+        function sendReviewViaJsonpFallback(reviewData) {
+            return new Promise(resolve => {
+                const cbName = `revCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                const cleanup = () => {
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try { delete window[cbName]; } catch (_) { window[cbName] = undefined; }
+                };
+                const timer = setTimeout(() => {
+                    cleanup();
+                    resolve();
+                }, 4500);
+
+                window[cbName] = function () {
+                    clearTimeout(timer);
+                    cleanup();
+                    resolve();
+                };
+
+                const qs = new URLSearchParams({
+                    action: 'review',
+                    type: 'review',
+                    author: reviewData.author,
+                    name: reviewData.author,
+                    date: reviewData.date,
+                    rating: String(reviewData.rating),
+                    text: reviewData.text,
+                    callback: cbName
+                });
+                script.src = `${ORDER_WEBHOOK_URL}?${qs.toString()}`;
+                script.onerror = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    resolve();
+                };
+                document.body.appendChild(script);
+            });
+        }
+
         async function submitReviewForm(event) {
             event.preventDefault();
             const authorInput = document.getElementById('reviewAuthor');
@@ -2004,21 +1987,11 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'Публикуем...';
 
-            // Показываем отзыв сразу на странице и сохраняем в кэш
             reviews = [newReview, ...reviews];
             saveSheetCache();
             renderReviews();
 
-            const reviewPayload = {
-                type: 'review',
-                author,
-                date: dateStr,
-                rating,
-                text
-            };
-
             try {
-                // Используем URLSearchParams, чтобы Google Apps Script всегда считывал поля в e.parameter
                 const formBody = new URLSearchParams();
                 formBody.append('type', 'review');
                 formBody.append('author', author);
@@ -2026,14 +1999,16 @@
                 formBody.append('date', dateStr);
                 formBody.append('rating', String(rating));
                 formBody.append('text', text);
-                formBody.append('payload', JSON.stringify(reviewPayload));
 
-                await fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                    body: formBody.toString()
-                });
+                await Promise.race([
+                    fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                        body: formBody.toString()
+                    }).catch(() => {}),
+                    sendReviewViaJsonpFallback(newReview)
+                ]);
 
                 showToast('Спасибо! Отзыв опубликован и отправлен в таблицу', 'success');
             } catch (err) {
@@ -2049,9 +2024,6 @@
         }
         window.submitReviewForm = submitReviewForm;
 
-        // =========================================================================
-        // 9. КОНТАКТЫ И ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
-        // =========================================================================
         function getContactButtonStyleAndIcon(typeLower, isUrl, isPhone) {
             if (typeLower.includes('telegram') || typeLower.includes('тг') || typeLower.includes('tg')) {
                 return {
