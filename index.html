@@ -139,8 +139,7 @@
                 </div>
                 <div>
                     <span class="font-script text-2xl sm:text-3xl font-bold text-wood-800 leading-none block">Дари счастье</span>
-                    <span class="text-[11px] uppercase tracking-[0.16em] text-wood-500 font-medium hidden sm:block">мастерская подарков ручной работы</span>
-                    <span class="text-[11px] uppercase tracking-[0.500em] text-wood-900 font-medium hidden sm:block">Бета-версия</span>
+                    <span class="text-[11px] uppercase tracking-[0.16em] text-wood-500 font-medium hidden sm:block">мастерская ручной работы</span>
                 </div>
             </a>
 
@@ -527,7 +526,7 @@
                 <div>
                     <h4 class="font-serif font-bold text-base text-wood-900 mb-1">4. Ваши права и удаление данных</h4>
                     <p>
-                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Связь с мастерской».
+                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Контакты».
                     </p>
                 </div>
             </div>
@@ -573,6 +572,44 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО (ЛАЙТБОКС) -->
+    <div id="fullscreenPhotoOverlay" onclick="if (event.target === this) closeFullscreenPhoto()" class="hidden fixed inset-0 z-[70] bg-wood-900/92 backdrop-blur-sm flex flex-col justify-between p-4 sm:p-6 select-none">
+        <div class="flex items-center justify-between gap-3 text-cream-50 max-w-6xl w-full mx-auto">
+            <div class="min-w-0">
+                <div id="fullscreenPhotoTitle" class="font-serif text-base sm:text-xl font-bold truncate"></div>
+                <div id="fullscreenPhotoCounter" class="text-xs text-cream-200/80">1 / 1</div>
+            </div>
+            <button
+                type="button"
+                onclick="closeFullscreenPhoto()"
+                aria-label="Закрыть полноэкранный просмотр"
+                class="w-10 h-10 rounded-full bg-cream-50/15 hover:bg-cream-50/25 text-cream-50 border border-cream-50/25 flex items-center justify-center text-lg font-bold transition-colors cursor-pointer shrink-0"
+            >✕</button>
+        </div>
+
+        <div class="relative flex-1 flex items-center justify-center my-3 max-w-6xl w-full mx-auto min-h-0">
+            <button
+                id="fullscreenPrevBtn"
+                type="button"
+                onclick="event.stopPropagation(); stepFullscreenPhoto(-1);"
+                aria-label="Предыдущее фото"
+                class="hidden absolute left-1 sm:left-3 z-10 w-11 h-11 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-900 shadow-lg flex items-center justify-center text-xl font-bold transition-transform active:scale-95 cursor-pointer"
+            >‹</button>
+
+            <div id="fullscreenPhotoStage" onclick="closeFullscreenPhoto()" class="w-full h-full flex items-center justify-center cursor-zoom-out"></div>
+
+            <button
+                id="fullscreenNextBtn"
+                type="button"
+                onclick="event.stopPropagation(); stepFullscreenPhoto(1);"
+                aria-label="Следующее фото"
+                class="hidden absolute right-1 sm:right-3 z-10 w-11 h-11 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-900 shadow-lg flex items-center justify-center text-xl font-bold transition-transform active:scale-95 cursor-pointer"
+            >›</button>
+        </div>
+
+        <div id="fullscreenThumbnails" class="flex items-center justify-center gap-2 flex-wrap max-w-4xl w-full mx-auto"></div>
     </div>
 
     <!-- ВЫДВИЖНАЯ КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА -->
@@ -622,7 +659,7 @@
 
                     <div id="paymentDetailsBox" class="rounded-2xl bg-sage-100/80 border border-sage-200 p-3.5 text-xs text-wood-800 space-y-1.5">
                         <div class="font-semibold text-sage-700">Реквизиты для оплаты:</div>
-                        <div id="paymentDetailsText" class="text-wood-700 leading-relaxed break-words">.</div>
+                        <div id="paymentDetailsText" class="text-wood-700 leading-relaxed break-words">Укажите реквизиты на листе «Контакты» таблицы (например, «Оплата СБП» или «Карта») либо согласуйте оплату с мастером после подтверждения заказа.</div>
                     </div>
 
                     <div>
@@ -813,16 +850,70 @@
         const cardPhotoIndexes = {};
         let modalPhotoIndex = 0;
 
-        // Настройки автоперелистывания фото в карточках товаров:
-        // AUTO_SLIDE_ENABLED — включить/выключить автоперелистывание
-        // AUTO_SLIDE_INTERVAL_MS — интервал смены фото в миллисекундах (например, 1600 = 1.6 сек)
-        // AUTO_SLIDE_ONLY_ON_HOVER — true: листать только при наведении мыши на карточку; false: листать автоматически всегда
+        let fullscreenPhotos = [];
+        let fullscreenIndex = 0;
+        let fullscreenTitle = '';
+
+        // Настройки автоперелистывания фото при наведении мыши на карточку товара:
         const AUTO_SLIDE_ENABLED = true;
-        const AUTO_SLIDE_INTERVAL_MS = 2500;
+        const AUTO_SLIDE_INTERVAL_MS = 1600;
         const AUTO_SLIDE_ONLY_ON_HOVER = true;
 
         let hoverSlideTimer = null;
         let hoveredProductId = null;
+
+        function isVkValueOrType(typeStr = '', valStr = '') {
+            const t = String(typeStr || '').toLowerCase();
+            const v = String(valStr || '').toLowerCase();
+            return (
+                t.includes('vk') ||
+                t.includes('вк') ||
+                t.includes('вконтакте') ||
+                v.includes('vk.com') ||
+                v.includes('vk.ru') ||
+                v.includes('m.vk.com')
+            );
+        }
+
+        function updateSingleCardPhotoDom(product) {
+            if (!product) return;
+            const photos = getProductPhotos(product);
+            if (photos.length <= 1) return;
+
+            const activeIdx = ((cardPhotoIndexes[product.id] || 0) % photos.length + photos.length) % photos.length;
+            const currentPhoto = photos[activeIdx] || '';
+            const cardEl = document.querySelector(`[data-product-id="${CSS.escape(String(product.id))}"]`);
+            if (!cardEl) return;
+
+            const mediaBox = cardEl.querySelector('[data-card-media]');
+            if (mediaBox) {
+                const imgEl = mediaBox.querySelector('img');
+                const resolved = resolveImageUrls(currentPhoto);
+                if (imgEl && resolved.primary) {
+                    imgEl.removeAttribute('data-tried-backup');
+                    imgEl.src = resolved.primary;
+                    if (resolved.backup) {
+                        imgEl.setAttribute('data-backup', resolved.backup);
+                    } else {
+                        imgEl.removeAttribute('data-backup');
+                    }
+                    imgEl.alt = product.name || 'Изделие мастерской «Дари счастье»';
+                } else {
+                    mediaBox.innerHTML = buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500');
+                }
+            }
+
+            const dots = cardEl.querySelectorAll('[data-card-dot]');
+            dots.forEach((dot, idx) => {
+                if (idx === activeIdx) {
+                    dot.classList.add('bg-cream-50', 'scale-125');
+                    dot.classList.remove('bg-cream-50/50', 'hover:bg-cream-50/80');
+                } else {
+                    dot.classList.remove('bg-cream-50', 'scale-125');
+                    dot.classList.add('bg-cream-50/50', 'hover:bg-cream-50/80');
+                }
+            });
+        }
 
         function stopCardAutoSlide() {
             hoveredProductId = null;
@@ -832,40 +923,6 @@
             }
         }
         window.stopCardAutoSlide = stopCardAutoSlide;
-
-        function updateSingleCardPhoto(productId) {
-            const product = products.find(p => p.id === productId);
-            const photos = getProductPhotos(product);
-            if (!product || photos.length === 0) return;
-
-            const activeIdx = (cardPhotoIndexes[productId] || 0) % photos.length;
-            const article = document.querySelector(`article[data-product-id="${CSS.escape(String(productId))}"]`);
-            const photoBox = article ? article.querySelector('[data-card-photo-box]') : null;
-            if (!photoBox) {
-                renderProducts();
-                return;
-            }
-
-            const img = photoBox.querySelector('img');
-            if (img) {
-                const resolved = resolveImageUrls(photos[activeIdx]);
-                img.setAttribute('data-tried-backup', '0');
-                img.setAttribute('data-backup', resolved.backup || '');
-                img.src = resolved.primary || photos[activeIdx];
-                img.alt = product.name || 'Изделие мастерской «Дари счастье»';
-            } else {
-                renderProducts();
-                return;
-            }
-
-            const dots = photoBox.querySelectorAll('button[aria-label^="Фото "]');
-            dots.forEach((dot, idx) => {
-                dot.className = `w-2 h-2 rounded-full transition-all cursor-pointer ${
-                    idx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'
-                }`;
-            });
-        }
-        window.updateSingleCardPhoto = updateSingleCardPhoto;
 
         function startCardAutoSlide(productId, event) {
             if (!AUTO_SLIDE_ENABLED || !AUTO_SLIDE_ONLY_ON_HOVER) return;
@@ -886,10 +943,120 @@
                 }
                 const current = cardPhotoIndexes[productId] || 0;
                 cardPhotoIndexes[productId] = (current + 1) % photos.length;
-                updateSingleCardPhoto(productId);
+                updateSingleCardPhotoDom(product);
             }, AUTO_SLIDE_INTERVAL_MS);
         }
         window.startCardAutoSlide = startCardAutoSlide;
+
+        function openFullscreenPhoto(productId, explicitIndex = null) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const photos = getProductPhotos(product);
+            if (photos.length === 0) {
+                showToast('У этого изделия пока нет загруженных фотографий', 'info');
+                return;
+            }
+
+            stopCardAutoSlide();
+            const startIdx = explicitIndex !== null && explicitIndex !== undefined
+                ? explicitIndex
+                : (cardPhotoIndexes[product.id] || 0);
+
+            fullscreenPhotos = photos;
+            fullscreenIndex = ((startIdx % photos.length) + photos.length) % photos.length;
+            fullscreenTitle = product.name || 'Фото изделия';
+
+            renderFullscreenViewer();
+            const overlay = document.getElementById('fullscreenPhotoOverlay');
+            if (overlay) overlay.classList.remove('hidden');
+        }
+        window.openFullscreenPhoto = openFullscreenPhoto;
+
+        function openModalPhotoFullscreen(productId) {
+            openFullscreenPhoto(productId, modalPhotoIndex);
+        }
+        window.openModalPhotoFullscreen = openModalPhotoFullscreen;
+
+        function closeFullscreenPhoto() {
+            const overlay = document.getElementById('fullscreenPhotoOverlay');
+            if (overlay) overlay.classList.add('hidden');
+            fullscreenPhotos = [];
+        }
+        window.closeFullscreenPhoto = closeFullscreenPhoto;
+
+        function stepFullscreenPhoto(delta) {
+            if (!fullscreenPhotos || fullscreenPhotos.length === 0) return;
+            fullscreenIndex = (fullscreenIndex + delta + fullscreenPhotos.length) % fullscreenPhotos.length;
+            renderFullscreenViewer();
+        }
+        window.stepFullscreenPhoto = stepFullscreenPhoto;
+
+        function selectFullscreenPhoto(idx) {
+            if (!fullscreenPhotos || fullscreenPhotos.length === 0) return;
+            fullscreenIndex = ((idx % fullscreenPhotos.length) + fullscreenPhotos.length) % fullscreenPhotos.length;
+            renderFullscreenViewer();
+        }
+        window.selectFullscreenPhoto = selectFullscreenPhoto;
+
+        function renderFullscreenViewer() {
+            const stage = document.getElementById('fullscreenPhotoStage');
+            const titleEl = document.getElementById('fullscreenPhotoTitle');
+            const counterEl = document.getElementById('fullscreenPhotoCounter');
+            const prevBtn = document.getElementById('fullscreenPrevBtn');
+            const nextBtn = document.getElementById('fullscreenNextBtn');
+            const thumbsEl = document.getElementById('fullscreenThumbnails');
+
+            if (!stage || !fullscreenPhotos.length) return;
+
+            const currentUrl = fullscreenPhotos[fullscreenIndex] || '';
+            const resolved = resolveImageUrls(currentUrl);
+            const src = escapeHtml(resolved.primary || currentUrl);
+            const backup = escapeHtml(resolved.backup || '');
+            const safeAlt = escapeHtml(fullscreenTitle);
+
+            if (titleEl) titleEl.textContent = fullscreenTitle;
+            if (counterEl) counterEl.textContent = `Фото ${fullscreenIndex + 1} из ${fullscreenPhotos.length}`;
+
+            const multi = fullscreenPhotos.length > 1;
+            if (prevBtn) prevBtn.classList.toggle('hidden', !multi);
+            if (nextBtn) nextBtn.classList.toggle('hidden', !multi);
+
+            stage.innerHTML = `
+                <img
+                    src="${src}"
+                    data-backup="${backup}"
+                    alt="${safeAlt}"
+                    onclick="event.stopPropagation()"
+                    onerror="window.handleProductImageError && window.handleProductImageError(this)"
+                    class="max-w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl cursor-default"
+                >
+            `;
+
+            if (thumbsEl) {
+                thumbsEl.innerHTML = multi ? fullscreenPhotos.map((u, idx) => {
+                    const r = resolveImageUrls(u);
+                    const tSrc = escapeHtml(r.primary || u);
+                    const active = idx === fullscreenIndex;
+                    return `
+                        <button
+                            type="button"
+                            onclick="event.stopPropagation(); selectFullscreenPhoto(${idx});"
+                            class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${active ? 'border-cream-50 scale-105 shadow-md' : 'border-cream-50/30 opacity-65 hover:opacity-100'}"
+                        >
+                            <img src="${tSrc}" alt="Кадр ${idx + 1}" class="w-full h-full object-cover">
+                        </button>
+                    `;
+                }).join('') : '';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const fsOverlay = document.getElementById('fullscreenPhotoOverlay');
+            if (!fsOverlay || fsOverlay.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeFullscreenPhoto();
+            if (e.key === 'ArrowLeft') stepFullscreenPhoto(-1);
+            if (e.key === 'ArrowRight') stepFullscreenPhoto(1);
+        });
 
         function openPrivacyModal() {
             const modal = document.getElementById('privacyModalOverlay');
@@ -1050,44 +1217,61 @@
         function parsePhotoList(rawValue) {
             if (!rawValue) return [];
             if (Array.isArray(rawValue)) {
-                return rawValue.map(v => String(v || '').trim()).filter(Boolean);
+                return rawValue
+                    .flatMap(v => parsePhotoList(v))
+                    .filter(Boolean);
             }
             const str = String(rawValue).trim();
             if (!str) return [];
 
-            const chunks = str
-                .split(/[\n;]+|(?=\s+https?:\/\/)/)
-                .map(s => s.trim())
+            // Разделяем ссылки только по переносам строк, пробелам, ';' или '|',
+            // чтобы не разрезать запятые внутри параметров URL (например, as=32x57,48x85,... у ВК)
+            const parts = str
+                .split(/[\n\r;|\s]+/)
+                .map(s => s.replace(/^,+|,+$/g, '').trim())
                 .filter(Boolean);
 
-            const result = [];
-            for (const chunk of chunks) {
-                if (!chunk.includes('://')) {
-                    chunk.split(',').map(s => s.trim()).filter(Boolean).forEach(item => result.push(item));
-                } else {
-                    result.push(chunk);
+            const unique = [];
+            parts.forEach(item => {
+                if (item && !unique.includes(item)) {
+                    unique.push(item);
                 }
-            }
-            return result;
+            });
+            return unique;
         }
 
         function getProductPhotos(product) {
             if (!product) return [];
-            if (Array.isArray(product.photos) && product.photos.length > 0) {
-                return product.photos.filter(Boolean);
+            const list = [];
+            if (Array.isArray(product.photos)) {
+                product.photos.forEach(p => {
+                    parsePhotoList(p).forEach(u => {
+                        if (!list.includes(u)) list.push(u);
+                    });
+                });
             }
             if (product.photo) {
-                return parsePhotoList(product.photo);
+                parsePhotoList(product.photo).forEach(u => {
+                    if (!list.includes(u)) list.push(u);
+                });
             }
-            return [];
+            return list;
         }
 
         function resolveImageUrls(rawUrl) {
             if (!rawUrl || typeof rawUrl !== 'string') {
-                return { primary: '', backup: '' };
+                return { primary: '', backup: '', candidates: [] };
             }
             const trimmed = rawUrl.trim();
-            if (!trimmed) return { primary: '', backup: '' };
+            if (!trimmed) return { primary: '', backup: '', candidates: [] };
+
+            const candidates = [];
+            const pushCandidate = (u) => {
+                const clean = String(u || '').trim();
+                if (clean && !candidates.includes(clean)) {
+                    candidates.push(clean);
+                }
+            };
 
             let driveId = '';
             const fileMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
@@ -1099,13 +1283,67 @@
             }
 
             if (driveId) {
+                pushCandidate(`https://lh3.googleusercontent.com/d/${driveId}=w1000`);
+                pushCandidate(`https://drive.google.com/uc?export=view&id=${driveId}`);
                 return {
-                    primary: `https://lh3.googleusercontent.com/d/${driveId}=w1000`,
-                    backup: `https://drive.google.com/uc?export=view&id=${driveId}`
+                    primary: candidates[0] || '',
+                    backup: candidates[1] || '',
+                    candidates
                 };
             }
 
-            return { primary: trimmed, backup: '' };
+            // Поддержка ссылок ВКонтакте (страницы фото/поста/вложения вида photo-123_456 или z=photo-123_456)
+            const isVkHost = /(?:^|\/\/)(?:m\.|www\.)?vk\.(?:com|ru)\//i.test(trimmed);
+            if (isVkHost) {
+                const photoTokenMatch = trimmed.match(/(?:photo|album|video|clip|z=photo)(-?\d+_\d+)/i);
+                const token = photoTokenMatch && photoTokenMatch[1] ? photoTokenMatch[1] : '';
+
+                // Если это прямая ссылка на картинку внутри vk.com/ru, пробуем её в первую очередь
+                if (/\.(?:jpe?g|png|webp|gif)(?:\?|$)/i.test(trimmed) || /\/impf\/|\/c\d+\//i.test(trimmed)) {
+                    pushCandidate(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+                }
+
+                if (token) {
+                    pushCandidate(`https://vk.com/photo${token}`);
+                    pushCandidate(`https://m.vk.com/photo${token}`);
+                    pushCandidate(`https://vk.ru/photo${token}`);
+                }
+
+                const normalizedVkUrl = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+                pushCandidate(normalizedVkUrl);
+            }
+
+            // Прямые ссылки на CDN/фото ВК (userapi.com, vkuserphoto.net, vkuserphoto.ru, vk.me и т.д.)
+            const normalizedUrl = trimmed.startsWith('http://') || trimmed.startsWith('https://')
+                ? trimmed
+                : `https://${trimmed}`;
+
+            if (/userapi\.com|vkuserphoto\.|vk\.me/i.test(normalizedUrl)) {
+                // Сначала пробуем исходную ссылку из таблицы ровно в том виде, как она скопирована
+                pushCandidate(normalizedUrl);
+
+                // Если в ссылке указан размер cs=..., пробуем варианты с cs=1200x0 и без cs
+                try {
+                    const parsed = new URL(normalizedUrl);
+                    if (parsed.searchParams.has('cs')) {
+                        const csLarge = new URL(parsed.toString());
+                        csLarge.searchParams.set('cs', '1200x0');
+                        pushCandidate(csLarge.toString());
+
+                        const noCs = new URL(parsed.toString());
+                        noCs.searchParams.delete('cs');
+                        pushCandidate(noCs.toString());
+                    }
+                } catch (_) {}
+            } else {
+                pushCandidate(normalizedUrl);
+            }
+
+            return {
+                primary: candidates[0] || '',
+                backup: candidates[1] || '',
+                candidates
+            };
         }
 
         function buildProductImageHtml(rawUrl, altText, extraClasses) {
@@ -1114,20 +1352,27 @@
                 return getPlaceholderSvg();
             }
             const safePrimary = escapeHtml(urls.primary);
-            const safeBackup = escapeHtml(urls.backup || '');
+            const restCandidates = (urls.candidates || []).slice(1);
+            const safeCandidates = escapeHtml(JSON.stringify(restCandidates));
             const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
             const cls = extraClasses || 'w-full h-full object-cover';
-            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
+            return `<img src="${safePrimary}" data-candidates="${safeCandidates}" data-cand-idx="0" alt="${safeAlt}" referrerpolicy="no-referrer" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
         }
 
         function handleProductImageError(imgElement) {
             if (!imgElement) return;
-            const backupUrl = imgElement.getAttribute('data-backup');
-            if (backupUrl && imgElement.getAttribute('data-tried-backup') !== '1') {
-                imgElement.setAttribute('data-tried-backup', '1');
-                imgElement.src = backupUrl;
-                return;
-            }
+            try {
+                const rawCandidates = imgElement.getAttribute('data-candidates');
+                const candidates = rawCandidates ? JSON.parse(rawCandidates) : [];
+                const nextIdx = Number(imgElement.getAttribute('data-cand-idx') || '0');
+                if (Array.isArray(candidates) && nextIdx < candidates.length && candidates[nextIdx]) {
+                    const nextUrl = candidates[nextIdx];
+                    imgElement.setAttribute('data-cand-idx', String(nextIdx + 1));
+                    imgElement.src = nextUrl;
+                    return;
+                }
+            } catch (_) {}
+
             imgElement.onerror = null;
             const fallbackWrapper = document.createElement('div');
             fallbackWrapper.className = 'w-full h-full';
@@ -1145,14 +1390,16 @@
             if (photos.length <= 1) return;
             const current = cardPhotoIndexes[productId] || 0;
             cardPhotoIndexes[productId] = (current + delta + photos.length) % photos.length;
-            updateSingleCardPhoto(productId);
+            updateSingleCardPhotoDom(product);
         }
         window.cycleCardPhoto = cycleCardPhoto;
 
         function selectCardPhoto(productId, index, event) {
             if (event) event.stopPropagation();
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
             cardPhotoIndexes[productId] = index;
-            updateSingleCardPhoto(productId);
+            updateSingleCardPhotoDom(product);
         }
         window.selectCardPhoto = selectCardPhoto;
 
@@ -1195,7 +1442,17 @@
 
             mediaContainer.innerHTML = `
                 <div class="w-full h-full min-h-[300px] sm:min-h-[380px] relative flex items-center justify-center bg-cream-200">
-                    ${buildProductImageHtml(currentUrl, product.name, 'w-full h-full object-cover')}
+                    <div onclick="openModalPhotoFullscreen('${safeId}')" class="w-full h-full cursor-zoom-in">
+                        ${buildProductImageHtml(currentUrl, product.name, 'w-full h-full object-cover')}
+                    </div>
+                    <button
+                        type="button"
+                        onclick="openModalPhotoFullscreen('${safeId}')"
+                        class="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-cream-50/95 hover:bg-cream-50 text-wood-800 border border-cream-300 text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <span>⤢</span>
+                        <span>На весь экран</span>
+                    </button>
                     ${controlsHtml}
                 </div>
             `;
@@ -1274,8 +1531,20 @@
                     const price = parsePrice(getField(r, ['цена', 'price', 'стоимость', 'cost']));
                     const category = getField(r, ['категория', 'category', 'раздел']) || 'Ручная работа';
                     const description = getField(r, ['описание', 'description', 'desc']) || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
-                    const rawPhoto = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
-                    const photos = parsePhotoList(rawPhoto);
+
+                    const photoChunks = [];
+                    const primaryPhotoField = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
+                    if (primaryPhotoField) photoChunks.push(primaryPhotoField);
+
+                    Object.keys(r || {}).forEach(colKey => {
+                        const kl = String(colKey || '').toLowerCase().trim();
+                        if (kl.includes('фото') || kl.includes('photo') || kl.includes('картинк') || kl.includes('изображ') || kl.includes('image')) {
+                            const val = String(r[colKey] || '').trim();
+                            if (val) photoChunks.push(val);
+                        }
+                    });
+
+                    const photos = parsePhotoList(photoChunks);
                     return {
                         id: `sheet-prod-${idx}-${name.slice(0, 12)}`,
                         name,
@@ -1496,15 +1765,25 @@
                     </div>
                     <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-wood-900/50 backdrop-blur-xs px-2.5 py-1 rounded-full">
                         ${photos.map((_, dotIdx) => `
-                            <button type="button" onclick="selectCardPhoto('${safeId}', ${dotIdx}, event)" aria-label="Фото ${dotIdx + 1}" class="w-2 h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'}"></button>
+                            <button type="button" data-card-dot="${dotIdx}" onclick="selectCardPhoto('${safeId}', ${dotIdx}, event)" aria-label="Фото ${dotIdx + 1}" class="w-2 h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'}"></button>
                         `).join('')}
                     </div>
+                ` : '';
+
+                const fullscreenBtnHtml = photos.length > 0 ? `
+                    <button
+                        type="button"
+                        onclick="event.stopPropagation(); openFullscreenPhoto('${safeId}');"
+                        title="Открыть фото на весь экран"
+                        aria-label="Открыть фото на весь экран"
+                        class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center text-sm font-bold shadow-xs transition-transform active:scale-90 cursor-pointer"
+                    >⤢</button>
                 ` : '';
 
                 return `
                     <article data-product-id="${safeId}" style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
                         <div>
-                            <div data-card-photo-box onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
+                            <div data-card-media onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
                                 ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
                                 <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-cream-50/90 backdrop-blur-xs text-wood-700 text-xs font-semibold border border-cream-300/80">
                                     ${escapeHtml(product.category)}
@@ -1518,6 +1797,7 @@
                                     ${favActive ? '♥' : '♡'}
                                 </button>
                                 ${photoControlsHtml}
+                                ${fullscreenBtnHtml}
                             </div>
 
                             <div class="p-5">
@@ -1746,11 +2026,11 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы можете добавить строку «Оплата СБП» на лист «Контакты» таблицы.';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
-                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки';
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки (или укажите строку «Карта» на листе «Контакты» таблицы).';
             } else {
                 boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
             }
@@ -2098,7 +2378,7 @@
 
         function getReviewSourceBadgeClass(source) {
             const s = String(source || 'Сайт').toLowerCase();
-            if (s.includes('vk') || s.includes('вк') || s.includes('вконтакте')) {
+            if (isVkValueOrType(s, s)) {
                 return 'bg-indigo-100 text-indigo-800 border-indigo-200';
             }
             if (s.includes('яндекс') || s.includes('yandex') || s.includes('карт')) {
@@ -2312,14 +2592,14 @@
         }
         window.submitReviewForm = submitReviewForm;
 
-        function getContactButtonStyleAndIcon(typeLower, isUrl, isPhone) {
-            if (typeLower.includes('telegram') || typeLower.includes('тг') || typeLower.includes('tg')) {
+        function getContactButtonStyleAndIcon(typeLower, isUrl, isPhone, valLower = '') {
+            if (typeLower.includes('telegram') || typeLower.includes('тг') || typeLower.includes('tg') || valLower.includes('t.me')) {
                 return {
                     badgeClass: 'bg-sky-500/20 text-sky-200 border-sky-400/30',
                     icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`
                 };
             }
-            if (typeLower.includes('vk') || typeLower.includes('вк') || typeLower.includes('вконтакте')) {
+            if (isVkValueOrType(typeLower, valLower)) {
                 return {
                     badgeClass: 'bg-indigo-500/20 text-indigo-200 border-indigo-400/30',
                     icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.2c.3 3.4 1.8 6.5 3.8 8.7V6h3v5.1c1.8-.9 3.2-2.7 3.9-5.1H20c-.8 2.8-2.5 5.1-4.6 6.4 2.2 1.2 3.9 3.1 4.9 5.6h-3.3c-.8-1.8-2.1-3.1-3.8-3.8V18h-.5c-4.5 0-8.1-3.6-8.4-12Z"/></svg>`
@@ -2355,14 +2635,21 @@
             container.className = 'flex flex-col gap-2.5 text-sm text-cream-100';
             container.innerHTML = visibleContacts.map(c => {
                 const val = c.value.trim();
-                const typeLabel = c.type.trim();
+                const valLower = val.toLowerCase();
+                let typeLabel = c.type.trim();
+                if (isVkValueOrType(typeLabel, valLower) && !typeLabel) {
+                    typeLabel = 'ВКонтакте';
+                }
                 const typeLower = typeLabel.toLowerCase();
-                const isUrl = val.startsWith('http://') || val.startsWith('https://');
+                const isUrl = val.startsWith('http://') || val.startsWith('https://') || valLower.startsWith('vk.com/') || valLower.startsWith('vk.ru/') || valLower.startsWith('t.me/');
+                const hrefUrl = isUrl
+                    ? ((val.startsWith('http://') || val.startsWith('https://')) ? val : `https://${val}`)
+                    : '';
                 const isPhone = !isUrl && /^[\d+\-\s()]{5,}$/.test(val);
-                const styleMeta = getContactButtonStyleAndIcon(typeLower, isUrl, isPhone);
+                const styleMeta = getContactButtonStyleAndIcon(typeLower, isUrl, isPhone, valLower);
 
                 const shortValue = isUrl
-                    ? val.replace(/^https?:\/\//, '').replace(/\/$/, '')
+                    ? hrefUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
                     : val;
 
                 const innerContent = `
@@ -2377,7 +2664,7 @@
                 `;
 
                 if (isUrl) {
-                    return `<a href="${escapeHtml(val)}" target="_blank" rel="noopener" class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/80 hover:bg-wood-800 border border-wood-700/80 transition-all flex items-center gap-3 text-left">${innerContent}</a>`;
+                    return `<a href="${escapeHtml(hrefUrl)}" target="_blank" rel="noopener" class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/80 hover:bg-wood-800 border border-wood-700/80 transition-all flex items-center gap-3 text-left">${innerContent}</a>`;
                 }
                 if (isPhone) {
                     const cleanTel = val.replace(/[^\d+]/g, '');
@@ -2386,19 +2673,6 @@
                 return `<div class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/60 border border-wood-700/60 flex items-center gap-3 text-left">${innerContent}</div>`;
             }).join('');
         }
-
-        function forceScrollTop() {
-            if (window.location.hash === '#reviews') {
-                history.replaceState(null, '', window.location.pathname + window.location.search);
-            }
-            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-        }
-
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-        forceScrollTop();
-        window.addEventListener('pageshow', forceScrollTop);
 
         document.addEventListener('DOMContentLoaded', () => {
             const yearEl = document.getElementById('currentYear');
@@ -2419,8 +2693,11 @@
             renderCartDrawer();
 
             safeCreateIcons();
+            if (!window.location.hash || window.location.hash === '#') {
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' }), 60);
+            }
             syncFromSheet(false);
-            forceScrollTop();
         });
     </script>
 </body>
