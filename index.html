@@ -1017,10 +1017,25 @@
             if (Array.isArray(rawValue)) {
                 return rawValue.map(v => String(v || '').trim()).filter(Boolean);
             }
-            return String(rawValue)
-                .split(/[\n,;]+/)
+            const str = String(rawValue).trim();
+            if (!str) return [];
+
+            // Сначала разбиваем по переносам строк, точке с запятой или пробелам перед http
+            const chunks = str
+                .split(/[\n;]+|(?=\s+https?:\/\/)/)
                 .map(s => s.trim())
                 .filter(Boolean);
+
+            const result = [];
+            for (const chunk of chunks) {
+                // Если это не URL с параметрами (например, нет &as=32x43,48x64), можно разбить по запятой
+                if (!chunk.includes('://')) {
+                    chunk.split(',').map(s => s.trim()).filter(Boolean).forEach(item => result.push(item));
+                } else {
+                    result.push(chunk);
+                }
+            }
+            return result;
         }
 
         function getProductPhotos(product) {
@@ -1069,8 +1084,8 @@
             const safePrimary = escapeHtml(urls.primary);
             const safeBackup = escapeHtml(urls.backup || '');
             const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
-            const cls = extraClasses || 'w-full h-full object-cover';
-            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
+            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, vkuserphoto.ru и др.)
+            return { primary: trimmed, backup: '' };
         }
 
         function buildProductImageHtml(rawUrl, altText, extraClasses) {
@@ -1082,7 +1097,7 @@
             const safeBackup = escapeHtml(urls.backup || '');
             const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
             const cls = extraClasses || 'w-full h-full object-cover';
-            return `<img src="${safePrimary}" data-backup="${safeBackup}" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
+            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
         }
 
         function handleProductImageError(imgElement) {
