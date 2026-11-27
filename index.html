@@ -140,7 +140,6 @@
                 <div>
                     <span class="font-script text-2xl sm:text-3xl font-bold text-wood-800 leading-none block">Дари счастье</span>
                     <span class="text-[11px] uppercase tracking-[0.16em] text-wood-500 font-medium hidden sm:block">мастерская ручной работы</span>
-                    <span class="text-[11px] uppercase tracking-[0.500em] text-wood-900 font-medium hidden sm:block">бета-версия</span>
                 </div>
             </a>
 
@@ -527,7 +526,7 @@
                 <div>
                     <h4 class="font-serif font-bold text-base text-wood-900 mb-1">4. Ваши права и удаление данных</h4>
                     <p>
-                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Связь с мастерской».
+                        Вы можете в любой момент очистить локальные данные личного кабинета и корзины в настройках своего браузера, а также запросить изменение или удаление ваших контактных данных и отзывов, написав нам через любой удобный канал в разделе «Контакты».
                     </p>
                 </div>
             </div>
@@ -813,6 +812,50 @@
         const cardPhotoIndexes = {};
         let modalPhotoIndex = 0;
 
+        // Настройки автоперелистывания фото в карточках товаров:
+        // AUTO_SLIDE_ENABLED — включить/выключить автоперелистывание
+        // AUTO_SLIDE_INTERVAL_MS — интервал смены фото в миллисекундах (например, 1600 = 1.6 сек)
+        // AUTO_SLIDE_ONLY_ON_HOVER — true: листать только при наведении мыши на карточку; false: листать автоматически всегда
+        const AUTO_SLIDE_ENABLED = true;
+        const AUTO_SLIDE_INTERVAL_MS = 1600;
+        const AUTO_SLIDE_ONLY_ON_HOVER = true;
+
+        let hoverSlideTimer = null;
+        let hoveredProductId = null;
+
+        function stopCardAutoSlide() {
+            hoveredProductId = null;
+            if (hoverSlideTimer) {
+                clearInterval(hoverSlideTimer);
+                hoverSlideTimer = null;
+            }
+        }
+        window.stopCardAutoSlide = stopCardAutoSlide;
+
+        function startCardAutoSlide(productId, event) {
+            if (!AUTO_SLIDE_ENABLED || !AUTO_SLIDE_ONLY_ON_HOVER) return;
+            if (event && event.relatedTarget && event.currentTarget && event.currentTarget.contains(event.relatedTarget)) {
+                return;
+            }
+            const product = products.find(p => p.id === productId);
+            const photos = getProductPhotos(product);
+            if (!product || photos.length <= 1) return;
+
+            stopCardAutoSlide();
+            hoveredProductId = productId;
+
+            hoverSlideTimer = setInterval(() => {
+                if (hoveredProductId !== productId) {
+                    stopCardAutoSlide();
+                    return;
+                }
+                const current = cardPhotoIndexes[productId] || 0;
+                cardPhotoIndexes[productId] = (current + 1) % photos.length;
+                renderProducts();
+            }, AUTO_SLIDE_INTERVAL_MS);
+        }
+        window.startCardAutoSlide = startCardAutoSlide;
+
         function openPrivacyModal() {
             const modal = document.getElementById('privacyModalOverlay');
             if (modal) modal.classList.remove('hidden');
@@ -1014,7 +1057,20 @@
                 };
             }
 
+            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, pp.userapi.com и др.)
             return { primary: trimmed, backup: '' };
+        }
+
+        function buildProductImageHtml(rawUrl, altText, extraClasses) {
+            const urls = resolveImageUrls(rawUrl);
+            if (!urls.primary) {
+                return getPlaceholderSvg();
+            }
+            const safePrimary = escapeHtml(urls.primary);
+            const safeBackup = escapeHtml(urls.backup || '');
+            const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
+            const cls = extraClasses || 'w-full h-full object-cover';
+            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
         }
 
         function buildProductImageHtml(rawUrl, altText, extraClasses) {
@@ -1411,7 +1467,7 @@
                 ` : '';
 
                 return `
-                    <article style="animation-delay: ${Math.min(idx * 50, 300)}ms" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                    <article style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
                         <div>
                             <div onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
                                 ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
@@ -1655,11 +1711,11 @@
             if (method.includes('СБП')) {
                 boxText.textContent = sbpRequisite
                     ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
-                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа ';
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа или вы можете добавить строку «Оплата СБП» на лист «Контакты» таблицы.';
             } else if (method.includes('карту')) {
                 boxText.textContent = cardRequisite
                     ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
-                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки ';
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки (или укажите строку «Карта» на листе «Контакты» таблицы).';
             } else {
                 boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
             }
@@ -2210,7 +2266,7 @@
                     body: formBody.toString()
                 }).catch(() => {});
 
-                showToast('Отзыв добавлен! Если не появился в таблице', 'info');
+                showToast('Отзыв добавлен! Если не появился в таблице, проверьте развертывание Apps Script (Новая версия)', 'info');
             }
 
             authorInput.value = '';
@@ -2319,5 +2375,4 @@
         });
     </script>
 </body>
-</html>
 </html>
