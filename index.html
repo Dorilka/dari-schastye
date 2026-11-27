@@ -727,7 +727,119 @@
             const val = String(raw || '').trim();
             if (!val) return '';
             if (val.startsWith('http://') || val.startsWith('https://')) return val;
-            return `https://script.google.com/macros/s/${val}/exec`; }  const ORDER_WEBHOOK_URL = resolveWebhookUrl(RAW_WEBHOOK_INPUT);  const STORAGE_KEYS = { state: 'dari_schastye_state_v2', sheetCache: 'dari_schastye_sheet_cache_v2' };  const DEFAULT_PRODUCTS = [ { id: 'demo-1', name: 'Панно «Утренний эвкалипт»', price: 2800, category: 'Макраме', description: 'Воздушное плетение из натурального хлопкового шнура на деревянной ветке с композицией из сухоцветов и эвкалипта.', photos: [] }, { id: 'demo-2', name: 'Подарочный бокс «Тепло рук»', price: 3400, category: 'Подарочные наборы', description: 'Уютный набор в крафтовой коробке: подвеска макраме, ароматная свеча и открытка с тёплым пожеланием.', photos: [] }, { id: 'demo-3', name: 'Подвесное кашпо «Лавандовый вечер»', price: 1650, category: 'Декор для дома', description: 'Аккуратное кашпо с деревянными бусинами для комнатных растений или сухоцветов в светлом интерьере.', photos: [] } ];  const DEFAULT_REVIEWS = [ { author: 'Екатерина М.', date: '18.11.2026', rating: 5, source: 'Сайт', text: 'Заказывала панно ручной работы в спальню — вживую оно ещё уютнее, чем на фото! Шнур мягкий, узелки ровные, всё аккуратно упаковано.' }, { author: 'Дарья С.', date: '10.11.2026', rating: 5, source: 'ВКонтакте', text: 'Брала подарочный набор от мастерской «Дари счастье» на день рождения подруге. Остались в восторге обе: чувствуется тепло и внимание к деталям.' }, { author: 'Артём В.', date: '02.11.2026', rating: 4, source: 'Яндекс Карты', text: 'Помогли подобрать вариант под нужный размер и бюджет, быстро ответили на вопросы. Заказ доехал бережно упакованным.' } ];  const DEFAULT_CONTACTS = [ { type: 'Telegram', value: 'https://t.me/dari_schastye_shop' }, { type: 'VK', value: 'https://vk.com/dari_schastye_shop' }, { type: 'Телефон', value: '+7 (900) 000-00-00' } ];  let products = [...DEFAULT_PRODUCTS]; let reviews = [...DEFAULT_REVIEWS]; let contacts = [...DEFAULT_CONTACTS];  let activeCategory = 'Все'; let activeReviewSource = 'Все'; let searchQuery = ''; let sortMode = 'default';  let cart = []; let favorites = []; let ordersHistory = []; let profile = { name: '', contact: '', address: '' }; let checkoutDraft = { name: '', phone: '', delivery: 'СДЭК / Почта России', payment: 'Перевод по СБП', comment: '' }; let lastOrderSummaryText = '';  const cardPhotoIndexes = {}; let modalPhotoIndex = 0;  // Настройки автоперелистывания фото в карточках товаров: const AUTO_SLIDE_ENABLED = true; const AUTO_SLIDE_INTERVAL_MS = 2500; const AUTO_SLIDE_ONLY_ON_HOVER = true;  let hoverSlideTimer = null; let hoveredProductId = null;  // Состояние сенсорного свайпа для фото в карточках товаров const cardSwipeState = { productId: null, startX: 0, startY: 0, currentX: 0, currentY: 0, isTracking: false, suppressClick: false };  function handleCardTouchStart(productId, event) { if (!event.touches \vert{}\vert{} event.touches.length !== 1) return; const touch = event.touches[0]; cardSwipeState.productId = productId; cardSwipeState.startX = touch.clientX; cardSwipeState.startY = touch.clientY; cardSwipeState.currentX = touch.clientX; cardSwipeState.currentY = touch.clientY; cardSwipeState.isTracking = true; cardSwipeState.suppressClick = false; stopCardAutoSlide(); } window.handleCardTouchStart = handleCardTouchStart;  function handleCardTouchMove(event) { if (!cardSwipeState.isTracking \vert{}\vert{} !event.touches \vert{}\vert{} event.touches.length !== 1) return; const touch = event.touches[0]; cardSwipeState.currentX = touch.clientX; cardSwipeState.currentY = touch.clientY;  const dx = cardSwipeState.currentX - cardSwipeState.startX; const dy = cardSwipeState.currentY - cardSwipeState.startY; if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) { cardSwipeState.suppressClick = true; } } window.handleCardTouchMove = handleCardTouchMove;  function handleCardTouchEnd(productId, event) { if (!cardSwipeState.isTracking \vert{}\vert{} cardSwipeState.productId !== productId) return; cardSwipeState.isTracking = false;  const dx = cardSwipeState.currentX - cardSwipeState.startX; const dy = cardSwipeState.currentY - cardSwipeState.startY; const swipeThreshold = 35;  if (Math.abs(dx) >= swipeThreshold && Math.abs(dx) > Math.abs(dy)) { cardSwipeState.suppressClick = true; if (event && event.cancelable) { event.preventDefault(); } cycleCardPhoto(productId, dx < 0 ? 1 : -1, event); setTimeout(() => { cardSwipeState.suppressClick = false; }, 320); } else { cardSwipeState.suppressClick = false; } } window.handleCardTouchEnd = handleCardTouchEnd;  function handleCardPhotoBoxClick(productId, event) { if (cardSwipeState.suppressClick) { cardSwipeState.suppressClick = false; if (event) event.stopPropagation(); return; } openProductModal(productId); } window.handleCardPhotoBoxClick = handleCardPhotoBoxClick;  function stopCardAutoSlide() { hoveredProductId = null; if (hoverSlideTimer) { clearInterval(hoverSlideTimer); hoverSlideTimer = null; } } window.stopCardAutoSlide = stopCardAutoSlide;  function updateSingleCardPhoto(productId) { const product = products.find(p => p.id === productId); const photos = getProductPhotos(product); if (!product \vert{}\vert{} photos.length === 0) return;  const activeIdx = (cardPhotoIndexes[productId] \vert{}\vert{} 0) \% photos.length; const article = document.querySelector(`article[data-product-id="${CSS.escape(String(productId))}"]`);
+            return `https://script.google.com/macros/s/${val}/exec`;
+        }
+
+        const ORDER_WEBHOOK_URL = resolveWebhookUrl(RAW_WEBHOOK_INPUT);
+
+        const STORAGE_KEYS = {
+            state: 'dari_schastye_state_v2',
+            sheetCache: 'dari_schastye_sheet_cache_v2'
+        };
+
+        const DEFAULT_PRODUCTS = [
+            {
+                id: 'demo-1',
+                name: 'Панно «Утренний эвкалипт»',
+                price: 2800,
+                category: 'Макраме',
+                description: 'Воздушное плетение из натурального хлопкового шнура на деревянной ветке с композицией из сухоцветов и эвкалипта.',
+                photos: []
+            },
+            {
+                id: 'demo-2',
+                name: 'Подарочный бокс «Тепло рук»',
+                price: 3400,
+                category: 'Подарочные наборы',
+                description: 'Уютный набор в крафтовой коробке: подвеска макраме, ароматная свеча и открытка с тёплым пожеланием.',
+                photos: []
+            },
+            {
+                id: 'demo-3',
+                name: 'Подвесное кашпо «Лавандовый вечер»',
+                price: 1650,
+                category: 'Декор для дома',
+                description: 'Аккуратное кашпо с деревянными бусинами для комнатных растений или сухоцветов в светлом интерьере.',
+                photos: []
+            }
+        ];
+
+        const DEFAULT_REVIEWS = [
+            {
+                author: 'Екатерина М.',
+                date: '18.11.2026',
+                rating: 5,
+                source: 'Сайт',
+                text: 'Заказывала панно ручной работы в спальню — вживую оно ещё уютнее, чем на фото! Шнур мягкий, узелки ровные, всё аккуратно упаковано.'
+            },
+            {
+                author: 'Дарья С.',
+                date: '10.11.2026',
+                rating: 5,
+                source: 'ВКонтакте',
+                text: 'Брала подарочный набор от мастерской «Дари счастье» на день рождения подруге. Остались в восторге обе: чувствуется тепло и внимание к деталям.'
+            },
+            {
+                author: 'Артём В.',
+                date: '02.11.2026',
+                rating: 4,
+                source: 'Яндекс Карты',
+                text: 'Помогли подобрать вариант под нужный размер и бюджет, быстро ответили на вопросы. Заказ доехал бережно упакованным.'
+            }
+        ];
+
+        const DEFAULT_CONTACTS = [
+            { type: 'Telegram', value: 'https://t.me/dari_schastye_shop' },
+            { type: 'VK', value: 'https://vk.com/dari_schastye_shop' },
+            { type: 'Телефон', value: '+7 (900) 000-00-00' }
+        ];
+
+        let products = [...DEFAULT_PRODUCTS];
+        let reviews = [...DEFAULT_REVIEWS];
+        let contacts = [...DEFAULT_CONTACTS];
+
+        let activeCategory = 'Все';
+        let activeReviewSource = 'Все';
+        let searchQuery = '';
+        let sortMode = 'default';
+
+        let cart = [];
+        let favorites = [];
+        let ordersHistory = [];
+        let profile = { name: '', contact: '', address: '' };
+        let checkoutDraft = { name: '', phone: '', delivery: 'СДЭК / Почта России', payment: 'Перевод по СБП', comment: '' };
+        let lastOrderSummaryText = '';
+
+        const cardPhotoIndexes = {};
+        let modalPhotoIndex = 0;
+
+        // Настройки автоперелистывания фото в карточках товаров:
+        // AUTO_SLIDE_ENABLED — включить/выключить автоперелистывание
+        // AUTO_SLIDE_INTERVAL_MS — интервал смены фото в миллисекундах (например, 1600 = 1.6 сек)
+        // AUTO_SLIDE_ONLY_ON_HOVER — true: листать только при наведении мыши на карточку; false: листать автоматически всегда
+        const AUTO_SLIDE_ENABLED = true;
+        const AUTO_SLIDE_INTERVAL_MS = 2500;
+        const AUTO_SLIDE_ONLY_ON_HOVER = true;
+
+        let hoverSlideTimer = null;
+        let hoveredProductId = null;
+
+        function stopCardAutoSlide() {
+            hoveredProductId = null;
+            if (hoverSlideTimer) {
+                clearInterval(hoverSlideTimer);
+                hoverSlideTimer = null;
+            }
+        }
+        window.stopCardAutoSlide = stopCardAutoSlide;
+
+        function updateSingleCardPhoto(productId) {
+            const product = products.find(p => p.id === productId);
+            const photos = getProductPhotos(product);
+            if (!product || photos.length === 0) return;
+
+            const activeIdx = (cardPhotoIndexes[productId] || 0) % photos.length;
+            const article = document.querySelector(`article[data-product-id="${CSS.escape(String(productId))}"]`);
             const photoBox = article ? article.querySelector('[data-card-photo-box]') : null;
             if (!photoBox) {
                 renderProducts();
@@ -988,7 +1100,8 @@
 
             if (driveId) {
                 return {
-                    primary: `https://lh3.googleusercontent.com/d/${driveId}=w1000`, backup: `https://drive.google.com/uc?export=view&id=${driveId}`
+                    primary: `https://lh3.googleusercontent.com/d/${driveId}=w1000`,
+                    backup: `https://drive.google.com/uc?export=view&id=${driveId}`
                 };
             }
 
@@ -1004,7 +1117,7 @@
             const safeBackup = escapeHtml(urls.backup || '');
             const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
             const cls = extraClasses || 'w-full h-full object-cover';
-            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" draggable="false" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls} select-none">`;
+            return `<img src="${safePrimary}" data-backup="${safeBackup}" referrerpolicy="no-referrer" alt="${safeAlt}" loading="lazy" onerror="window.handleProductImageError && window.handleProductImageError(this)" class="${cls}">`;
         }
 
         function handleProductImageError(imgElement) {
@@ -1066,6 +1179,1250 @@
             const safeId = escapeHtml(product.id);
 
             const controlsHtml = photos.length > 1 ? `
-                <button type="button" onclick="setModalPhoto('${safeId}',${activeIdx - 1})" aria-label="Предыдущее фото" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center shadow cursor-pointer">‹</button>
-                <button type="button" onclick="setModalPhoto('${safeId}',${activeIdx + 1})" aria-label="Следующее фото" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center shadow cursor-pointer">›</button>
-                <div class="absolute bottom-3 left-0 right-0
+                <button type="button" onclick="setModalPhoto('${safeId}', ${activeIdx - 1})" aria-label="Предыдущее фото" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center shadow cursor-pointer">‹</button>
+                <button type="button" onclick="setModalPhoto('${safeId}', ${activeIdx + 1})" aria-label="Следующее фото" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center shadow cursor-pointer">›</button>
+                <div class="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5 px-4 flex-wrap">
+                    ${photos.map((url, idx) => {
+                        const resolved = resolveImageUrls(url);
+                        const thumbSrc = escapeHtml(resolved.primary || url);
+                        const isActive = idx === activeIdx;
+                        return `<button type="button" onclick="setModalPhoto('${safeId}', ${idx})" class="w-12 h-12 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-sage-600 scale-105 shadow' : 'border-cream-50/80 opacity-75 hover:opacity-100'}">
+                            <img src="${thumbSrc}" alt="Фото ${idx + 1}" class="w-full h-full object-cover">
+                        </button>`;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            mediaContainer.innerHTML = `
+                <div class="w-full h-full min-h-[300px] sm:min-h-[380px] relative flex items-center justify-center bg-cream-200">
+                    ${buildProductImageHtml(currentUrl, product.name, 'w-full h-full object-cover')}
+                    ${controlsHtml}
+                </div>
+            `;
+        }
+
+        function fetchSheetRowsViaJsonp(sheetName, timeoutMs = 7000) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `gvizCb_${sheetName.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                let settled = false;
+
+                const cleanup = () => {
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try {
+                        delete window[callbackName];
+                    } catch (_) {
+                        window[callbackName] = undefined;
+                    }
+                };
+
+                const timer = setTimeout(() => {
+                    if (!settled) {
+                        settled = true;
+                        cleanup();
+                        reject(new Error(`Таймаут загрузки листа «${sheetName}»`));
+                    }
+                }, timeoutMs);
+
+                window[callbackName] = function (resp) {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timer);
+                    cleanup();
+
+                    try {
+                        if (!resp || resp.status === 'error' || !resp.table) {
+                            reject(new Error(`Ошибка ответа таблицы для листа «${sheetName}»`));
+                            return;
+                        }
+                        const cols = (resp.table.cols || []).map((c, idx) => (c.label || c.id || `col_${idx}`).trim());
+                        const rows = (resp.table.rows || []).map(r => {
+                            const cells = r.c || [];
+                            const obj = {};
+                            cols.forEach((colName, idx) => {
+                                const cell = cells[idx];
+                                const val = cell ? (cell.f !== undefined && cell.f !== null ? cell.f : cell.v) : '';
+                                obj[colName] = val !== null && val !== undefined ? String(val).trim() : '';
+                            });
+                            return obj;
+                        });
+                        resolve(rows);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                const encodedSheet = encodeURIComponent(sheetName);
+                script.src = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(SHEET_ID)}/gviz/tq?sheet=${encodedSheet}&tqx=out:json;responseHandler:${callbackName}`;
+                script.onerror = () => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timer);
+                    cleanup();
+                    reject(new Error(`Не удалось загрузить лист «${sheetName}»`));
+                };
+
+                document.body.appendChild(script);
+            });
+        }
+
+        function normalizeProducts(rows) {
+            if (!Array.isArray(rows) || rows.length === 0) return [];
+            return rows
+                .map((r, idx) => {
+                    const name = getField(r, ['название', 'name', 'товар', 'title']);
+                    const price = parsePrice(getField(r, ['цена', 'price', 'стоимость', 'cost']));
+                    const category = getField(r, ['категория', 'category', 'раздел']) || 'Ручная работа';
+                    const description = getField(r, ['описание', 'description', 'desc']) || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
+                    const rawPhoto = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
+                    const photos = parsePhotoList(rawPhoto);
+                    return {
+                        id: `sheet-prod-${idx}-${name.slice(0, 12)}`,
+                        name,
+                        price,
+                        category,
+                        description,
+                        photos
+                    };
+                })
+                .filter(p => p.name && p.price > 0);
+        }
+
+        function normalizeReviews(rows) {
+            if (!Array.isArray(rows) || rows.length === 0) return [];
+            return rows
+                .map(r => {
+                    const author = getField(r, ['имя', 'автор', 'name', 'author']) || 'Покупатель';
+                    const date = getField(r, ['дата', 'date']) || '';
+                    const rawRating = getField(r, ['оценка', 'рейтинг', 'rating', 'звезды', 'звёзды']);
+                    const parsedRating = Math.min(5, Math.max(1, Math.round(parsePrice(rawRating) || 5)));
+                    const text = getField(r, ['текст', 'отзыв', 'text', 'review', 'комментарий']);
+                    const source = getField(r, ['источник', 'площадка', 'source', 'platform', 'откуда']) || 'Сайт';
+                    return {
+                        author,
+                        date,
+                        rating: parsedRating,
+                        source,
+                        text
+                    };
+                })
+                .filter(rev => rev.text);
+        }
+
+        function normalizeContacts(rows) {
+            if (!Array.isArray(rows) || rows.length === 0) return [];
+            return rows
+                .map(r => {
+                    const keys = Object.keys(r || {});
+                    let type = getField(r, ['тип', 'название', 'канал', 'type', 'name']);
+                    let value = getField(r, ['значение', 'ссылка', 'контакт', 'value', 'link']);
+
+                    if (!type && keys.length > 0) {
+                        type = String(r[keys[0]] || '').trim();
+                    }
+                    if (!value && keys.length > 1) {
+                        value = String(r[keys[1]] || '').trim();
+                    }
+                    if (!value && keys.length > 2) {
+                        value = String(r[keys[2]] || '').trim();
+                    }
+
+                    return { type, value };
+                })
+                .filter(c => c.type && c.value && c.type.toLowerCase() !== 'тип' && c.value.toLowerCase() !== 'значение');
+        }
+
+        function setSyncStatus(mode, text) {
+            const dot = document.getElementById('sheetStatusDot');
+            const label = document.getElementById('sheetStatusText');
+            if (label && text) label.textContent = text;
+            if (dot) {
+                dot.className = 'w-2 h-2 rounded-full inline-block ' + (
+                    mode === 'ok' ? 'bg-sage-500' :
+                    mode === 'loading' ? 'bg-amber-500 animate-pulse' :
+                    'bg-roseblush-500'
+                );
+            }
+        }
+
+        async function syncFromSheet(showNotification = false) {
+            setSyncStatus('loading', 'Синхронизация с Google Таблицей...');
+            try {
+                const [prodRes, revRes, contRes] = await Promise.allSettled([
+                    fetchSheetRowsViaJsonp('Товары'),
+                    fetchSheetRowsViaJsonp('Отзывы'),
+                    fetchSheetRowsViaJsonp('Контакты')
+                ]);
+
+                let anyUpdated = false;
+
+                if (prodRes.status === 'fulfilled') {
+                    const parsedProducts = normalizeProducts(prodRes.value);
+                    if (parsedProducts.length > 0) {
+                        products = parsedProducts;
+                        anyUpdated = true;
+                    }
+                }
+
+                if (revRes.status === 'fulfilled') {
+                    const parsedReviews = normalizeReviews(revRes.value);
+                    if (parsedReviews.length > 0) {
+                        reviews = parsedReviews;
+                        anyUpdated = true;
+                    }
+                }
+
+                if (contRes.status === 'fulfilled') {
+                    const parsedContacts = normalizeContacts(contRes.value);
+                    if (parsedContacts.length > 0) {
+                        contacts = parsedContacts;
+                        anyUpdated = true;
+                    }
+                }
+
+                if (anyUpdated) {
+                    saveSheetCache();
+                    renderCategoryFilters();
+                    renderProducts();
+                    renderReviews();
+                    renderContacts();
+                    handlePaymentMethodChange();
+                    setSyncStatus('ok', 'Данные актуальны — загружено из Google Таблицы');
+                    if (showNotification) showToast('Данные обновлены из Google Таблицы', 'success');
+                } else {
+                    setSyncStatus('warn', 'Используются сохранённые данные (проверьте доступ к таблице)');
+                    if (showNotification) showToast('Показаны сохранённые данные', 'info');
+                }
+            } catch (err) {
+                console.warn('Ошибка синхронизации с таблицей:', err);
+                setSyncStatus('warn', 'Офлайн-режим: показаны кэшированные данные');
+                if (showNotification) showToast('Не удалось подключиться к таблице, показан кэш', 'info');
+            }
+        }
+        window.syncFromSheet = syncFromSheet;
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilters');
+            if (!container) return;
+
+            const categories = ['Все', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
+            if (!categories.includes(activeCategory)) {
+                activeCategory = 'Все';
+            }
+
+            container.innerHTML = categories.map(cat => {
+                const isSelected = cat === activeCategory;
+                return `
+                    <button
+                        type="button"
+                        onclick="selectCategory('${escapeHtml(cat)}')"
+                        class="shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                            isSelected
+                                ? 'bg-sage-600 text-cream-50 shadow-wood-sm'
+                                : 'bg-cream-50 hover:bg-cream-200 text-wood-700 border border-cream-300'
+                        }"
+                    >
+                        ${escapeHtml(cat)}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(category) {
+            activeCategory = category;
+            renderCategoryFilters();
+            renderProducts();
+        }
+        window.selectCategory = selectCategory;
+
+        function handleSearchInput(val) {
+            searchQuery = String(val || '').trim().toLowerCase();
+            renderProducts();
+        }
+        window.handleSearchInput = handleSearchInput;
+
+        function handleSortChange(val) {
+            sortMode = val;
+            renderProducts();
+        }
+        window.handleSortChange = handleSortChange;
+
+        function getFilteredProducts() {
+            const list = products.filter(p => {
+                const matchesCat = activeCategory === 'Все' || p.category === activeCategory;
+                const matchesSearch = !searchQuery ||
+                    p.name.toLowerCase().includes(searchQuery) ||
+                    p.description.toLowerCase().includes(searchQuery) ||
+                    p.category.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            if (sortMode === 'price-asc') {
+                return [...list].sort((a, b) => a.price - b.price);
+            }
+            if (sortMode === 'price-desc') {
+                return [...list].sort((a, b) => b.price - a.price);
+            }
+            return list;
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            if (!grid) return;
+
+            const filtered = getFilteredProducts();
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full rounded-3xl bg-cream-50 border border-cream-300 p-10 text-center">
+                        <p class="font-serif text-xl font-bold text-wood-800 mb-2">Ничего не найдено</p>
+                        <p class="text-sm text-wood-500 mb-4">Попробуйте изменить поисковый запрос или выбрать другую категорию.</p>
+                        <button type="button" onclick="resetCatalogFilters()" class="px-4 py-2 rounded-xl bg-sage-600 text-cream-50 text-sm font-semibold cursor-pointer">Сбросить фильтры</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((product, idx) => {
+                const photos = getProductPhotos(product);
+                const activeIdx = photos.length > 0 ? ((cardPhotoIndexes[product.id] || 0) % photos.length) : 0;
+                const currentPhoto = photos[activeIdx] || '';
+                const favActive = isFavorite(product.id);
+                const safeId = escapeHtml(product.id);
+
+                const photoControlsHtml = photos.length > 1 ? `
+                    <div class="inset-x-2.5 top-1/2 -translate-y-1/2 absolute flex items-center justify-between pointer-events-none">
+                        <button type="button" onclick="cycleCardPhoto('${safeId}', -1, event)" aria-label="Предыдущее фото" class="pointer-events-auto w-8 h-8 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center font-bold shadow-xs cursor-pointer">‹</button>
+                        <button type="button" onclick="cycleCardPhoto('${safeId}', 1, event)" aria-label="Следующее фото" class="pointer-events-auto w-8 h-8 rounded-full bg-cream-50/90 hover:bg-cream-50 text-wood-800 border border-cream-300 flex items-center justify-center font-bold shadow-xs cursor-pointer">›</button>
+                    </div>
+                    <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-wood-900/50 backdrop-blur-xs px-2.5 py-1 rounded-full">
+                        ${photos.map((_, dotIdx) => `
+                            <button type="button" onclick="selectCardPhoto('${safeId}', ${dotIdx}, event)" aria-label="Фото ${dotIdx + 1}" class="w-2 h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'}"></button>
+                        `).join('')}
+                    </div>
+                ` : '';
+
+                return `
+                    <article data-product-id="${safeId}" style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div data-card-photo-box onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
+                                ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
+                                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-cream-50/90 backdrop-blur-xs text-wood-700 text-xs font-semibold border border-cream-300/80">
+                                    ${escapeHtml(product.category)}
+                                </span>
+                                <button
+                                    type="button"
+                                    onclick="event.stopPropagation(); toggleFavorite('${safeId}');"
+                                    aria-label="Добавить в избранное"
+                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-cream-50/90 hover:bg-cream-50 border border-cream-300 flex items-center justify-center text-sm shadow-xs transition-transform active:scale-90 cursor-pointer ${favActive ? 'text-roseblush-600 font-bold' : 'text-wood-500 hover:text-roseblush-600'}"
+                                >
+                                    ${favActive ? '♥' : '♡'}
+                                </button>
+                                ${photoControlsHtml}
+                            </div>
+
+                            <div class="p-5">
+                                <h3 onclick="openProductModal('${safeId}')" class="font-serif text-xl font-bold text-wood-800 hover:text-sage-700 transition-colors cursor-pointer leading-snug mb-2">
+                                    ${escapeHtml(product.name)}
+                                </h3>
+                                <p class="text-sm text-wood-600 line-clamp-2 leading-relaxed">
+                                    ${escapeHtml(product.description)}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mx-5 px-0 pb-5 pt-3 border-t border-cream-200 flex items-center justify-between gap-3">
+                            <div>
+                                <span class="block text-[11px] uppercase tracking-wider text-wood-500">Цена</span>
+                                <span class="font-serif text-xl font-bold text-wood-800">${formatPrice(product.price)}</span>
+                            </div>
+                            <button
+                                type="button"
+                                onclick="addToCart('${safeId}')"
+                                class="inline-flex items-center gap-1.5 bg-sage-600 hover:bg-sage-700 text-cream-50 text-sm font-semibold px-4 py-2.5 rounded-xl shadow-wood-sm transition-all active:scale-95 cursor-pointer"
+                            >
+                                <span>+</span>
+                                <span>В корзину</span>
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function resetCatalogFilters() {
+            activeCategory = 'Все';
+            searchQuery = '';
+            sortMode = 'default';
+            const searchEl = document.getElementById('searchInput');
+            const sortEl = document.getElementById('sortSelect');
+            if (searchEl) searchEl.value = '';
+            if (sortEl) sortEl.value = 'default';
+            renderCategoryFilters();
+            renderProducts();
+        }
+        window.resetCatalogFilters = resetCatalogFilters;
+
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const photos = getProductPhotos(product);
+            modalPhotoIndex = cardPhotoIndexes[product.id] || 0;
+            renderModalGallery(product, photos);
+
+            document.getElementById('modalProductCategory').textContent = product.category;
+            document.getElementById('modalProductTitle').textContent = product.name;
+            document.getElementById('modalProductPrice').textContent = formatPrice(product.price);
+            document.getElementById('modalProductDescription').textContent = product.description;
+
+            const favActive = isFavorite(product.id);
+            const favBtn = document.getElementById('modalFavBtn');
+            const favLabel = document.getElementById('modalFavLabel');
+            if (favBtn) {
+                favBtn.className = favActive
+                    ? 'inline-flex items-center gap-1.5 text-xs font-semibold text-roseblush-600 px-3 py-1.5 rounded-xl bg-roseblush-100 border border-roseblush-200 cursor-pointer'
+                    : 'inline-flex items-center gap-1.5 text-xs font-semibold text-wood-700 hover:text-roseblush-600 px-3 py-1.5 rounded-xl bg-cream-100 border border-cream-300 cursor-pointer';
+                favBtn.onclick = () => {
+                    toggleFavorite(product.id);
+                    openProductModal(product.id);
+                };
+            }
+            if (favLabel) {
+                favLabel.textContent = favActive ? '♥ В избранном' : '♡ В избранное';
+            }
+
+            const addBtn = document.getElementById('modalAddToCartBtn');
+            addBtn.onclick = () => {
+                addToCart(product.id);
+                closeProductModal();
+            };
+
+            document.getElementById('productModalOverlay').classList.remove('hidden');
+        }
+        window.openProductModal = openProductModal;
+
+        function closeProductModal() {
+            document.getElementById('productModalOverlay').classList.add('hidden');
+        }
+        window.closeProductModal = closeProductModal;
+
+        function getCartItemCount() {
+            return cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
+        }
+
+        function getCartTotal() {
+            return cart.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.qty) || 1), 0);
+        }
+
+        function updateCartBadge() {
+            const count = getCartItemCount();
+            const badge = document.getElementById('cartCountBadge');
+            if (badge) {
+                badge.textContent = count;
+                badge.classList.toggle('hidden', count === 0);
+            }
+        }
+
+        function addToCart(productId, quantity = 1) {
+            try {
+                const product = products.find(p => p.id === productId);
+                if (!product) {
+                    showToast('Товар не найден', 'error');
+                    return;
+                }
+                const qtyToAdd = Math.max(1, Number(quantity) || 1);
+                const existing = cart.find(item => item.id === product.id);
+                if (existing) {
+                    existing.qty = (Number(existing.qty) || 1) + qtyToAdd;
+                } else {
+                    const photos = getProductPhotos(product);
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: Number(product.price) || 0,
+                        category: product.category || 'Ручная работа',
+                        photo: photos[0] || '',
+                        qty: qtyToAdd
+                    });
+                }
+                savePersistedState();
+                updateCartBadge();
+                renderCartDrawer();
+                showToast(`Добавлено в корзину: ${product.name}`, 'success');
+            } catch (err) {
+                console.error('addToCart error:', err);
+                showToast('Не удалось добавить товар в корзину', 'error');
+            }
+        }
+        window.addToCart = addToCart;
+
+        function changeCartQty(productId, delta) {
+            const idx = cart.findIndex(item => item.id === productId);
+            if (idx === -1) return;
+            const nextQty = (Number(cart[idx].qty) || 1) + delta;
+            if (nextQty <= 0) {
+                cart.splice(idx, 1);
+            } else {
+                cart[idx].qty = nextQty;
+            }
+            savePersistedState();
+            updateCartBadge();
+            renderCartDrawer();
+        }
+        window.changeCartQty = changeCartQty;
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            savePersistedState();
+            updateCartBadge();
+            renderCartDrawer();
+        }
+        window.removeFromCart = removeFromCart;
+
+        function clearCartConfirm() {
+            if (cart.length === 0) return;
+            cart = [];
+            savePersistedState();
+            updateCartBadge();
+            renderCartDrawer();
+            showToast('Корзина очищена', 'info');
+        }
+        window.clearCartConfirm = clearCartConfirm;
+
+        function openCartDrawer() {
+            renderCartDrawer();
+            document.getElementById('cartDrawerOverlay').classList.remove('hidden');
+        }
+        window.openCartDrawer = openCartDrawer;
+
+        function closeCartDrawer() {
+            document.getElementById('cartDrawerOverlay').classList.add('hidden');
+        }
+        window.closeCartDrawer = closeCartDrawer;
+
+        function applyCheckoutDraftToForm() {
+            const nameEl = document.getElementById('customerName');
+            const phoneEl = document.getElementById('customerPhone');
+            const delivEl = document.getElementById('deliveryMethod');
+            const payEl = document.getElementById('paymentMethod');
+            const commEl = document.getElementById('orderComment');
+
+            if (nameEl) nameEl.value = checkoutDraft.name || profile.name || '';
+            if (phoneEl) phoneEl.value = checkoutDraft.phone || profile.contact || '';
+            if (delivEl && checkoutDraft.delivery) delivEl.value = checkoutDraft.delivery;
+            if (payEl && checkoutDraft.payment) payEl.value = checkoutDraft.payment;
+            if (commEl) commEl.value = checkoutDraft.comment || (profile.address ? `Адрес: ${profile.address}` : '');
+            handlePaymentMethodChange();
+        }
+
+        function saveCheckoutDraft() {
+            checkoutDraft = {
+                name: document.getElementById('customerName')?.value || '',
+                phone: document.getElementById('customerPhone')?.value || '',
+                delivery: document.getElementById('deliveryMethod')?.value || 'СДЭК / Почта России',
+                payment: document.getElementById('paymentMethod')?.value || 'Перевод по СБП',
+                comment: document.getElementById('orderComment')?.value || ''
+            };
+            savePersistedState();
+        }
+        window.saveCheckoutDraft = saveCheckoutDraft;
+
+        function findRequisiteFromContacts(keywords) {
+            const found = contacts.find(c => {
+                const t = c.type.toLowerCase();
+                return keywords.some(kw => t.includes(kw));
+            });
+            return found ? found.value : '';
+        }
+
+        function handlePaymentMethodChange() {
+            const method = document.getElementById('paymentMethod')?.value || 'Перевод по СБП';
+            const boxText = document.getElementById('paymentDetailsText');
+            if (!boxText) return;
+
+            const sbpRequisite = findRequisiteFromContacts(['сбп', 'sbp', 'оплата']);
+            const cardRequisite = findRequisiteFromContacts(['карта', 'card', 'реквизит']);
+
+            if (method.includes('СБП')) {
+                boxText.textContent = sbpRequisite
+                    ? `Перевод по СБП на реквизиты: ${sbpRequisite}. После отправки заявки мастер свяжется с вами для подтверждения.`
+                    : 'Перевод по СБП: мастер отправит актуальные реквизиты после подтверждения заказа';
+            } else if (method.includes('карту')) {
+                boxText.textContent = cardRequisite
+                    ? `Перевод на карту: ${cardRequisite}. Сообщите об оплате в комментарии или при переписке с мастером.`
+                    : 'Перевод на карту: реквизиты предоставляются после оформления заявки';
+            } else {
+                boxText.textContent = 'Оплата согласуется с мастером при подтверждении заказа или при получении посылки.';
+            }
+        }
+        window.handlePaymentMethodChange = handlePaymentMethodChange;
+
+        function renderCartDrawer() {
+            const listEl = document.getElementById('cartItemsList');
+            const formEl = document.getElementById('checkoutForm');
+            const footerEl = document.getElementById('cartFooterBar');
+            const totalEl = document.getElementById('cartTotalPrice');
+            const checkoutTotalEl = document.getElementById('checkoutTotalLabel');
+
+            const total = getCartTotal();
+            if (totalEl) totalEl.textContent = formatPrice(total);
+            if (checkoutTotalEl) checkoutTotalEl.textContent = formatPrice(total);
+
+            if (!listEl) return;
+
+            if (cart.length === 0) {
+                listEl.innerHTML = `
+                    <div class="rounded-2xl bg-cream-100 border border-cream-300 p-8 text-center">
+                        <p class="font-serif text-lg font-bold text-wood-800 mb-1">Корзина пока пуста</p>
+                        <p class="text-xs text-wood-500">Выберите понравившееся изделие в каталоге — оно сохранится здесь даже при обновлении страницы.</p>
+                    </div>
+                `;
+                if (formEl) formEl.classList.add('hidden');
+                if (footerEl) footerEl.classList.add('hidden');
+                return;
+            }
+
+            if (footerEl) footerEl.classList.remove('hidden');
+            if (formEl) formEl.classList.remove('hidden');
+
+            listEl.innerHTML = cart.map(item => {
+                const safeId = escapeHtml(item.id);
+                const lineSum = (Number(item.price) || 0) * (Number(item.qty) || 1);
+                return `
+                    <div class="rounded-2xl bg-cream-100/90 border border-cream-300 p-3.5 flex items-center gap-3">
+                        <div class="w-16 h-16 rounded-xl overflow-hidden bg-cream-200 shrink-0">
+                            ${buildProductImageHtml(item.photo, item.name, 'w-full h-full object-cover')}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="font-serif font-bold text-sm text-wood-800 truncate">${escapeHtml(item.name)}</h5>
+                            <div class="text-xs text-wood-500 mt-0.5">${formatPrice(item.price)} × ${item.qty} = <span class="font-semibold text-wood-800">${formatPrice(lineSum)}</span></div>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button type="button" onclick="changeCartQty('${safeId}', -1)" class="w-7 h-7 rounded-lg bg-cream-50 hover:bg-cream-200 border border-cream-300 text-xs font-bold cursor-pointer">−</button>
+                                <span class="text-xs font-semibold px-1">${item.qty}</span>
+                                <button type="button" onclick="changeCartQty('${safeId}', 1)" class="w-7 h-7 rounded-lg bg-cream-50 hover:bg-cream-200 border border-cream-300 text-xs font-bold cursor-pointer">+</button>
+                                <button type="button" onclick="removeFromCart('${safeId}')" class="ml-auto text-xs text-wood-400 hover:text-roseblush-600 cursor-pointer">Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDirectMessengerButtons() {
+            const wrap = document.getElementById('directMessengerLinks');
+            if (!wrap) return;
+
+            const linksHtml = [];
+            contacts.forEach(c => {
+                const val = c.value.trim();
+                const typeLower = c.type.trim().toLowerCase();
+                const isMapOrAddress =
+                    typeLower.includes('адрес') ||
+                    typeLower.includes('карт') ||
+                    val.includes('yandex.ru/maps') ||
+                    val.includes('maps.google') ||
+                    val.includes('2gis.ru');
+
+                if (!isMapOrAddress && (val.startsWith('http://') || val.startsWith('https://'))) {
+                    linksHtml.push(`<a href="${escapeHtml(val)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-sage-600 hover:bg-sage-700 text-cream-50 text-xs font-semibold">Написать в ${escapeHtml(c.type)}</a>`);
+                }
+            });
+            wrap.innerHTML = linksHtml.join('');
+        }
+
+        async function submitOrderForm(event) {
+            event.preventDefault();
+            if (cart.length === 0) {
+                showToast('Добавьте товары в корзину перед оформлением', 'error');
+                return;
+            }
+
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const delivery = document.getElementById('deliveryMethod').value;
+            const payment = document.getElementById('paymentMethod').value;
+            const comment = document.getElementById('orderComment').value.trim();
+            const total = getCartTotal();
+            const itemsSummary = cart.map(i => `${i.name} (${i.qty} шт. — ${formatPrice(i.price * i.qty)})`).join('; ');
+
+            const btn = document.getElementById('submitOrderBtn');
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.textContent = 'Отправляем заказ...';
+
+            const payload = {
+                type: 'order',
+                name,
+                phone,
+                delivery,
+                payment,
+                items: itemsSummary,
+                total,
+                comment
+            };
+
+            try {
+                await fetch(ORDER_WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.warn('Ошибка отправки заказа в таблицу:', err);
+            }
+
+            const orderRecord = {
+                id: `ORD-${Date.now().toString().slice(-6)}`,
+                date: new Date().toLocaleString('ru-RU'),
+                name,
+                phone,
+                delivery,
+                payment,
+                items: itemsSummary,
+                total,
+                comment,
+                status: 'Отправлен в мастерскую'
+            };
+            ordersHistory.unshift(orderRecord);
+
+            if (!profile.name) profile.name = name;
+            if (!profile.contact) profile.contact = phone;
+
+            lastOrderSummaryText = [
+                `Заказ ${orderRecord.id} — Мастерская «Дари счастье»`,
+                `Имя: ${name}`,
+                `Контакт: ${phone}`,
+                `Доставка: ${delivery}`,
+                `Оплата: ${payment}`,
+                `Состав: ${itemsSummary}`,
+                `Итого: ${formatPrice(total)}`,
+                comment ? `Комментарий: ${comment}` : ''
+            ].filter(Boolean).join('\n');
+
+            cart = [];
+            checkoutDraft.comment = '';
+            savePersistedState();
+            updateCartBadge();
+            renderCartDrawer();
+
+            const successBox = document.getElementById('orderSuccessBox');
+            const summaryPre = document.getElementById('orderSummaryText');
+            if (successBox && summaryPre) {
+                summaryPre.textContent = lastOrderSummaryText;
+                renderDirectMessengerButtons();
+                successBox.classList.remove('hidden');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = origText;
+            showToast('Заказ отправлен в таблицу и сохранён в кабинете!', 'success');
+        }
+        window.submitOrderForm = submitOrderForm;
+
+        function copyOrderSummary() {
+            if (!lastOrderSummaryText) return;
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = lastOrderSummaryText;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('Текст заказа скопирован', 'success');
+            } catch (_) {
+                showToast('Скопируйте текст из поля ниже', 'info');
+            }
+        }
+        window.copyOrderSummary = copyOrderSummary;
+
+        function isFavorite(productId) {
+            return favorites.includes(productId);
+        }
+
+        function updateFavoriteBadge() {
+            const badge = document.getElementById('favCountBadge');
+            if (!badge) return;
+            badge.textContent = favorites.length;
+            badge.classList.toggle('hidden', favorites.length === 0);
+        }
+
+        function toggleFavorite(productId) {
+            const idx = favorites.indexOf(productId);
+            if (idx === -1) {
+                favorites.push(productId);
+                showToast('Добавлено в избранное', 'success');
+            } else {
+                favorites.splice(idx, 1);
+                showToast('Удалено из избранного', 'info');
+            }
+            savePersistedState();
+            updateFavoriteBadge();
+            renderProducts();
+            renderAccountFavorites();
+        }
+        window.toggleFavorite = toggleFavorite;
+
+        function openAccountModal(tab = 'profile') {
+            document.getElementById('profileNameInput').value = profile.name || '';
+            document.getElementById('profileContactInput').value = profile.contact || '';
+            document.getElementById('profileAddressInput').value = profile.address || '';
+            renderAccountFavorites();
+            renderAccountOrders();
+            switchAccountTab(tab);
+            document.getElementById('accountModalOverlay').classList.remove('hidden');
+        }
+        window.openAccountModal = openAccountModal;
+
+        function closeAccountModal() {
+            document.getElementById('accountModalOverlay').classList.add('hidden');
+        }
+        window.closeAccountModal = closeAccountModal;
+
+        function switchAccountTab(tab) {
+            const tabs = ['profile', 'favorites', 'orders'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`accTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const panel = document.getElementById(`accPanel${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const active = t === tab;
+                if (btn) {
+                    btn.className = `px-4 py-2 rounded-t-xl text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
+                        active ? 'border-sage-600 text-sage-700 bg-cream-100/70' : 'border-transparent text-wood-500 hover:text-wood-800'
+                    }`;
+                }
+                if (panel) {
+                    panel.classList.toggle('hidden', !active);
+                }
+            });
+        }
+        window.switchAccountTab = switchAccountTab;
+
+        function saveProfileData() {
+            profile = {
+                name: document.getElementById('profileNameInput').value.trim(),
+                contact: document.getElementById('profileContactInput').value.trim(),
+                address: document.getElementById('profileAddressInput').value.trim()
+            };
+            if (!checkoutDraft.name && profile.name) checkoutDraft.name = profile.name;
+            if (!checkoutDraft.phone && profile.contact) checkoutDraft.phone = profile.contact;
+            savePersistedState();
+            applyCheckoutDraftToForm();
+            showToast('Данные профиля сохранены', 'success');
+        }
+        window.saveProfileData = saveProfileData;
+
+        function renderAccountFavorites() {
+            const panel = document.getElementById('accPanelFavorites');
+            if (!panel) return;
+
+            const favProducts = products.filter(p => favorites.includes(p.id));
+            if (favProducts.length === 0) {
+                panel.innerHTML = `<p class="text-sm text-wood-500 py-6 text-center">В избранном пока нет изделий. Нажмите сердечко на любой карточке товара.</p>`;
+                return;
+            }
+
+            panel.innerHTML = favProducts.map(p => {
+                const photos = getProductPhotos(p);
+                const safeId = escapeHtml(p.id);
+                return `
+                    <div class="rounded-2xl bg-cream-100 border border-cream-300 p-3.5 flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-xl overflow-hidden bg-cream-200 shrink-0">
+                            ${buildProductImageHtml(photos[0] || '', p.name, 'w-full h-full object-cover')}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-serif font-bold text-sm text-wood-800 truncate">${escapeHtml(p.name)}</div>
+                            <div class="text-xs font-semibold text-sage-700">${formatPrice(p.price)}</div>
+                        </div>
+                        <button type="button" onclick="addToCart('${safeId}'); closeAccountModal(); openCartDrawer();" class="px-3 py-2 rounded-xl bg-sage-600 text-cream-50 text-xs font-semibold cursor-pointer">В корзину</button>
+                        <button type="button" onclick="toggleFavorite('${safeId}')" class="px-2.5 py-2 rounded-xl bg-cream-50 border border-cream-300 text-xs text-wood-600 hover:text-roseblush-600 cursor-pointer">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAccountOrders() {
+            const panel = document.getElementById('accPanelOrders');
+            if (!panel) return;
+
+            if (ordersHistory.length === 0) {
+                panel.innerHTML = `<p class="text-sm text-wood-500 py-6 text-center">У вас пока нет оформленных заказов. После покупки они появятся здесь.</p>`;
+                return;
+            }
+
+            panel.innerHTML = ordersHistory.map(ord => `
+                <div class="rounded-2xl bg-cream-100 border border-cream-300 p-4 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-serif font-bold text-sm text-wood-900">${escapeHtml(ord.id)}</span>
+                        <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-sage-100 text-sage-700">${escapeHtml(ord.status)}</span>
+                    </div>
+                    <div class="text-xs text-wood-500">${escapeHtml(ord.date)} • ${escapeHtml(ord.delivery)} • ${escapeHtml(ord.payment)}</div>
+                    <div class="text-xs text-wood-700">${escapeHtml(ord.items)}</div>
+                    <div class="text-sm font-bold text-wood-900 pt-1">Итого: ${formatPrice(ord.total)}</div>
+                </div>
+            `).join('');
+        }
+
+        const RATING_LABELS = {
+            1: '1 / 5 — Очень плохо',
+            2: '2 / 5 — Ниже ожиданий',
+            3: '3 / 5 — Нормально',
+            4: '4 / 5 — Хорошо',
+            5: '5 / 5 — Отлично'
+        };
+
+        function setReviewRating(rating) {
+            const safeRating = Math.min(5, Math.max(1, Number(rating) || 5));
+            const hiddenInput = document.getElementById('reviewRatingValue');
+            const hintLabel = document.getElementById('ratingHintLabel');
+            if (hiddenInput) hiddenInput.value = String(safeRating);
+            if (hintLabel) hintLabel.textContent = RATING_LABELS[safeRating] || `${safeRating} / 5`;
+
+            const buttons = document.querySelectorAll('#starRatingPicker .star-btn');
+            buttons.forEach(btn => {
+                const starNum = Number(btn.getAttribute('data-star'));
+                if (starNum <= safeRating) {
+                    btn.classList.add('text-amber-500');
+                    btn.classList.remove('text-cream-300');
+                } else {
+                    btn.classList.remove('text-amber-500');
+                    btn.classList.add('text-cream-300');
+                }
+            });
+        }
+        window.setReviewRating = setReviewRating;
+
+        function renderStarsString(rating) {
+            const count = Math.min(5, Math.max(1, Math.round(Number(rating) || 5)));
+            return '★'.repeat(count) + '☆'.repeat(5 - count);
+        }
+
+        function getReviewSourceBadgeClass(source) {
+            const s = String(source || 'Сайт').toLowerCase();
+            if (s.includes('vk') || s.includes('вк') || s.includes('вконтакте')) {
+                return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+            }
+            if (s.includes('яндекс') || s.includes('yandex') || s.includes('карт')) {
+                return 'bg-amber-100 text-amber-800 border-amber-200';
+            }
+            if (s.includes('авито') || s.includes('avito')) {
+                return 'bg-sky-100 text-sky-800 border-sky-200';
+            }
+            if (s.includes('telegram') || s.includes('тг') || s.includes('tg')) {
+                return 'bg-lavender-100 text-lavender-600 border-lavender-200';
+            }
+            return 'bg-sage-100 text-sage-700 border-sage-200';
+        }
+
+        function selectReviewSource(sourceName) {
+            activeReviewSource = sourceName;
+            renderReviews();
+        }
+        window.selectReviewSource = selectReviewSource;
+
+        function renderReviews() {
+            const listEl = document.getElementById('reviewsList');
+            const avgStarsEl = document.getElementById('avgRatingStars');
+            const avgTextEl = document.getElementById('avgRatingText');
+            const countEl = document.getElementById('totalReviewsCount');
+
+            if (countEl) {
+                countEl.textContent = `отзывов: ${reviews.length}`;
+            }
+
+            if (reviews.length > 0) {
+                const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+                const avg = (sum / reviews.length).toFixed(1);
+                if (avgTextEl) avgTextEl.textContent = `${avg} из 5`;
+                if (avgStarsEl) avgStarsEl.textContent = renderStarsString(Math.round(Number(avg)));
+            }
+
+            if (!listEl) return;
+
+            if (reviews.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full rounded-3xl bg-cream-50 border border-cream-300 p-8 text-center text-sm text-wood-500">Пока отзывов нет — станьте первым!</div>`;
+                return;
+            }
+
+            const sources = ['Все', ...Array.from(new Set(reviews.map(r => (r.source || 'Сайт').trim() || 'Сайт')))];
+            if (!sources.includes(activeReviewSource)) {
+                activeReviewSource = 'Все';
+            }
+
+            const filteredReviews = activeReviewSource === 'Все'
+                ? reviews
+                : reviews.filter(r => ((r.source || 'Сайт').trim() || 'Сайт') === activeReviewSource);
+
+            const filterBarHtml = sources.length > 1 ? `
+                <div class="col-span-full flex items-center gap-2 overflow-x-auto pb-1">
+                    ${sources.map(src => {
+                        const isActive = src === activeReviewSource;
+                        return `
+                            <button
+                                type="button"
+                                onclick="selectReviewSource('${escapeHtml(src)}')"
+                                class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                                    isActive
+                                        ? 'bg-wood-700 text-cream-50 shadow-wood-sm'
+                                        : 'bg-cream-50 hover:bg-cream-200 text-wood-700 border border-cream-300'
+                                }"
+                            >
+                                ${escapeHtml(src)}
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            const cardsHtml = filteredReviews.map((rev, idx) => {
+                const srcLabel = (rev.source || 'Сайт').trim() || 'Сайт';
+                const badgeCls = getReviewSourceBadgeClass(srcLabel);
+                return `
+                    <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                <span class="text-amber-500 text-base tracking-wider select-none" aria-label="Оценка ${rev.rating} из 5">${renderStarsString(rev.rating)}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeCls}">${escapeHtml(srcLabel)}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cream-200 text-wood-700">${escapeHtml(rev.rating)} / 5</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-wood-700 leading-relaxed">«${escapeHtml(rev.text)}»</p>
+                        </div>
+                        <div class="pt-3 border-t border-cream-200 flex items-center justify-between text-xs text-wood-500">
+                            <span class="font-semibold text-wood-800">${escapeHtml(rev.author)}</span>
+                            <span>${escapeHtml(rev.date || '')}</span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            listEl.innerHTML = filterBarHtml + cardsHtml;
+        }
+
+        function sendReviewViaJsonpWithStatus(reviewData) {
+            return new Promise(resolve => {
+                if (!ORDER_WEBHOOK_URL) {
+                    resolve({ ok: false, reason: 'missing_webhook' });
+                    return;
+                }
+                const cbName = `revCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                const script = document.createElement('script');
+                const cleanup = () => {
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    try { delete window[cbName]; } catch (_) { window[cbName] = undefined; }
+                };
+                const timer = setTimeout(() => {
+                    cleanup();
+                    resolve({ ok: false, reason: 'timeout' });
+                }, 6000);
+
+                window[cbName] = function (resp) {
+                    clearTimeout(timer);
+                    cleanup();
+                    if (resp && resp.status === 'success') {
+                        resolve({ ok: true, resp });
+                    } else {
+                        resolve({ ok: false, reason: 'script_error', resp });
+                    }
+                };
+
+                const qs = new URLSearchParams({
+                    action: 'review',
+                    type: 'review',
+                    author: reviewData.author,
+                    name: reviewData.author,
+                    date: reviewData.date,
+                    rating: String(reviewData.rating),
+                    source: reviewData.source || 'Сайт',
+                    text: reviewData.text,
+                    callback: cbName
+                });
+                script.src = `${ORDER_WEBHOOK_URL}?${qs.toString()}`;
+                script.onerror = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    resolve({ ok: false, reason: 'network_error' });
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        async function submitReviewForm(event) {
+            event.preventDefault();
+            const authorInput = document.getElementById('reviewAuthor');
+            const ratingInput = document.getElementById('reviewRatingValue');
+            const textInput = document.getElementById('reviewText');
+            const submitBtn = document.getElementById('submitReviewBtn');
+
+            const author = authorInput.value.trim();
+            const rating = Math.min(5, Math.max(1, Number(ratingInput.value) || 5));
+            const text = textInput.value.trim();
+
+            if (!author || !text) {
+                showToast('Пожалуйста, заполните имя и текст отзыва', 'error');
+                return;
+            }
+
+            const dateStr = new Date().toLocaleDateString('ru-RU');
+            const newReview = {
+                author,
+                date: dateStr,
+                rating,
+                source: 'Сайт',
+                text
+            };
+
+            const origBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Публикуем...';
+
+            reviews = [newReview, ...reviews];
+            saveSheetCache();
+            renderReviews();
+
+            const result = await sendReviewViaJsonpWithStatus(newReview);
+
+            if (result.ok) {
+                showToast('Спасибо! Отзыв сохранён в Google Таблицу и виден всем', 'success');
+            } else if (ORDER_WEBHOOK_URL) {
+                const formBody = new URLSearchParams();
+                formBody.append('type', 'review');
+                formBody.append('author', author);
+                formBody.append('name', author);
+                formBody.append('date', dateStr);
+                formBody.append('rating', String(rating));
+                formBody.append('source', 'Сайт');
+                formBody.append('text', text);
+
+                fetch(`${ORDER_WEBHOOK_URL}?type=review`, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: formBody.toString()
+                }).catch(() => {});
+
+                showToast('Отзыв добавлен! Если не появился в таблице, проверьте развертывание Apps Script (Новая версия)', 'info');
+            }
+
+            authorInput.value = '';
+            textInput.value = '';
+            setReviewRating(5);
+            submitBtn.disabled = false;
+            submitBtn.textContent = origBtnText;
+        }
+        window.submitReviewForm = submitReviewForm;
+
+        function getContactButtonStyleAndIcon(typeLower, isUrl, isPhone) {
+            if (typeLower.includes('telegram') || typeLower.includes('тг') || typeLower.includes('tg')) {
+                return {
+                    badgeClass: 'bg-sky-500/20 text-sky-200 border-sky-400/30',
+                    icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`
+                };
+            }
+            if (typeLower.includes('vk') || typeLower.includes('вк') || typeLower.includes('вконтакте')) {
+                return {
+                    badgeClass: 'bg-indigo-500/20 text-indigo-200 border-indigo-400/30',
+                    icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.2c.3 3.4 1.8 6.5 3.8 8.7V6h3v5.1c1.8-.9 3.2-2.7 3.9-5.1H20c-.8 2.8-2.5 5.1-4.6 6.4 2.2 1.2 3.9 3.1 4.9 5.6h-3.3c-.8-1.8-2.1-3.1-3.8-3.8V18h-.5c-4.5 0-8.1-3.6-8.4-12Z"/></svg>`
+                };
+            }
+            if (isPhone || typeLower.includes('тел') || typeLower.includes('phone') || typeLower.includes('whatsapp') || typeLower.includes('ватсап')) {
+                return {
+                    badgeClass: 'bg-sage-500/20 text-sage-200 border-sage-400/30',
+                    icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
+                };
+            }
+            if (typeLower.includes('адрес') || typeLower.includes('address') || typeLower.includes('город') || typeLower.includes('локац')) {
+                return {
+                    badgeClass: 'bg-roseblush-500/20 text-roseblush-200 border-roseblush-400/30',
+                    icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`
+                };
+            }
+            return {
+                badgeClass: 'bg-cream-50/10 text-cream-100 border-cream-50/20',
+                icon: `<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`
+            };
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('footerContactsList');
+            if (!container) return;
+
+            const visibleContacts = contacts.filter(c => {
+                const t = c.type.toLowerCase();
+                return !t.includes('сбп') && !t.includes('карта') && !t.includes('реквизит');
+            });
+
+            container.className = 'flex flex-col gap-2.5 text-sm text-cream-100';
+            container.innerHTML = visibleContacts.map(c => {
+                const val = c.value.trim();
+                const typeLabel = c.type.trim();
+                const typeLower = typeLabel.toLowerCase();
+                const isUrl = val.startsWith('http://') || val.startsWith('https://');
+                const isPhone = !isUrl && /^[\d+\-\s()]{5,}$/.test(val);
+                const styleMeta = getContactButtonStyleAndIcon(typeLower, isUrl, isPhone);
+
+                const shortValue = isUrl
+                    ? val.replace(/^https?:\/\//, '').replace(/\/$/, '')
+                    : val;
+
+                const innerContent = `
+                    <span class="w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 ${styleMeta.badgeClass}">
+                        ${styleMeta.icon}
+                    </span>
+                    <span class="flex-1 min-w-0">
+                        <span class="block font-semibold text-cream-50 leading-tight">${escapeHtml(typeLabel)}</span>
+                        <span class="block text-xs text-cream-200/75 truncate">${escapeHtml(shortValue)}</span>
+                    </span>
+                    ${isUrl ? '<span class="text-xs text-cream-200/70 shrink-0">↗</span>' : ''}
+                `;
+
+                if (isUrl) {
+                    return `<a href="${escapeHtml(val)}" target="_blank" rel="noopener" class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/80 hover:bg-wood-800 border border-wood-700/80 transition-all flex items-center gap-3 text-left">${innerContent}</a>`;
+                }
+                if (isPhone) {
+                    const cleanTel = val.replace(/[^\d+]/g, '');
+                    return `<a href="tel:${escapeHtml(cleanTel)}" class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/80 hover:bg-wood-800 border border-wood-700/80 transition-all flex items-center gap-3 text-left">${innerContent}</a>`;
+                }
+                return `<div class="w-full px-3.5 py-2.5 rounded-2xl bg-wood-800/60 border border-wood-700/60 flex items-center gap-3 text-left">${innerContent}</div>`;
+            }).join('');
+        }
+
+        function forceScrollTop() {
+            if (window.location.hash === '#reviews') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
+
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        forceScrollTop();
+        window.addEventListener('pageshow', forceScrollTop);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const yearEl = document.getElementById('currentYear');
+            if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+            loadPersistedState();
+            loadSheetCache();
+
+            updateCartBadge();
+            updateFavoriteBadge();
+            applyCheckoutDraftToForm();
+            setReviewRating(5);
+
+            renderCategoryFilters();
+            renderProducts();
+            renderReviews();
+            renderContacts();
+            renderCartDrawer();
+
+            safeCreateIcons();
+            syncFromSheet(false);
+            forceScrollTop();
+        });
+    </script>
+</body>
+</html>
+```[cite: 5]
