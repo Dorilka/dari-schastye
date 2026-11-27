@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мастерская «Дари счастье» — Макраме, декор и подарки ручной работы</title>
 
-    <!-- Шрифты: Playfair Display (изящный заголовочный), Caveat (теплая каллиграфия), Inter (читаемый текст) -->
+    <!-- Шрифты: Playfair Display, Caveat, Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -69,7 +69,7 @@
         };
     </script>
 
-    <!-- Lucide Icons (с безопасным фоллбэком при блокировке CDN) -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <style>
@@ -633,7 +633,7 @@
                         <input type="checkbox" required checked class="mt-0.5 rounded border-cream-300 text-sage-600 focus:ring-sage-400">
                         <span>
                             Даю согласие на обработку персональных данных согласно
-                            <button type="button" onclick="openPrivacyModal()" class="underline text-sage-700 hover:text-wood-900 font-medium cursor-pointer">Политике защиты данных</button>.
+                            <button type="button" onclick="openPrivacyModal()" class="underline text-sage-700 hover:text-wood-900 font-medium cursor-pointer">Политикой защиты данных</button>.
                         </span>
                     </label>
 
@@ -720,16 +720,7 @@
 
     <script>
         const SHEET_ID = '1_FJbgq_Daepd5v4-voxwTwD0RNWdyndMdRuX5vft7lE';
-        const RAW_WEBHOOK_INPUT = 'AKfycbwhZkLAUik8-Clh0mmtRJUbfRsoqobm56LaEL9Xp_ZGX66shl9FAoMY42Z646UUR-dm';
-
-        function resolveWebhookUrl(raw) {
-            const val = String(raw || '').trim();
-            if (!val) return '';
-            if (val.startsWith('http://') || val.startsWith('https://')) return val;
-            return `https://script.google.com/macros/s/${val}/exec`;
-        }
-
-        const ORDER_WEBHOOK_URL = resolveWebhookUrl(RAW_WEBHOOK_INPUT);
+        const ORDER_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwhZkLAUik8-Clh0mmtRJUbfRsoqobm56LaEL9Xp_ZGX66shl9FAoMY42Z646UUR-dm/exec';
 
         const STORAGE_KEYS = {
             state: 'dari_schastye_state_v2',
@@ -789,7 +780,7 @@
 
         const DEFAULT_CONTACTS = [
             { type: 'Telegram', value: 'https://t.me/dari_schastye_shop' },
-            { type: 'VK', value: 'https://vk.com/dari_schastye_shop' },
+            { type: 'VK', value: 'https://vk.com/club238195816' },
             { type: 'Телефон', value: '+7 (900) 000-00-00' }
         ];
 
@@ -812,16 +803,11 @@
         const cardPhotoIndexes = {};
         let modalPhotoIndex = 0;
 
-        // Настройки автоперелистывания фото в карточках товаров:
-        // AUTO_SLIDE_ENABLED — включить/выключить автоперелистывание
-        // AUTO_SLIDE_INTERVAL_MS — интервал смены фото в миллисекундах (например, 1600 = 1.6 сек)
-        // AUTO_SLIDE_ONLY_ON_HOVER — true: листать только при наведении мыши на карточку; false: листать автоматически всегда
         const AUTO_SLIDE_ENABLED = true;
-        const AUTO_SLIDE_INTERVAL_MS = 1600;
         const AUTO_SLIDE_ONLY_ON_HOVER = true;
-
-        let hoverSlideTimer = null;
+        const AUTO_SLIDE_INTERVAL_MS = 1800;
         let hoveredProductId = null;
+        let hoverSlideTimer = null;
 
         function stopCardAutoSlide() {
             hoveredProductId = null;
@@ -844,17 +830,66 @@
             stopCardAutoSlide();
             hoveredProductId = productId;
 
+            photos.forEach(url => {
+                const resolved = resolveImageUrls(url);
+                if (resolved.primary) {
+                    const pre = new Image();
+                    pre.referrerPolicy = 'no-referrer';
+                    pre.src = resolved.primary;
+                }
+            });
+
             hoverSlideTimer = setInterval(() => {
                 if (hoveredProductId !== productId) {
                     stopCardAutoSlide();
                     return;
                 }
                 const current = cardPhotoIndexes[productId] || 0;
-                cardPhotoIndexes[productId] = (current + 1) % photos.length;
-                renderProducts();
+                const nextIdx = (current + 1) % photos.length;
+                cardPhotoIndexes[productId] = nextIdx;
+                updateSingleCardPhoto(productId, nextIdx);
             }, AUTO_SLIDE_INTERVAL_MS);
         }
         window.startCardAutoSlide = startCardAutoSlide;
+
+        function updateSingleCardPhoto(productId, activeIdx) {
+            const product = products.find(p => p.id === productId);
+            const photos = getProductPhotos(product);
+            if (!product || photos.length === 0) return;
+
+            const safeIdx = ((activeIdx % photos.length) + photos.length) % photos.length;
+            cardPhotoIndexes[productId] = safeIdx;
+
+            const cardEl = document.querySelector(`[data-product-card="${CSS.escape(productId)}"]`);
+            if (!cardEl) {
+                renderProducts();
+                return;
+            }
+
+            const imgSlot = cardEl.querySelector('[data-card-img-slot]');
+            if (imgSlot) {
+                const urls = resolveImageUrls(photos[safeIdx]);
+                const existingImg = imgSlot.querySelector('img');
+                if (existingImg && urls.primary) {
+                    existingImg.setAttribute('data-backup', urls.backup || '');
+                    existingImg.removeAttribute('data-tried-backup');
+                    existingImg.src = urls.primary;
+                } else {
+                    imgSlot.innerHTML = buildProductImageHtml(photos[safeIdx], product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500');
+                }
+            }
+
+            const dots = cardEl.querySelectorAll('[data-card-dot]');
+            dots.forEach((dot, idx) => {
+                if (idx === safeIdx) {
+                    dot.classList.add('bg-cream-50', 'scale-125');
+                    dot.classList.remove('bg-cream-50/50');
+                } else {
+                    dot.classList.remove('bg-cream-50', 'scale-125');
+                    dot.classList.add('bg-cream-50/50');
+                }
+            });
+        }
 
         function openPrivacyModal() {
             const modal = document.getElementById('privacyModalOverlay');
@@ -1020,22 +1055,11 @@
             const str = String(rawValue).trim();
             if (!str) return [];
 
-            // Сначала разбиваем по переносам строк, точке с запятой или пробелам перед http
-            const chunks = str
-                .split(/[\n;]+|(?=\s+https?:\/\/)/)
+            // Разделяем по переносам строк, точке с запятой или запятым, которые НЕ находятся внутри параметров URL (например, as=32x43,48x64...)
+            return str
+                .split(/\r?\n|;|,(?=\s*(?:https?:\/\/|\/))/i)
                 .map(s => s.trim())
                 .filter(Boolean);
-
-            const result = [];
-            for (const chunk of chunks) {
-                // Если это не URL с параметрами (например, нет &as=32x43,48x64), можно разбить по запятой
-                if (!chunk.includes('://')) {
-                    chunk.split(',').map(s => s.trim()).filter(Boolean).forEach(item => result.push(item));
-                } else {
-                    result.push(chunk);
-                }
-            }
-            return result;
         }
 
         function getProductPhotos(product) {
@@ -1072,19 +1096,6 @@
                 };
             }
 
-            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, pp.userapi.com и др.)
-            return { primary: trimmed, backup: '' };
-        }
-
-        function buildProductImageHtml(rawUrl, altText, extraClasses) {
-            const urls = resolveImageUrls(rawUrl);
-            if (!urls.primary) {
-                return getPlaceholderSvg();
-            }
-            const safePrimary = escapeHtml(urls.primary);
-            const safeBackup = escapeHtml(urls.backup || '');
-            const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
-            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, vkuserphoto.ru и др.)
             return { primary: trimmed, backup: '' };
         }
 
@@ -1124,15 +1135,14 @@
             const photos = getProductPhotos(product);
             if (photos.length <= 1) return;
             const current = cardPhotoIndexes[productId] || 0;
-            cardPhotoIndexes[productId] = (current + delta + photos.length) % photos.length;
-            renderProducts();
+            const nextIdx = (current + delta + photos.length) % photos.length;
+            updateSingleCardPhoto(productId, nextIdx);
         }
         window.cycleCardPhoto = cycleCardPhoto;
 
         function selectCardPhoto(productId, index, event) {
             if (event) event.stopPropagation();
-            cardPhotoIndexes[productId] = index;
-            renderProducts();
+            updateSingleCardPhoto(productId, index);
         }
         window.selectCardPhoto = selectCardPhoto;
 
@@ -1167,7 +1177,7 @@
                         const thumbSrc = escapeHtml(resolved.primary || url);
                         const isActive = idx === activeIdx;
                         return `<button type="button" onclick="setModalPhoto('${safeId}', ${idx})" class="w-12 h-12 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-sage-600 scale-105 shadow' : 'border-cream-50/80 opacity-75 hover:opacity-100'}">
-                            <img src="${thumbSrc}" alt="Фото ${idx + 1}" class="w-full h-full object-cover">
+                            <img src="${thumbSrc}" referrerpolicy="no-referrer" alt="Фото ${idx + 1}" class="w-full h-full object-cover">
                         </button>`;
                     }).join('')}
                 </div>
@@ -1476,16 +1486,18 @@
                     </div>
                     <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-wood-900/50 backdrop-blur-xs px-2.5 py-1 rounded-full">
                         ${photos.map((_, dotIdx) => `
-                            <button type="button" onclick="selectCardPhoto('${safeId}', ${dotIdx}, event)" aria-label="Фото ${dotIdx + 1}" class="w-2 h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'}"></button>
+                            <button type="button" data-card-dot="${dotIdx}" onclick="selectCardPhoto('${safeId}', ${dotIdx}, event)" aria-label="Фото ${dotIdx + 1}" class="w-2 h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'}"></button>
                         `).join('')}
                     </div>
                 ` : '';
 
                 return `
-                    <article style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                    <article data-product-card="${safeId}" style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
                         <div>
                             <div onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
-                                ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
+                                <div data-card-img-slot class="w-full h-full">
+                                    ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
+                                </div>
                                 <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-cream-50/90 backdrop-blur-xs text-wood-700 text-xs font-semibold border border-cream-300/80">
                                     ${escapeHtml(product.category)}
                                 </span>
@@ -2181,10 +2193,6 @@
 
         function sendReviewViaJsonpWithStatus(reviewData) {
             return new Promise(resolve => {
-                if (!ORDER_WEBHOOK_URL) {
-                    resolve({ ok: false, reason: 'missing_webhook' });
-                    return;
-                }
                 const cbName = `revCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
                 const script = document.createElement('script');
                 const cleanup = () => {
@@ -2264,7 +2272,7 @@
 
             if (result.ok) {
                 showToast('Спасибо! Отзыв сохранён в Google Таблицу и виден всем', 'success');
-            } else if (ORDER_WEBHOOK_URL) {
+            } else {
                 const formBody = new URLSearchParams();
                 formBody.append('type', 'review');
                 formBody.append('author', author);
@@ -2281,7 +2289,7 @@
                     body: formBody.toString()
                 }).catch(() => {});
 
-                showToast('Отзыв добавлен! Если не появился в таблице, проверьте развертывание Apps Script (Новая версия)', 'info');
+                showToast('Отзыв добавлен! Проверьте в Apps Script: Управление развертываниями → Новая версия', 'info');
             }
 
             authorInput.value = '';
