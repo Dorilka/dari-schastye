@@ -1257,18 +1257,7 @@
                     const description = getField(r, ['описание', 'description', 'desc']) || 'Уникальное изделие ручной работы от мастерской «Дари счастье».';
                     const rawPhoto = getField(r, ['фото', 'photo', 'фотографии', 'photos', 'картинка', 'image', 'изображение', 'ссылка']);
                     const photos = parsePhotoList(rawPhoto);
-                    return { const rawPrice = getField(r, ['цена', 'price', 'стоимость', 'cost']);
-const numericPrice = parsePrice(rawPrice);
-
-// Если в ячейке написано "от 650" или "100-1000", сохраняем текст отдельно
-const hasRangeOrFrom = /от\s*\d|\d+\s*[-–—]\s*\d+/i.test(rawPrice);
-let priceLabel = formatPrice(numericPrice);
-
-if (rawPrice && hasRangeOrFrom) {
-    // Приводим тире к аккуратному виду и добавляем ₽, если его нет
-    const cleanText = rawPrice.replace(/\s*[-–—]\s*/g, '–').trim();
-    priceLabel = cleanText.includes('₽') ? cleanText : `${cleanText} ₽`;
-}
+                    return {
                         id: `sheet-prod-${idx}-${name.slice(0, 12)}`,
                         name,
                         price,
