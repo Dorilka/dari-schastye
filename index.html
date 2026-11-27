@@ -818,7 +818,7 @@
         // AUTO_SLIDE_INTERVAL_MS — интервал смены фото в миллисекундах (например, 1600 = 1.6 сек)
         // AUTO_SLIDE_ONLY_ON_HOVER — true: листать только при наведении мыши на карточку; false: листать автоматически всегда
         const AUTO_SLIDE_ENABLED = true;
-        const AUTO_SLIDE_INTERVAL_MS = 1600;
+        const AUTO_SLIDE_INTERVAL_MS = 2500;
         const AUTO_SLIDE_ONLY_ON_HOVER = true;
 
         let hoverSlideTimer = null;
@@ -2158,7 +2158,7 @@
                 const srcLabel = (rev.source || 'Сайт').trim() || 'Сайт';
                 const badgeCls = getReviewSourceBadgeClass(srcLabel);
                 return `
-                    <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
+                 <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
                         <div>
                             <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
                                 <span class="text-amber-500 text-base tracking-wider select-none" aria-label="Оценка ${rev.rating} из 5">${renderStarsString(rev.rating)}</span>
