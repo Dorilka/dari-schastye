@@ -73,7 +73,7 @@
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <style>
-     body {
+        body {
             background-color: #F6F0E4;
             background-image:
                 radial-gradient(circle at 15% 15%, rgba(141, 168, 145, 0.12) 0%, transparent 45%),
@@ -833,6 +833,40 @@
         }
         window.stopCardAutoSlide = stopCardAutoSlide;
 
+        function updateSingleCardPhoto(productId) {
+            const product = products.find(p => p.id === productId);
+            const photos = getProductPhotos(product);
+            if (!product || photos.length === 0) return;
+
+            const activeIdx = (cardPhotoIndexes[productId] || 0) % photos.length;
+            const article = document.querySelector(`article[data-product-id="${CSS.escape(String(productId))}"]`);
+            const photoBox = article ? article.querySelector('[data-card-photo-box]') : null;
+            if (!photoBox) {
+                renderProducts();
+                return;
+            }
+
+            const img = photoBox.querySelector('img');
+            if (img) {
+                const resolved = resolveImageUrls(photos[activeIdx]);
+                img.setAttribute('data-tried-backup', '0');
+                img.setAttribute('data-backup', resolved.backup || '');
+                img.src = resolved.primary || photos[activeIdx];
+                img.alt = product.name || 'Изделие мастерской «Дари счастье»';
+            } else {
+                renderProducts();
+                return;
+            }
+
+            const dots = photoBox.querySelectorAll('button[aria-label^="Фото "]');
+            dots.forEach((dot, idx) => {
+                dot.className = `w-2 h-2 rounded-full transition-all cursor-pointer ${
+                    idx === activeIdx ? 'bg-cream-50 scale-125' : 'bg-cream-50/50 hover:bg-cream-50/80'
+                }`;
+            });
+        }
+        window.updateSingleCardPhoto = updateSingleCardPhoto;
+
         function startCardAutoSlide(productId, event) {
             if (!AUTO_SLIDE_ENABLED || !AUTO_SLIDE_ONLY_ON_HOVER) return;
             if (event && event.relatedTarget && event.currentTarget && event.currentTarget.contains(event.relatedTarget)) {
@@ -852,7 +886,7 @@
                 }
                 const current = cardPhotoIndexes[productId] || 0;
                 cardPhotoIndexes[productId] = (current + 1) % photos.length;
-                renderProducts();
+                updateSingleCardPhoto(productId);
             }, AUTO_SLIDE_INTERVAL_MS);
         }
         window.startCardAutoSlide = startCardAutoSlide;
@@ -1021,7 +1055,6 @@
             const str = String(rawValue).trim();
             if (!str) return [];
 
-            // Сначала разбиваем по переносам строк, точке с запятой или пробелам перед http
             const chunks = str
                 .split(/[\n;]+|(?=\s+https?:\/\/)/)
                 .map(s => s.trim())
@@ -1029,7 +1062,6 @@
 
             const result = [];
             for (const chunk of chunks) {
-                // Если это не URL с параметрами (например, нет &as=32x43,48x64), можно разбить по запятой
                 if (!chunk.includes('://')) {
                     chunk.split(',').map(s => s.trim()).filter(Boolean).forEach(item => result.push(item));
                 } else {
@@ -1073,19 +1105,6 @@
                 };
             }
 
-            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, pp.userapi.com и др.)
-            return { primary: trimmed, backup: '' };
-        }
-
-        function buildProductImageHtml(rawUrl, altText, extraClasses) {
-            const urls = resolveImageUrls(rawUrl);
-            if (!urls.primary) {
-                return getPlaceholderSvg();
-            }
-            const safePrimary = escapeHtml(urls.primary);
-            const safeBackup = escapeHtml(urls.backup || '');
-            const safeAlt = escapeHtml(altText || 'Изделие мастерской «Дари счастье»');
-            // Поддержка ссылок на картинки ВКонтакте (sun*.userapi.com, vkuserphoto.ru и др.)
             return { primary: trimmed, backup: '' };
         }
 
@@ -1126,14 +1145,14 @@
             if (photos.length <= 1) return;
             const current = cardPhotoIndexes[productId] || 0;
             cardPhotoIndexes[productId] = (current + delta + photos.length) % photos.length;
-            renderProducts();
+            updateSingleCardPhoto(productId);
         }
         window.cycleCardPhoto = cycleCardPhoto;
 
         function selectCardPhoto(productId, index, event) {
             if (event) event.stopPropagation();
             cardPhotoIndexes[productId] = index;
-            renderProducts();
+            updateSingleCardPhoto(productId);
         }
         window.selectCardPhoto = selectCardPhoto;
 
@@ -1483,9 +1502,9 @@
                 ` : '';
 
                 return `
-                    <article style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                    <article data-product-id="${safeId}" style="animation-delay: ${Math.min(idx * 50, 300)}ms" onmouseenter="startCardAutoSlide('${safeId}', event)" onmouseleave="stopCardAutoSlide()" class="fade-in-up group rounded-3xl bg-cream-50 border border-cream-300 shadow-wood-sm hover:shadow-wood-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
                         <div>
-                            <div onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
+                            <div data-card-photo-box onclick="openProductModal('${safeId}')" class="relative h-56 sm:h-60 bg-cream-200 overflow-hidden cursor-pointer">
                                 ${buildProductImageHtml(currentPhoto, product.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500')}
                                 <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-cream-50/90 backdrop-blur-xs text-wood-700 text-xs font-semibold border border-cream-300/80">
                                     ${escapeHtml(product.category)}
@@ -2158,7 +2177,7 @@
                 const srcLabel = (rev.source || 'Сайт').trim() || 'Сайт';
                 const badgeCls = getReviewSourceBadgeClass(srcLabel);
                 return `
-                 <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
+                    <article style="animation-delay: ${Math.min(idx * 45, 280)}ms" class="fade-in-up rounded-3xl bg-cream-50 border border-cream-300 p-5 shadow-wood-sm flex flex-col justify-between gap-3">
                         <div>
                             <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
                                 <span class="text-amber-500 text-base tracking-wider select-none" aria-label="Оценка ${rev.rating} из 5">${renderStarsString(rev.rating)}</span>
@@ -2368,6 +2387,19 @@
             }).join('');
         }
 
+        function forceScrollTop() {
+            if (window.location.hash === '#reviews') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
+
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        forceScrollTop();
+        window.addEventListener('pageshow', forceScrollTop);
+
         document.addEventListener('DOMContentLoaded', () => {
             const yearEl = document.getElementById('currentYear');
             if (yearEl) yearEl.textContent = String(new Date().getFullYear());
@@ -2388,8 +2420,9 @@
 
             safeCreateIcons();
             syncFromSheet(false);
-            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            forceScrollTop();
         });
     </script>
 </body>
 </html>
+```[cite: 5]
